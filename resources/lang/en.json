@@ -77,5 +77,9 @@
     "password": "Password",
     "Super Admin": "Super Admin",
     "Display Name": "Display Name",
-    "theme_setting": "Theme Setting"
+    "theme_setting": "Theme Setting",
+    "sensor": "Sensor",
+    "min_value": "Min Value",
+    "max_value": "Max Value",
+    "remarks": "Remarks"
 }
