@@ -10,7 +10,10 @@ class DeviceStatusController extends Controller
 
     public function index()
     {
-        $data = DeviceStatus::with('device')->orderBy('id','desc')->paginate(input('perPage'));
+        $data = DeviceStatus::with('device')
+            ->orderBy('id','desc')
+            ->paginate(input('perPage')
+            );
         return returnData(2000,$data);
     }
 

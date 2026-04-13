@@ -7,59 +7,35 @@ use Illuminate\Http\Request;
 
 class NotificationController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        $is_read = request()->input('is_read');
+
+        $perPage = $is_read !== null ? 2 : input('perPage');
+
+        $data = Notification::with('device')
+            ->orderBy('id', 'desc')
+            ->when($is_read !== null, function ($query) use ($is_read) {
+                $query->where('is_read', $is_read);
+            })
+            ->paginate($perPage);
+
+        return returnData(2000, $data);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function unreadCount()
     {
-        //
+        $count = Notification::where('is_read', 0)->count();
+        return returnData(2000, $count);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function markAsRead($id)
     {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Notification $notification)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Notification $notification)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Notification $notification)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Notification $notification)
-    {
-        //
+        $data = Notification::find($id);
+        if ($data) {
+            $data->is_read = 1;
+            $data->save();
+        }
+        return returnData(2000);
     }
 }
