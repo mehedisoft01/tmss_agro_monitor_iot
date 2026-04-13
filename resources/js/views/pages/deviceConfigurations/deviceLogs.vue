@@ -38,11 +38,10 @@ onUnmounted(() =>{
 
         <template v-slot:data>
             <tr v-for="(item, index) in dataList.data" :key="item.id">
-                <td class="fw-medium">{{index+1}}</td>
+                <td class="fw-medium">{{parseInt(dataList.from)+index}}</td>
                 <td>{{item?.device?.name}}</td>
                 <td>
-                    <span style="background:lightgreen;color:black;padding:5px; border-radius: 10px;" v-if="item.online===1">Online</span>
-                    <span style="background:lightsalmon;color:black;padding:5px; border-radius: 10px;" v-else>Offline</span>
+                    <span :class="item.online == 1 ? 'badge bg-success' : 'badge bg-danger'">{{ item.online == 1 ? 'Online' : 'Offline' }}</span>
                 </td>
                 <td>{{item.recorded_at}}</td>
                 <td>{{item.temperature}} °C</td>
