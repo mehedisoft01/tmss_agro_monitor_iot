@@ -31,14 +31,14 @@
         </template>
 
         <template v-slot:data>
-            <tr v-for="(item, index) in dataList" :key="item.id">
+            <tr v-for="(item, index) in dataList">
                 <td class="fw-medium">{{index+1}}</td>
-                <td>{{item.display_name}}</td>
-                <td>{{item.name}}</td>
-                <td>{{item.device_id}}</td>
-                <td>{{item.product_name}}</td>
+                <td>{{item?.display_name}}</td>
+                <td>{{item?.name}}</td>
+                <td>{{item?.device_id}}</td>
+                <td>{{item?.product_name}}</td>
                 <td>
-                    <a @click="changeStatus({obj:online})" class="pointer" v-html="statusBadge(item.online)"></a>
+                    <a @click="changeStatus({obj:online})" class="pointer" v-html="statusBadge(item?.online)"></a>
                 </td>
                 <td>
                     <a @click="editData({data:item, id:item.id, modal:'fromModal'})" class="btn btn-outline-secondary action">
