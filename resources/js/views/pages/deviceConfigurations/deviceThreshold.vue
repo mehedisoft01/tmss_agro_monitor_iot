@@ -74,7 +74,7 @@
         })">
 
             <div class="mb-2">
-                <label class="col-form-label">Device Type:</label>
+                <label class="col-form-label">{{ _l('device_type') }} :</label>
                 <select class="form-control pointer" v-model="formObject.device_category_id">
                     <option value="">Select Type</option>
                     <option value="1">Warehouse</option>
@@ -82,7 +82,7 @@
                 </select>
             </div>
             <div v-if="formObject.device_category_id == '1'" class="mb-2">
-                <label class="col-form-label">Sensor:</label>
+                <label class="col-form-label">{{ _l('sensor') }} :</label>
                 <select class="form-control pointer" v-model="formObject.sensor_id">
                     <option value="">Select Sensor</option>
                     <option value="1">Temperature</option>
@@ -90,7 +90,7 @@
                 </select>
             </div>
             <div v-if="formObject.device_category_id == '2'" class="mb-2">
-                <label class="col-form-label">Sensor:</label>
+                <label class="col-form-label">{{ _l('sensor') }} :</label>
                 <select class="form-control pointer" v-model="formObject.sensor_id">
                     <option value="">Select Sensor</option>
                     <option value="5">Soil (N)</option>
@@ -106,17 +106,17 @@
             <div v-if="formObject.sensor_id">
 
                 <div class="mb-2">
-                    <label class="col-form-label">Min Value:</label>
+                    <label class="col-form-label">{{ _l('min_value') }} :</label>
                     <input type="number" v-model="formObject.min_value" class="form-control">
                 </div>
 
                 <div class="mb-2">
-                    <label class="col-form-label">Max Value:</label>
+                    <label class="col-form-label">{{ _l('max_value') }} :</label>
                     <input type="number" v-model="formObject.max_value" class="form-control">
                 </div>
             </div>
             <div class="mb-2">
-                <label class="col-form-label">Remarks:</label>
+                <label class="col-form-label">{{ _l('remarks') }} :</label>
                 <textarea type="text" v-model="formObject.remarks" class="form-control"></textarea>
             </div>
         </fromModal>
