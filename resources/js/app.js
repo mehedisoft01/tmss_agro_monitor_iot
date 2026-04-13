@@ -65,7 +65,7 @@ async function bootstrap() {
             messages: enMessages,
             missing: async (locale, key) => {
                 if (locale === 'en'){
-                    await addLocaleToJson(key);
+                    // await addLocaleToJson(key);
                 }
                 return `missing:${key}`
             }
