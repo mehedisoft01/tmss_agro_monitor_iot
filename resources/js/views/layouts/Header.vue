@@ -1,4 +1,5 @@
 <script setup>
+    import axios from 'axios'
     import { ref, onMounted, onBeforeUnmount } from 'vue';
     import { useRouter, useRoute } from 'vue-router';
     import { useBase, useHttp, appStore } from '@/lib';
@@ -24,81 +25,58 @@
         });
     };
 
-    let notification = ref(false);
-    let intervalId = null;
+    const unreadCount = ref(0);
+    const notifications = ref([]);
+    const showDropdown = ref(false);
+    const pollingInterval = ref(null);
 
-    const loadNotifications = async (page = null) => {
-        const notificationData = appNotifications.value;
 
-        const params = {
-            limit: notificationData.limit,
-            page: page ?? notificationData.page
-        };
-        try {
-            const data = await httpReq({
-                method: 'get',
-                url: urlGenerate('api/app_notification'),
-                params
-            });
-            if (data) {
-                assignStore('appNotifications', data);
-            }
-        } catch (err) {
-            console.error('Failed to load notifications:', err);
+    const toggleNotifications = () => {
+        showDropdown.value = !showDropdown.value;
+
+        if (showDropdown.value) {
+            fetchNotificationsList();
         }
     };
 
-    const startNotificationLoop = () => {
-        stopNotificationLoop();
-        const loop = async () => {
-            let notifyPerMinute = parseInt(appConfigs.value.notify_per_minuit);
-            let intervalMs = Math.floor(60000 / notifyPerMinute);
-
-            await loadNotifications();
-            intervalId = setTimeout(loop, intervalMs);
-        };
-        loop();
+    const fetchUnreadCount = () => {
+        axios.get('/api/notifications/unread_count')
+            .then(res => {
+                unreadCount.value = res.data.result;
+            })
+            .catch(err => console.error(err));
     };
 
-    const stopNotificationLoop = () => {
-        if (intervalId) {
-            clearTimeout(intervalId);
-            intervalId = null;
-        }
-    };
-
-    const openNotification = () => {
-        notification.value = !notification.value;
-        if (notification.value) {
-            appNotifications.value.page = 1;
-            const intervalMs = Math.floor(60000 / parseInt(appConfigs.value.notify_per_minuit));
-            if (intervalMs > 0) startNotificationLoop();
-        }
-    };
-
-    const handleClick = (item) => {
-        item.toggle = !item.toggle
-        httpReq({
-            method: 'get',
-            url: `${urlGenerate('api/app_notification')}/${item.id}`
+    const fetchNotificationsList = () => {
+        axios.get('/api/notification_alerts', {
+            params: { is_read: 0 }
         })
-        if (item.link) {
-            router.push({ path: item.link })
-        }
-    }
+            .then(res => {
+                notifications.value = res.data.result.data;
+            })
+            .catch(err => console.error(err));
+    };
+
+    const markAsRead = (id) => {
+        axios.post(`/api/notifications/${id}/read`)
+            .then(() => {
+                notifications.value = notifications.value.filter(n => n.id !== id);
+                unreadCount.value = Math.max(0, unreadCount.value - 1);
+            })
+            .catch(err => console.error(err));
+    };
 
     onMounted(() => {
-        loadNotifications();
-
-        const intervalMs = Math.floor(60000 / parseInt(appConfigs.value.notify_per_minuit));
-        if (intervalMs > 0) startNotificationLoop(intervalMs);
+        fetchUnreadCount();
+        pollingInterval.value = setInterval(fetchUnreadCount, 5000);
     });
 
     onBeforeUnmount(() => {
-        stopNotificationLoop();
+        clearInterval(pollingInterval.value);
     });
 
-const emit = defineEmits(['toggle-sidebar'])
+
+    const emit = defineEmits(['toggle-sidebar'])
 
 const toggleSidebar = () => {
     emit('toggle-sidebar')
@@ -158,58 +136,51 @@ const toggleSidebar = () => {
                                 </template>
                             </ul>
                         </li>
-                        <li class="nav-item dropdown dropdown-large">
-                            <a class="nav-link dropdown-toggle dropdown-toggle-nocaret position-relative pointer" :class="notification ? 'show' : ''" @click="openNotification"><span class="alert-count">{{appNotifications.total}}</span>
-                                <i class='bx bx-bell'></i>
-                            </a>
-                            <div class="dropdown-menu dropdown-menu-end" :class="notification ? 'show' : ''">
-                                <a>
-                                    <div class="msg-header">
-                                        <p class="msg-header-title" @click="openNotification">{{_l('notification')}}s ({{appNotifications.total}})</p>
-                                        <p class="msg-header-badge">
-                                            <i class="bx bxs-arrow-from-right" @click="loadNotifications(parseInt(appNotifications.page)-1)"></i>
-                                        </p>
-                                        <p class="msg-header-badge">
-                                            <i class="bx bxs-arrow-from-left" @click="loadNotifications(parseInt(appNotifications.page)+1)"></i>
-                                        </p>
-                                        <p class="msg-header-badge text-danger" v-if="notification" @click="openNotification">X</p>
-                                    </div>
-                                </a>
-                                <div class="header-notifications-list">
-                                    <template v-if="appNotifications.data !== undefined">
-                                        <a class="dropdown-item" v-for="item in appNotifications.data">
-                                            <div class="d-flex align-items-center">
-                                                <div class="user-online">
-                                                    <img :src="getImage(null, 'backend/images/avatars/notification.png')" class="msg-avatar" alt="user avatar">
+                        <div class="position-relative dropdown notification-wrapper">
+
+                            <button class="btn btn-icon" @click.stop="toggleNotifications">
+                                <i class="bx bx-bell fs-18"></i>
+                                <span v-if="unreadCount > 0" class="notification-badge">{{ unreadCount }}</span>
+                            </button>
+
+                            <div v-if="showDropdown" class="dropdown-menu notification-dropdown show" @click.stop>
+
+                                <div class="notification-header d-flex justify-content-between align-items-center">
+                                    <h6 class="mb-0">Notifications</h6>
+                                    <small class="">{{ unreadCount }} New</small>
+                                </div>
+
+                                <div class="notification-body">
+                                    <div v-if="notifications.length === 0" class="empty-state">No notifications</div>
+
+                                    <div v-for="notif in notifications" :key="notif.id" class="notification-card">
+                                        <div class="d-flex align-items-start">
+                                            <div class="notification-icon">⚠️</div>
+
+                                            <div class="flex-grow-1">
+                                                <div class="notification-text">
+                                                    {{ notif.message }}
                                                 </div>
-                                                <!-- <div class="flex-grow-1 pointer" @click="(()=>{
-                                                item.toggle = !item.toggle;
-                                                httpReq({ method: 'get', url: `${urlGenerate('api/app_notification')}/${item.id}`})
-                                                })"> -->
-                                                <div class="flex-grow-1 pointer" @click="handleClick(item)">
-                                                    <h6 class="msg-name">{{item.title}}<span class="msg-time float-end">{{item.created_at}}</span></h6>
-                                                    <p class="msg-info">{{item.short_text}}</p>
+
+                                                <div class="notification-meta">
+                                                    Value: {{ notif.current_value }}
+                                                    ({{ notif.min_value }} - {{ notif.max_value }})
                                                 </div>
                                             </div>
-                                            <template v-if="item.toggle">
-                                                <hr>
-                                                <div>
-                                                    <template v-if="item.link">
-                                                        <router-link :to="item.link">Details</router-link>
-                                                    </template>
-                                                    <p class="msg-info">{{item.notification}}</p>
-                                                </div>
-                                            </template>
-                                        </a>
-                                    </template>
-                                </div>
-                                <a href="#">
-                                    <div class="text-center msg-footer">
-                                        <button class="btn btn-light w-100">View All Notifications</button>
+
+                                            <button class="btn btn-sm btn-success ms-2" @click="markAsRead(notif.id)">✓</button>
+                                        </div>
                                     </div>
-                                </a>
+
+                                    <div v-if="notifications.length > 0" class="text-center mt-2">
+                                        <a href="/admin/notification_alerts" class="btn btn-sm btn-primary w-100">
+                                            View All Notifications
+                                        </a>
+                                    </div>
+                                </div>
+
                             </div>
-                        </li>
+                        </div>
                     </ul>
                 </div>
                 <div class="user-box dropdown px-3">
@@ -244,3 +215,8 @@ const toggleSidebar = () => {
         </div>
     </header>
 </template>
+
+
+<style scoped>
+
+</style>

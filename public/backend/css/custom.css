@@ -492,3 +492,104 @@ select.form-control {
     color: #dc3545; /* bootstrap danger red */
     font-weight: 600;
 }
+
+
+
+/*Notification Button */
+.btn-icon {
+    position: relative;
+    border-radius: 50%;
+    padding: 8px 10px;
+    transition: 0.3s;
+}
+
+.bg-theme .btn {
+    border-color: transparent !important;
+}
+/* Badge */
+.notification-badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    background: #ff3b3b;
+    font-size: 12px;
+    padding: 3px 6px;
+    border-radius: 50px;
+}
+
+/* Dropdown */
+.notification-dropdown {
+    position: absolute;
+    right: 0;
+    left: auto;
+    width: 320px;
+    max-height: 420px;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+    animation: fadeIn 0.2s ease-in-out;
+}
+
+/* Header */
+.notification-header {
+    padding: 12px 15px;
+    font-weight: 600;
+}
+
+/* Body */
+.notification-body {
+    max-height: 350px;
+    overflow-y: auto;
+}
+
+/* Card */
+.notification-card {
+    padding: 12px;
+
+    cursor: pointer;
+}
+
+
+
+/* Icon */
+.notification-icon {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 10px;
+    font-size: 16px;
+}
+
+/* Text */
+.notification-text {
+    font-weight: 500;
+    font-size: 14px;
+}
+
+/* Meta */
+.notification-meta {
+    font-size: 12px;
+    color: #888;
+}
+
+/* Empty */
+.empty-state {
+    padding: 30px;
+    text-align: center;
+    color: #aaa;
+}
+
+/* Animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
