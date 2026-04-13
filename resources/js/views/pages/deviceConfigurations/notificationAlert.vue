@@ -20,7 +20,7 @@
     const markAsRead = (id, index) => {
         axios.post(`/api/notifications/${id}/read`)
             .then(() => {
-                dataList.data[index].is_read = 1;
+                dataList.value.data[index].is_read = 1;
             })
             .catch(err => console.error(err));
     };

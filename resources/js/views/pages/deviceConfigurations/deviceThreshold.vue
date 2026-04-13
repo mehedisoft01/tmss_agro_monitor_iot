@@ -117,7 +117,7 @@
             </div>
             <div class="mb-2">
                 <label class="col-form-label">Remarks:</label>
-                <textarea type="number" v-model="formObject.remarks" class="form-control"></textarea>
+                <textarea type="text" v-model="formObject.remarks" class="form-control"></textarea>
             </div>
         </fromModal>
     </dataTable>
