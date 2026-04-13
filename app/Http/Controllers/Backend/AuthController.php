@@ -117,15 +117,6 @@ class AuthController extends Controller
 
         $user->save();
 
-        if ($user->salesman) {
-            $user->salesman->update([
-                'name'           => $user->name,
-                'email'          => $user->email,
-                'phone'          => $user->phone,
-                'designation_id' => $request->designation ?? $user->salesman->designation_id,
-                'photo'          => $user->image,
-            ]);
-        }
 
         return returnData(2000, $user, 'Profile updated successfully');
     }
