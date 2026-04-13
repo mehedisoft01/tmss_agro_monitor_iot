@@ -59,18 +59,18 @@
                             </div>
                             <template v-for="setting in settingGroup">
                                 <div class="row mt-2">
-                                    <label :for="setting.key" class="col-md-3">{{_l(setting.key)}}: </label>
+                                    <label :for="setting?.key" class="col-md-3">{{_l(setting?.key)}}: </label>
                                     <div class="col-md-9">
-                                        <template v-if="['text','number'].includes(setting.type)">
+                                        <template v-if="['text','number'].includes(setting?.type)">
                                             <input :id="setting.key" v-model="setting.value" class="form-control" :type="setting.type">
                                         </template>
-                                        <template v-if="setting.type == 'textarea'">
+                                        <template v-if="setting?.type == 'textarea'">
                                             <textarea :id="setting.key" v-model="setting.value" rows="2" class="form-control"></textarea>
                                         </template>
-                                        <template v-if="setting.type == 'date'">
+                                        <template v-if="setting?.type == 'date'">
                                             <datepicker :id="setting.key" :value="setting.value" v-model="setting.value" class="form-control"></datepicker>
                                         </template>
-                                        <template v-if="setting.type == 'select'">
+                                        <template v-if="setting?.type == 'select'">
                                             <select :id="setting.key" v-model="setting.value" class="form-control">
                                                 <option value="">Select</option>
                                                 <template v-for="(item, index) in pageDependencies[getObjKeyName(setting.key)]">
@@ -78,7 +78,7 @@
                                                 </template>
                                             </select>
                                         </template>
-                                        <template v-if="setting.type === 'file'">
+                                        <template v-if="setting?.type === 'file'">
                                             <fileUpload :object="setting" :column="'value'" />
                                         </template>
                                     </div>
