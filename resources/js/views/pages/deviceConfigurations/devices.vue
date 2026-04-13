@@ -14,7 +14,7 @@
         ...appStore().useGetters('dataList', 'httpRequest', 'pageDependencies', 'updateId')
     };
 
-    const tableHeaders = ref(["#", "display_name", "name", "device_id","product_name","status", "Actions"]);
+    const tableHeaders = ref(["#", "display_name", "name", "device_id","product_name","status", "actions"]);
     const {getDataList, httpReq,urlGenerate} = useHttp();
 
     onMounted(() => {

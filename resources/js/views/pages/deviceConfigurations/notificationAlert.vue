@@ -14,7 +14,7 @@
         ...appStore().useGetters('dataList', 'httpRequest', 'pageDependencies', 'updateId')
     };
 
-    const tableHeaders = ref(["#", "device_name","device_type", "sensor", "current_value","status","Actions"]);
+    const tableHeaders = ref(["#", "device_name","device_type", "sensor", "current_value","status","actions"]);
     const {getDataList, httpReq,urlGenerate} = useHttp();
 
     const markAsRead = (id, index) => {

@@ -9,7 +9,7 @@
     "min_value": "Min Value",
     "max_value": "Max Value",
     "remarks": "Remarks",
-    "Actions": "Actions",
+    "actions": "Actions",
     "loading": "Loading",
     "dashboard": "Dashboard",
     "system_settings": "System Settings",
@@ -36,7 +36,6 @@
     "user_name": "User Name",
     "create_at": "Create At",
     "status": "Status",
-    "actions": "Actions",
     "staff": "Staff",
     "select_staff": "Select Staff",
     "warehouse_name": "Warehouse Name",
@@ -110,5 +109,6 @@
     "N": "N",
     "P": "P",
     "K": "K",
-    "Fertility": "Fertility"
+    "Fertility": "Fertility",
+    "Actions": "Actions"
 }
