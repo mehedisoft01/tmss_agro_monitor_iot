@@ -114,6 +114,7 @@ class AuthController extends Controller
         }
 
         $user->save();
+
         return returnData(2000, $user, 'Profile updated successfully');
     }
 }
