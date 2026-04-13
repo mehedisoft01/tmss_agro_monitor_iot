@@ -44,12 +44,12 @@
                                     <slot name="filter"></slot>
                                 </div>
                             </div>
-                            <div class="col-md-3 text-end">
-                                <slot name="action"></slot>
-                                <a type="button" @click="printData()" class="btn btn-outline-secondary">
-                                    <i class="bx bx-printer"></i> Print
-                                </a>
-                            </div>
+<!--                            <div class="col-md-3 text-end">-->
+<!--                                <slot name="action"></slot>-->
+<!--                                <button class="btn btn-success" @click="excelUrl">-->
+<!--                                    Export Excel-->
+<!--                                </button>-->
+<!--                            </div>-->
                         </div>
                     </div>
                     <div class="print-header" id="printDiv">

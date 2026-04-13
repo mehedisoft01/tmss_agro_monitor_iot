@@ -29,9 +29,8 @@ class UserController extends Controller
         $perPage = request()->input('per_page', 10);
 
         $data = DB::table('users as u')
-            ->leftJoin('salesmen as s', 'u.salesman_id', '=', 's.id')
             ->leftJoin('roles as r', 'u.role_id', '=', 'r.id')
-            ->selectRaw("u.*, '' as password, s.name as salesman_name,s.salesman_code as salesman_code,r.name as role_name")
+            ->selectRaw("u.*, '' as password,r.name as role_name")
             ->paginate($perPage);
 
 //        ddA($data);

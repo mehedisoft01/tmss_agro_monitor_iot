@@ -189,6 +189,12 @@ class SupportController extends Controller
                 ->orderBy('id', 'DESC')
                 ->get();
         }
+        if (in_array('soil_device', $input)) {
+            $data['soil_device'] = DB::table('soil_devices')->get();
+        }
+        if (in_array('warehouse_device', $input)) {
+            $data['warehouse_device'] = DB::table('devices')->where('device_category', 1)->get();
+        }
 
 
         if (isset($input['products']) || in_array('products', $input)) {

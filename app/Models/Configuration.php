@@ -10,24 +10,14 @@ use Illuminate\Support\Facades\Validator;
 class Configuration extends Model
 {
     use HasFactory;
-    use ModelScopes;
+    protected $table = 'configurations';
 
     protected $fillable = [
-        'type',
         'key',
-        'display_name',
-        'value',
+        'is_visible',
+        'setting_type',
+        'type',
+        'value'
     ];
 
-    public function validate($input)
-    {
-        $validate = Validator::make($input, [
-            'type' => 'required',
-            'key' => 'required',
-            'display_name' => 'required',
-            'value' => 'required',
-        ]);
-
-        return $validate;
-    }
 }

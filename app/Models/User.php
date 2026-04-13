@@ -67,10 +67,4 @@ class User extends Authenticatable implements JWTSubject
         return [];
     }
 
-    // User.php
-
-    public function salesman()
-    {
-        return $this->belongsTo(Salesman::class, 'salesman_id');
-    }
 }

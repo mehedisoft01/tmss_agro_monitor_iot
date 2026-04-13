@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\Helper;
+use App\Models\Configuration;
 use App\Models\Setting;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -14,7 +15,7 @@ class SettingController extends Controller
 
     public function __construct()
     {
-        $this->model = new Setting();
+        $this->model = new Configuration();
 
         if (!can(request()->route()->action['as'])) {
             return returnData(5001, null, 'You are not authorized to access this page');

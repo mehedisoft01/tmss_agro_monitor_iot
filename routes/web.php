@@ -35,8 +35,12 @@ Route::middleware([\App\Http\Middleware\AuthMiddleware::class, \App\Http\Middlew
         Route::get('dashboard', [\App\Http\Controllers\SupportController::class, 'appDashboard']);
         Route::get('activities', [\App\Http\Controllers\SupportController::class, 'userActivities']);
 
-        Route::resource('/devices', DeviceController::class);
+        Route::resource('modules', \App\Http\Controllers\Backend\RBAC\ModuleController::class);
+        Route::resource('/roles', \App\Http\Controllers\Backend\RBAC\RoleController::class);
+        Route::resource('/module_permissions', \App\Http\Controllers\Backend\RBAC\RoleModuleController::class);
+        Route::resource('/role_permissions', \App\Http\Controllers\Backend\RBAC\RolePermissionController::class);
 
+        Route::resource('/devices', DeviceController::class);
         Route::resource('/device_thresholds', \App\Http\Controllers\DeviceThresholdsController::class);
         Route::post('/check_thresholds', [\App\Http\Controllers\DeviceThresholdsController::class, 'checkAndNotify']);
         Route::get('/notification_alerts', [NotificationController::class, 'index']);

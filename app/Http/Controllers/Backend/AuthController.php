@@ -92,7 +92,6 @@ class AuthController extends Controller
             'name'  => 'nullable',
             'email' => 'nullable',
             'username' => 'nullable',
-            'designation' => 'nullable',
             'phone' => 'nullable',
             'image' => 'nullable',
         ]);
@@ -100,7 +99,6 @@ class AuthController extends Controller
         $user->name  = $request->name ?? $user->name;
         $user->email = $request->email ?? $user->email;
         $user->username = $request->username ?? $user->username;
-        $user->designation = $request->designation ?? $user->designation;
         $user->phone = $request->phone ?? $user->phone;
         $user->image = $request->image ?? $user->image;
 
@@ -116,17 +114,6 @@ class AuthController extends Controller
         }
 
         $user->save();
-
-        if ($user->salesman) {
-            $user->salesman->update([
-                'name'           => $user->name,
-                'email'          => $user->email,
-                'phone'          => $user->phone,
-                'designation_id' => $request->designation ?? $user->salesman->designation_id,
-                'photo'          => $user->image,
-            ]);
-        }
-
         return returnData(2000, $user, 'Profile updated successfully');
     }
 }
