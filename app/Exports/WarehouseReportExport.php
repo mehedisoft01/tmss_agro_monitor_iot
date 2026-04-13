@@ -60,7 +60,7 @@ class WarehouseReportExport implements FromCollection, WithHeadings
             $data[] = [
                 $sl++,
                 $item->device->display_name ?? '',
-                \Carbon\Carbon::parse($item->recorded_at)->format('Y-m-d H:i'),
+                \Carbon\Carbon::parse($item->active_time ?? null)->format('Y-m-d H:i'),
                 $item->temperature,
                 $item->humidity,
                 $item->remarks,
