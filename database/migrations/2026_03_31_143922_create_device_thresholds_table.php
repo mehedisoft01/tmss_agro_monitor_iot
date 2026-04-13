@@ -19,7 +19,7 @@ return new class extends Migration
             $table->integer('sensor_id');
             $table->float('min_value')->nullable();
             $table->float('max_value')->nullable();
-            $table->float('remarks')->nullable();
+            $table->text('remarks')->nullable();
             $table->timestamps();
         });
     }
