@@ -1,0 +1,31 @@
+export const state = {
+    httpRequest: false,
+    dataList: {},
+    formObject : {},
+    pageDependencies: {},
+    updateId: '',
+    authUser: {},
+    appNotifications : {limit : 5, page : 1, data : [], total : 0},
+    appConfigs : {
+        notify_per_minuit : 30
+    },
+    detailsData: {},
+    Config: [],
+    allMenus: [],
+    Permissions: [],
+    isConfigLoaded: false,
+    formType: 1,
+    formFilter : {
+        per_page : 15,
+        status : '',
+    },
+    modalTitle :'',
+    currentPage :'',
+    currentPagination : 1,
+    uploadProgress : 0,
+    useDynamicHead: [],
+    previousDataData: {},
+    currentDate: null,
+    currentDateTime: null,
+    localization: [],
+};

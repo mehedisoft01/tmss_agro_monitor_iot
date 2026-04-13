@@ -1,0 +1,73 @@
+@font-face {
+    font-family: 'TMLawyer';
+    src: url('../../fonts/TMLawyer48f1.eot?1uhjcs');
+    src: url('../../fonts/TMLawyer48f1.eot?1uhjcs#iefix') format('embedded-opentype'),
+    url('../../fonts/TMLawyer48f1.ttf?1uhjcs') format('truetype'),
+    url('../../fonts/TMLawyer48f1.woff?1uhjcs') format('woff'),
+    url('../../fonts/TMLawyer48f1.svg?1uhjcs#TMLawyer') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+[class^="tmlawyer-"], [class*=" tmlawyer-"] {
+    font-family: 'TMLawyer';
+    speak: none;
+    font-style: normal;
+    font-weight: normal;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
+
+    /* Better Font Rendering =========== */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.tmlawyer-centerlines:before {
+    content: "\e900";
+}
+
+.tmlawyer-leftlines:before {
+    content: "\e901";
+}
+
+.tmlawyer-logo:before {
+    content: "\e902";
+}
+
+.tmlawyer-users:before {
+    content: "\e903";
+}
+
+.tmlawyer-book:before {
+    content: "\e904";
+}
+
+.tmlawyer-car:before {
+    content: "\e905";
+}
+
+.tmlawyer-docs:before {
+    content: "\e906";
+}
+
+.tmlawyer-eight:before {
+    content: "\e907";
+}
+
+.tmlawyer-key:before {
+    content: "\e908";
+}
+
+.tmlawyer-money:before {
+    content: "\e909";
+}
+
+.tmlawyer-square:before {
+    content: "\e90a";
+}
+
+.tmlawyer-star:before {
+    content: "\e90b";
+}
+

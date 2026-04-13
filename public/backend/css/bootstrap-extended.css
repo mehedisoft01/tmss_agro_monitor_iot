@@ -1,0 +1,323 @@
+body.bg-theme {
+    color: rgb(255 255 255 / 70%);
+    background-color: #151313;
+}
+
+.bg-theme .h1,
+.bg-theme .h2,
+.bg-theme .h3,
+.bg-theme .h4,
+.bg-theme .h5,
+.bg-theme .h6,
+.bg-theme h1,
+.bg-theme h2,
+.bg-theme h3,
+.bg-theme h4,
+.bg-theme h5,
+.bg-theme h6 {
+    color: rgb(255 255 255);
+}
+
+.bg-theme a {
+    color: #fff;
+}
+
+.bg-theme a:hover {
+    color: #fff
+}
+
+
+.bg-theme .table {
+    --bs-table-bg: transparent;
+    --bs-table-striped-color: rgb(255 255 255 / 85%);
+    --bs-table-striped-bg: rgb(255 255 255 / 12%);
+    --bs-table-active-color: rgb(255 255 255 / 27%);
+    --bs-table-active-bg: rgb(255 255 255 / 10%);
+    --bs-table-hover-color: rgb(255 255 255);
+    --bs-table-hover-bg: rgba(0, 0, 0, 0.075);
+    width: 100%;
+    margin-bottom: 1rem;
+    color: rgb(255 255 255 / 85%);
+    vertical-align: top;
+    border-color: rgb(255 255 255 / 15%);
+}
+
+
+.bg-theme .table-light {
+    --bs-table-bg: rgb(255 255 255 / 15%);
+    color: #fff;
+    border-color: rgb(255 255 255 / 15%)
+}
+
+.bg-theme .form-select,
+.bg-theme .form-control {
+    color: #ffffff;
+    background-color: rgb(0 0 0 / 15%);
+    border: 1px solid rgb(255 255 255 / 15%);
+}
+
+.bg-theme .form-select:disabled {
+    background-color: rgb(233 236 239 / 16%);
+}
+
+.bg-theme .form-select:focus,
+.bg-theme .form-control:focus {
+    color: #fff;
+    background-color: rgb(0 0 0 / 20%);
+    border-color: 1px solid rgb(255 255 255 / 15%) !important;
+    box-shadow: 0 0 0 .25rem rgba(255, 255, 255, .25) !important
+}
+
+.bg-theme .form-control:disabled,
+.bg-theme .form-control[readonly] {
+    background-color: rgb(233 236 239 / 22%);
+}
+
+
+.bg-theme .form-select {
+    color: #ffffff;
+}
+
+.bg-theme .form-select:focus {
+    border-color: rgb(255 255 255 / 35%);
+    box-shadow: 0 0 0 .25rem rgba(255, 255, 255, .25)
+}
+
+.bg-theme .form-select option {
+    background-color: #171717;
+}
+
+.bg-theme .form-check-input {
+    background-color: rgb(255 255 255 / 15%);
+    border: 1px solid rgb(255 255 255 / 15%);
+}
+
+.bg-theme .form-check-input:focus {
+    border-color: rgb(255 255 255 / 15%);
+    box-shadow: 0 0 0 .25rem rgba(255, 255, 255, .25)
+}
+
+.bg-theme .form-check-input:checked {
+    background-color: rgb(255 255 255 / 15%);
+    border-color: rgb(255 255 255 / 15%);
+}
+
+.bg-theme .input-group-text {
+    color: #ffffff;
+    background-color: rgb(0 0 0 / 20%);
+    border: 1px solid rgb(255 255 255 / 20%);
+}
+
+.bg-theme .btn-light {
+    color: #fff;
+    background-color: rgb(255 255 255 / 15%);
+    border-color: rgb(255 255 255 / 35%);
+}
+
+.bg-theme .btn-light:hover {
+    color: #fff;
+    background-color: rgb(255 255 255 / 20%);
+    border-color: rgb(255 255 255 / 40%);
+}
+
+.bg-theme .card {
+    background-color: rgb(0 0 0 / 20%);
+    box-shadow: 0 .3rem .8rem rgba(0, 0, 0, .12);
+    margin-bottom: 1.5rem;
+    border: 0 solid transparent;
+}
+
+.bg-theme .card-footer {
+    border-top: 1px solid rgba(255, 255, 255, .125)
+}
+
+
+.bg-theme .accordion-item {
+    color: rgb(255 255 255 / 85%);
+    background-color: rgb(255 255 255 / 12%);
+    border: 1px solid rgb(255 255 255 / 12%);
+}
+
+.bg-theme .accordion-button {
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, .125);
+    background-color: rgb(255 255 255 / 12%);
+}
+
+.bg-theme .accordion-button:not(.collapsed) {
+    color: #ffffff;
+    background-color: rgb(255 255 255 / 15%);
+}
+
+.bg-theme .accordion-button:focus {
+    border-color: #fff;
+    box-shadow: 0 0 0 .25rem rgba(225, 225, 225, .25)
+}
+
+.bg-theme .breadcrumb-item.active {
+    color: #ffffff
+}
+
+.bg-theme .page-link {
+    color: #ffffff;
+    background-color: rgb(255 255 255 / 15%);
+    border: 1px solid rgb(255 255 255 / 15%);
+}
+
+.bg-theme .page-link:hover {
+    color: #fff;
+    background-color: rgb(0 0 0 / 25%);
+    border-color: rgb(255 255 255 / 15%);
+}
+
+.bg-theme .page-link:focus {
+    color: #fff;
+    background-color: rgb(0 0 0 / 20%);
+    box-shadow: 0 0 0 .25rem rgba(255, 255, 255, .25)
+}
+
+.bg-theme .page-item.active .page-link {
+    color: #fff;
+    background-color: rgb(0 0 0 / 20%);
+    border-color: rgb(255 255 255 / 15%);
+}
+
+.bg-theme .page-item.disabled .page-link {
+    color: #ffffff;
+    background-color: rgb(255 255 255 / 42%);
+    border-color: rgb(255 255 255 / 15%);
+}
+
+.bg-theme .alert {
+    background-color: rgb(0 0 0 / 15%);
+    box-shadow: 0 .3rem .8rem rgba(0, 0, 0, .12)
+}
+
+.bg-theme .progress {
+    background-color: rgb(255 255 255 / 15%);
+}
+
+.bg-theme .progress-bar {
+    color: #fff;
+    background-color: #ffffff;
+}
+
+.bg-theme .list-group-item {
+    color: rgba(255, 255, 255, 0.85);
+    background-color: rgb(255 255 255 / 12%);
+    border: 1px solid rgb(255 255 255 / 12%);
+}
+
+.bg-theme .modal-content {
+    background-color: #171717;
+    border: 1px solid rgba(255, 255, 255, .2);
+}
+
+.bg-theme .modal-header {
+    border-bottom: 1px solid rgb(255 255 255 / 15%);
+}
+
+.bg-theme .modal-footer {
+    border-top: 1px solid rgb(255 255 255 / 15%);
+}
+
+.bg-theme .border {
+    border: 1px solid rgb(255 255 255 / 15%) !important
+}
+
+.bg-theme .border-top {
+    border-top: 1px solid rgb(255 255 255 / 15%) !important;
+}
+
+.bg-theme .border-end {
+    border-right: 1px solid rgb(255 255 255 / 15%) !important;
+}
+
+.bg-theme .border-bottom {
+    border-bottom: 1px solid rgb(255 255 255 / 15%) !important;
+}
+
+.bg-theme .border-start {
+    border-left: 1px solid rgb(255 255 255 / 15%) !important;
+}
+
+.bg-theme .text-light {
+    color: #f8f9fa !important
+}
+
+.bg-theme .text-light-1 {
+    color: rgba(255, 255, 255, .125) !important
+}
+
+.bg-theme .text-light-2 {
+    color: rgba(255, 255, 255, 0.70) !important;
+}
+
+.bg-theme .text-light-3 {
+    color: rgba(255, 255, 255, 0.50) !important;
+}
+
+.bg-theme .text-light-4 {
+    color: rgba(255, 255, 255, 0.20) !important;
+}
+
+.bg-theme .bg-light {
+    background-color: rgb(255 255 255 / 15%) !important;
+}
+
+.bg-theme .bg-body {
+    background-color: rgb(255 255 255 / 15%) !important;
+}
+
+
+.bg-theme .dropdown-menu {
+    color: #ffffff;
+    background-color: #1e1e1e;
+    border: 1px solid rgba(0, 0, 0, .15);
+    top: 100%;
+    right: 0;
+}
+
+
+.bg-theme .dropdown-divider {
+    border-top: 1px solid rgba(255, 255, 255, .15)
+}
+
+
+.bg-theme .dropdown-item {
+    color: rgb(255 255 255 / 85%);
+}
+
+.bg-theme .dropdown-item:focus,
+.bg-theme .dropdown-item:hover {
+    color: #fff;
+    background-color: rgba(255, 255, 255, .15)
+}
+
+.bg-theme .dropdown-item.active,
+.bg-theme .dropdown-item:active {
+    color: #fff;
+    text-decoration: none;
+    background-color: #0d6efd
+}
+
+
+.bg-theme .nav-tabs {
+    --bs-nav-tabs-link-active-color: #ffffff;
+    --bs-nav-tabs-link-hover-border-color: rgb(255 255 255 / 15%) rgb(255 255 255 / 15%) rgb(255 255 255 / 15%);
+    --bs-nav-tabs-link-active-border-color: rgb(255 255 255 / 15%) rgb(255 255 255 / 15%) rgb(255 255 255 / 15%);
+    --bs-nav-tabs-link-active-bg: rgb(255 255 255 / 12%);
+    --bs-nav-tabs-border-color: rgb(255 255 255 / 30%);
+}
+
+.bg-theme .nav-link,
+.bg-theme .nav-link:hover {
+    color: #ffffff;
+}
+
+
+.bg-theme .nav-pills .nav-link.active, .nav-pills .show > .nav-link {
+    background-color: rgb(255 255 255 / 12%);
+}
+
+
