@@ -1,0 +1,607 @@
+<script setup>
+    import { ref, reactive, computed, onMounted } from 'vue'
+    import VueApexCharts from "vue3-apexcharts"
+    import { useStore } from 'vuex'
+    import { useBase, useHttp, appStore } from '@/lib'
+
+    // components
+    const apexchart = VueApexCharts
+
+    const store = useStore()
+
+    const { getDependency, submitForm, editData, deleteRecord } = { ...useHttp() }
+
+    const {_l, can, formFilter, formObject, openModal, closeModal, useGetters, dataList, httpRequest, pageDependencies, updateId, statusBadge, getImage, changeStatus, handleSelectAll, deleteAllRecords} = {
+        ...useBase(),
+        ...useHttp(),
+        ...appStore(),
+        ...appStore().useGetters('dataList', 'httpRequest', 'pageDependencies', 'updateId')
+    }
+
+    const { getDataList, httpReq, urlGenerate } = useHttp()
+
+    // ================= STATE =================
+
+    const chartData = ref([])
+    const actions = ref([])
+    const latestData = reactive({})
+    const sensors = ref([])
+    const farmHealth = reactive({})
+
+    // ================= CHART =================
+
+    const chartSeries = ref([])
+
+    const chartOptions = ref({
+        chart: {
+            type: 'line',
+            height: 200,
+            toolbar: { show: false }
+        },
+        stroke: {
+            curve: 'smooth'
+        },
+        xaxis: {
+            categories: []
+        },
+        colors: ['#dc3545', '#0d6efd', '#198754'],
+        legend: {
+            show: false
+        }
+    })
+
+    // ================= COMPUTED =================
+
+    const sensorMap = computed(() => {
+        const map = {}
+        sensors.value.forEach(s => {
+            map[s.name] = s
+        })
+        return map
+    })
+
+    // ================= API CALLS =================
+
+    // Storage API
+    const fetchStorageData = async () => {
+        try {
+            const response = await httpReq({
+                url: '/api/storageData',
+                method: 'GET',
+                params: {
+                    device_id: formFilter.device_id
+                }
+            })
+
+            if (response.status === 2000) {
+                Object.assign(latestData, response.latest)
+                actions.value = response.actions
+            }
+
+        } catch (error) {
+            console.error('Storage API Error:', error)
+        }
+    }
+
+    // Dashboard API
+    const fetchDashboardData = async () => {
+        try {
+            const response = await httpReq({
+                url: '/api/dashboardV2',
+                method: 'GET',
+                params: formFilter
+            })
+
+            if (response.status === 2000) {
+                chartData.value = response.result || []
+                sensors.value = response.sensors || []
+                Object.assign(farmHealth, response.farmHealth || {})
+
+                updateChart()
+            }
+
+        } catch (error) {
+            console.error('Dashboard API Error:', error)
+        }
+    }
+
+    // ================= CHART LOGIC =================
+
+    const updateChart = () => {
+        const labels = chartData.value.map(i => i.label)
+        const temperatureData = chartData.value.map(i => i.temperature)
+        const humidityData = chartData.value.map(i => i.humidity)
+        const phData = chartData.value.map(i => i.ph)
+
+        chartOptions.value.xaxis.categories = labels
+
+        chartSeries.value = [
+            {
+                name: 'Soil Moisture',
+                data: humidityData
+            },
+            {
+                name: 'PH',
+                data: phData
+            },
+            {
+                name: 'Temperature',
+                data: temperatureData
+            }
+        ]
+    }
+
+    // ================= HELPERS =================
+
+    const getColor = (status) => {
+        if (status === 'LOW') return '#dc3545'
+        if (status === 'HIGH') return '#fd7e14'
+        return '#198754'
+    }
+
+    const getAlertColor = (alert) => {
+        if (alert.includes('LOW')) return '#dc3545'
+        if (alert.includes('HIGH')) return '#fd7e14'
+        return '#198754'
+    }
+
+    const formatAlert = (alert) => {
+        if (alert.includes('HUMIDITY')) {
+            return "Low Soil Moisture → Irrigation needed"
+        }
+
+        if (alert.includes('TEMPERATURE')) {
+            return "High Temperature → Cooling required"
+        }
+
+        if (alert.includes('N')) {
+            return "Nitrogen Low → Apply fertilizer"
+        }
+
+        return alert
+    }
+
+    // ================= LIFECYCLE =================
+
+    onMounted(() => {
+        fetchDashboardData()
+        getDependency({
+            dependency: ['soil_device', 'warehouse_device']
+        })
+    })
+</script>
+
+<template>
+    <div class="page-wrapper">
+        <div class="page-content">
+            <div class="row">
+                <div class="total_counter">
+                    <div class="row card_items">
+
+                        <h2 class="fw-bold mb-4">Farm and Storage Dashboard</h2>
+                        <div class="row mb-4">
+                            <div class="col-md-2">
+                                <select class="form-control pointer" v-model="formFilter.device_id" @change="fetchDashboardData">
+                                    <option value="">Select Device</option>
+                                    <template v-for="(data, index) in pageDependencies.soil_device">
+                                        <option :value="data.id">{{data.device_name}}</option>
+                                    </template>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <datepicker class="form-control" v-model="formFilter.date_from" @change="fetchDashboardData" placeholder="Select Date"></datepicker>
+                            </div>
+                        </div>
+
+
+                        <div class="row g-4">
+                            <!-- LEFT SIDE -->
+                            <div class="col-lg-7">
+                                <div class="card border-0 shadow-sm p-4 h-100">
+                                    <div class="d-flex justify-content-between align-items-start mb-4">
+                                        <div>
+                                            <h5 class="fw-bold">Farm Health Overview</h5>
+
+                                            <div class="alert-box p-3 mt-3 vertical-alert">
+                                                <p class="mb-2 fs-5">
+                                                    <i class="text-orange fas fa-exclamation-triangle me-2 fs-5"></i>
+                                                    <strong>ALERTS</strong>
+                                                </p>
+                                                <div class="ticker-wrapper">
+                                                    <div class="ticker" v-if="farmHealth.alerts && farmHealth.alerts.length">
+                                                        <p v-for="(alert, index) in farmHealth.alerts"
+                                                           :key="index"
+                                                           class="ticker-item mb-2 fs-6">
+
+                                                            <i class="fas fa-exclamation-circle me-2 fs-5"
+                                                               :style="{ color: getAlertColor(alert) }"></i>
+
+                                                            {{ formatAlert(alert) }}
+
+                                                        </p>
+
+                                                    </div>
+
+                                                    <p v-else class="text-success">
+                                                        No sensor data available
+                                                    </p>
+                                                </div>
+
+                                            </div>
+                                        </div>
+
+                                        <div class="text-center">
+                                            <div class="gauge-storage"
+                                                 :style="{ '--value': farmHealth.score }">
+                                                <span class="h4">{{ farmHealth.score }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- text-muted removed -->
+                                    <div class="row text-center mt-4">
+                                        <div class="col-3" v-if="sensorMap.HUMIDITY">
+                                            <i class="bx bx-water fs-1 text-success">
+                                                :style="{ color: getColor(sensorMap.HUMIDITY.status) }"></i>
+
+                                            <div class="fw-bold mt-2"
+                                                 :style="{ color: getColor(sensorMap.HUMIDITY.status) }">
+                                                {{ sensorMap.HUMIDITY.status }}
+                                            </div>
+
+                                            <div class="h4 mb-0">
+                                                {{ sensorMap.HUMIDITY.value }}%
+                                            </div>
+
+                                            <div class="small">Soil Moisture</div>
+                                        </div>
+                                        <div class="col-3" v-if="sensorMap.PH">
+                                            <i class="fas fa-flask fa-3x"
+                                               :style="{ color: getColor(sensorMap.PH.status) }"></i>
+
+                                            <div class="fw-bold mt-2"
+                                                 :style="{ color: getColor(sensorMap.PH.status) }">
+                                                {{ sensorMap.PH.status }}
+                                            </div>
+
+                                            <div class="h4 mb-0">
+                                                {{ sensorMap.PH.value }}
+                                            </div>
+
+                                            <div class="small">Soil PH</div>
+                                        </div>
+                                        <div class="col-3" v-if="sensorMap.TEMPERATURE">
+                                            <i class="fas fa-thermometer-half fa-3x"
+                                               :style="{ color: getColor(sensorMap.TEMPERATURE.status) }"></i>
+
+                                            <div class="fw-bold mt-2"
+                                                 :style="{ color: getColor(sensorMap.TEMPERATURE.status) }">
+                                                {{ sensorMap.TEMPERATURE.status }}
+                                            </div>
+
+                                            <div class="h4 mb-0">
+                                                {{ sensorMap.TEMPERATURE.value }}°C
+                                            </div>
+
+                                            <div class="small">Soil Temperature</div>
+                                        </div>
+                                        <div class="col-3" v-if="sensorMap.FERTILITY">
+                                            <div class="rounded-circle d-flex align-items-center justify-content-center mx-auto"
+                                                 style="width:50px;height:50px;background:#198754;">
+                                                <i class="fas fa-bolt text-white"></i>
+                                            </div>
+
+                                            <div class="fw-bold mt-2"
+                                                 :style="{ color: getColor(sensorMap.FERTILITY.status) }">
+                                                {{ sensorMap.FERTILITY.status }}
+                                            </div>
+
+                                            <div class="h4 mb-0">
+                                                {{ sensorMap.FERTILITY.value }}
+                                            </div>
+
+                                            <div class="small">Fertility</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row text-center mt-4">
+                                        <div class="col-3" v-if="sensorMap.N">
+                                            <i class="fas fa-flask fa-3x"
+                                               :style="{ color: getColor(sensorMap.N.status) }"></i>
+
+                                            <div class="fw-bold mt-2"
+                                                 :style="{ color: getColor(sensorMap.N.status) }">
+                                                {{ sensorMap.N.status }}
+                                            </div>
+
+                                            <div class="h4 mb-0">
+                                                {{ sensorMap.N.value }}<small>mg/kg</small>
+                                            </div>
+
+                                            <div class="small">N</div>
+                                        </div>
+                                        <div class="col-3" v-if="sensorMap.P">
+                                            <i class="fas fa-flask fa-3x"
+                                               :style="{ color: getColor(sensorMap.P.status) }"></i>
+
+                                            <div class="fw-bold mt-2"
+                                                 :style="{ color: getColor(sensorMap.P.status) }">
+                                                {{ sensorMap.P.status }}
+                                            </div>
+
+                                            <div class="h4 mb-0">
+                                                {{ sensorMap.P.value }}<small>mg/kg</small>
+                                            </div>
+
+                                            <div class="small">P</div>
+                                        </div>
+                                        <div class="col-3" v-if="sensorMap.K">
+                                            <i class="fas fa-flask fa-3x"
+                                               :style="{ color: getColor(sensorMap.K.status) }"></i>
+
+                                            <div class="fw-bold mt-2"
+                                                 :style="{ color: getColor(sensorMap.K.status) }">
+                                                {{ sensorMap.K.status }}
+                                            </div>
+
+                                            <div class="h4 mb-0">
+                                                {{ sensorMap.K.value }}<small>mg/kg</small>
+                                            </div>
+
+                                            <div class="small">K</div>
+                                        </div>
+                                        <div class="col-3" v-if="sensorMap.EC">
+                                            <i class="fas fa-flask fa-3x"
+                                               :style="{ color: getColor(sensorMap.EC.status) }"></i>
+
+                                            <div class="fw-bold mt-2"
+                                                 :style="{ color: getColor(sensorMap.EC.status) }">
+                                                {{ sensorMap.EC.status }}
+                                            </div>
+
+                                            <div class="h4 mb-0">
+                                                {{ sensorMap.EC.value }}<small>mg/kg</small>
+                                            </div>
+
+                                            <div class="small">EC</div>
+                                        </div>
+                                    </div>
+
+                                    <hr class="my-4">
+
+                                    <!-- ACTIONS UPDATED -->
+                                    <h6 class="fw-bold fs-5">Actions</h6>
+                                    <div class="row fs-6">
+                                        <div class="col-6">
+                                            <p v-for="(a, index) in farmHealth.actions" :key="index"> <i class="fas fa-exclamation-triangle me-2 fs-5"style="color: #dc3545"></i> {{ a }} </p>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- RIGHT SIDE -->
+                            <div class="col-lg-5">
+                                <div class="card border-0 shadow-sm p-4 mb-4">
+                                    <div class="d-flex justify-content-between">
+                                        <h5 class="fw-bold">Soil Deep Dive</h5>
+                                        <div class="small">
+                                            <span class="me-2"><i class="bx bx-circle" style="color: #0d6efd"></i> Outlier</span>
+                                            <span><i class="bx bx-circle" style="color: #dc3545"></i> High Outlier</span>
+                                        </div>
+                                    </div>
+
+                                    <p class="small mb-1">Soil Parameters - Last 7 Days</p>
+
+                                    <div style="height: 200px;">
+                                        <apexchart
+                                                type="line"
+                                                height="200"
+                                                :options="chartOptions"
+                                                :series="chartSeries"
+                                        />
+                                    </div>
+
+                                    <div class="d-flex justify-content-center small mt-2">
+                                        <span class="mx-2"><i class="bx bx-circle me-1" style="color:#dc3545;"></i> Soil Moisture</span>
+                                        <span class="mx-2"><i class="bx bx-circle me-1" style="color: #198754"></i> Soil Temperature</span>
+                                        <span class="mx-2" style="color:#0d6efd;">-- PH</span>
+                                    </div>
+                                </div>
+
+                                <div class="card border-0 shadow-sm p-4">
+                                    <div class="row">
+                                        <div class="col-md-7">
+                                            <h5 class="fw-bold mb-4">Storage Monitoring</h5>
+                                        </div>
+                                        <div class="col-md-5">
+                                            <select name="option" class="form-control" v-model="formFilter.device_id" @change="fetchStorageData">
+                                                <option value="">---Select To Fetch Data---</option>
+                                                <template v-for="(parent, index) in pageDependencies.warehouse_device">
+                                                    <option :value="parent.device_id">{{parent.display_name}}</option>
+                                                </template>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="row align-items-center">
+
+                                        <div class="col-md-4 d-flex justify-content-center">
+                                            <div class="gauge-storage"
+                                                 :style="{ '--value': latestData.temperature }">
+                                                <span class="h4">{{ latestData.temperature }}°C</span>
+                                                <small>Temperature</small>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-4 d-flex justify-content-center">
+                                            <div class="gauge-storage"
+                                                 :style="{ '--value': latestData.humidity }">
+                                                <span class="h4">{{ latestData.humidity }}%</span>
+                                                <small>Humidity</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 d-flex justify-content-center">
+                                            <div class="gauge-storage"
+                                                 :style="{ '--value': latestData.battery_percentage }">
+                                                <span class="h4">{{ latestData.battery_percentage }}%</span>
+                                                <small>Battery</small>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- STORAGE ACTIONS -->
+                                    <div class="mt-4">
+                                        <h6 class="fw-bold fs-5">Actions</h6>
+
+                                        <div class="row mt-2 fs-6">
+                                            <div class="col-12">
+                                                <p v-for="(action, index) in actions"
+                                                   :key="index"
+                                                   class="mb-2">
+                                                    <i class="fas fa-exclamation-triangle me-2 text-danger"></i>
+                                                    {{ action }}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="page_loader" v-if="httpRequest">
+                <i class='bx bx-loader bx-spin text-warning'></i>
+            </div>
+        </div>
+    </div>
+</template>
+
+<style scoped>
+    #dashboard {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f8f9fa;
+        min-height: 100vh;
+    }
+
+    .alert-box {
+        background-color: #fff9f1;
+        border-radius: 10px;
+        border: 1px solid #ffe8cc;
+    }
+
+    .text-orange { color: #f39c12; }
+
+    /* Custom Circular Gauge */
+    .gauge-container {
+        width: 120px;
+        height: 120px;
+        border: 12px solid #198754;
+        border-top-color: #f39c12;
+        border-left-color: #f39c12;
+        border-radius: 50%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .gauge-value {
+        font-size: 2rem;
+        font-weight: bold;
+        line-height: 1;
+    }
+
+    /* .gauge-storage {
+        width: 100px;
+        height: 100px;
+        border: 8px solid #198754;
+        border-top-color: #f39c12;
+        border-left-color: #f39c12;
+        border-radius: 50%;
+        border-bottom-color: transparent !important;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    } */
+    .gauge-storage {
+        --value: 0;
+
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+
+        position: relative;
+
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+
+        background: conic-gradient(
+                #198754 calc(var(--value) * 1%),
+                #f0f0f0 0
+        );
+    }
+
+    /* inner white circle */
+    .gauge-storage::before {
+        content: "";
+        position: absolute;
+        inset: 10px;   /* 👈 important fix */
+        background: white;
+        border-radius: 50%;
+        z-index: 1;
+    }
+
+    /* text layer */
+    .gauge-storage span,
+
+    .gauge-storage small {
+        position: relative;
+        z-index: 2;
+        text-align: center;
+        line-height: 1.2;
+    }
+
+    .vertical-alert {
+        height: 120px; /* control visible area */
+        overflow: hidden;
+        position: relative;
+    }
+
+    .ticker-wrapper {
+        height: 100%;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .ticker {
+        display: flex;
+        flex-direction: column;
+        animation: scrollUp 15s linear infinite;
+    }
+
+    .ticker-item {
+        height: 30px;
+        line-height: 12px;
+        display: flex;
+        align-items: center;
+    }
+
+
+    /* animation */
+    @keyframes scrollUp {
+        0% {
+            transform: translateY(100%);
+        }
+        100% {
+            transform: translateY(-100%);
+        }
+    }
+    .card {
+        border-radius: 15px;
+    }
+</style>

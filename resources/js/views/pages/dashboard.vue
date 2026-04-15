@@ -1,13 +1,10 @@
-<template>
-    
-</template>
+<script setup>
 
-<script>
-    export default {
-        name: "dashboard.vue"
-    }
 </script>
 
+<template>
+
+</template>
 <style scoped>
 
 </style>
