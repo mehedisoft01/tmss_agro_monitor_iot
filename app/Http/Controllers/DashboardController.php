@@ -675,8 +675,10 @@ class DashboardController extends Controller
 
         return response()->json([
             'status' => 2000,
-            'latest' => $latest,
-            'actions' => $actions,
+            'result' => [
+                'latest' => $latest,
+                'actions' => $actions,
+            ]
         ]);
     }
 }

@@ -24,7 +24,11 @@
 
     const chartData = ref([])
     const actions = ref([])
-    const latestData = reactive({})
+    const latestData = reactive({
+        temperature: 0,
+        humidity: 0,
+        battery_percentage: 0
+    })
     const sensors = ref([])
     const farmHealth = reactive({})
 
@@ -60,7 +64,6 @@
         return map
     })
 
-    // ================= API CALLS =================
 
     // Storage API
     const fetchStorageData = async () => {
@@ -69,13 +72,13 @@
                 url: '/api/storageData',
                 method: 'GET',
                 params: {
-                    device_id: formFilter.device_id
+                    device_id: formFilter.value.device_id
                 }
             })
 
-            if (response.status === 2000) {
-                Object.assign(latestData, response.latest)
-                actions.value = response.actions
+            if (response) {
+                Object.assign(latestData, response.latest || {})
+                actions.value = response.actions || []
             }
 
         } catch (error) {
@@ -176,7 +179,7 @@
         <div class="page-content">
             <div class="row">
                 <div class="total_counter">
-                    <div class="row card_items">
+                    <div class="row card_items p-4">
 
                         <h2 class="fw-bold mb-4">Farm and Storage Dashboard</h2>
                         <div class="row mb-4">
@@ -200,8 +203,10 @@
                                 <div class="card border-0 shadow-sm p-4 h-100">
                                     <div class="d-flex justify-content-between align-items-start mb-4">
                                         <div>
-                                            <h5 class="fw-bold">Farm Health Overview</h5>
-
+                                            <h5 class="fw-bold d-flex align-items-center gap-2">
+                                                <i class="bx bx-flask bx-lg"></i>
+                                                Farm Health Overview
+                                            </h5>
                                             <div class="alert-box p-3 mt-3 vertical-alert">
                                                 <p class="mb-2 fs-5">
                                                     <i class="text-orange fas fa-exclamation-triangle me-2 fs-5"></i>
@@ -241,7 +246,7 @@
                                     <!-- text-muted removed -->
                                     <div class="row text-center mt-4">
                                         <div class="col-3" v-if="sensorMap.HUMIDITY">
-                                            <i class="bx bx-water fs-1 text-success">
+                                            <i class="bx bx-water bx-lg ">
                                                 :style="{ color: getColor(sensorMap.HUMIDITY.status) }"></i>
 
                                             <div class="fw-bold mt-2"
@@ -256,7 +261,7 @@
                                             <div class="small">Soil Moisture</div>
                                         </div>
                                         <div class="col-3" v-if="sensorMap.PH">
-                                            <i class="fas fa-flask fa-3x"
+                                            <i class="bx bx-flask bx-lg"
                                                :style="{ color: getColor(sensorMap.PH.status) }"></i>
 
                                             <div class="fw-bold mt-2"
@@ -271,7 +276,7 @@
                                             <div class="small">Soil PH</div>
                                         </div>
                                         <div class="col-3" v-if="sensorMap.TEMPERATURE">
-                                            <i class="fas fa-thermometer-half fa-3x"
+                                            <i class="bx bx-thermometer bx-lg"
                                                :style="{ color: getColor(sensorMap.TEMPERATURE.status) }"></i>
 
                                             <div class="fw-bold mt-2"
@@ -288,7 +293,7 @@
                                         <div class="col-3" v-if="sensorMap.FERTILITY">
                                             <div class="rounded-circle d-flex align-items-center justify-content-center mx-auto"
                                                  style="width:50px;height:50px;background:#198754;">
-                                                <i class="fas fa-bolt text-white"></i>
+                                                <i class="bx bx-bolt text-white"></i>
                                             </div>
 
                                             <div class="fw-bold mt-2"
@@ -306,7 +311,7 @@
 
                                     <div class="row text-center mt-4">
                                         <div class="col-3" v-if="sensorMap.N">
-                                            <i class="fas fa-flask fa-3x"
+                                            <i class="bx bx-flask bx-lg"
                                                :style="{ color: getColor(sensorMap.N.status) }"></i>
 
                                             <div class="fw-bold mt-2"
@@ -321,7 +326,7 @@
                                             <div class="small">N</div>
                                         </div>
                                         <div class="col-3" v-if="sensorMap.P">
-                                            <i class="fas fa-flask fa-3x"
+                                            <i class="bx bx-flask bx-lg"
                                                :style="{ color: getColor(sensorMap.P.status) }"></i>
 
                                             <div class="fw-bold mt-2"
@@ -336,7 +341,7 @@
                                             <div class="small">P</div>
                                         </div>
                                         <div class="col-3" v-if="sensorMap.K">
-                                            <i class="fas fa-flask fa-3x"
+                                            <i class="bx bx-flask bx-lg"
                                                :style="{ color: getColor(sensorMap.K.status) }"></i>
 
                                             <div class="fw-bold mt-2"
@@ -351,7 +356,7 @@
                                             <div class="small">K</div>
                                         </div>
                                         <div class="col-3" v-if="sensorMap.EC">
-                                            <i class="fas fa-flask fa-3x"
+                                            <i class="bx bx-flask bx-lg"
                                                :style="{ color: getColor(sensorMap.EC.status) }"></i>
 
                                             <div class="fw-bold mt-2"
