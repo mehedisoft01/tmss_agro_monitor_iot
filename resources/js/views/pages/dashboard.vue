@@ -218,13 +218,14 @@
         ];
 
         optionsList.forEach(opt => {
-            opt.value = {
-                ...opt.value,
-                chart: {
-                    ...opt.value.chart,
-                    foreColor: color
-                }
-            };
+
+            if (opt.value.chart) {
+                opt.value.chart.foreColor = color;
+            }
+
+            if (opt.value.colors) {
+                opt.value.colors = [color];
+            }
         });
     };
     // METHODS
@@ -232,7 +233,7 @@
         const res = await axios.get('/api/dashboard', { params: filter.value });
         const result = res.data.result;
         const themeColor = res.data.theme_color;
-        console.log(themeColor);
+        // console.log(themeColor);
         updateChartColors(themeColor);
 
         if (filter.value.type_id == 1) {
