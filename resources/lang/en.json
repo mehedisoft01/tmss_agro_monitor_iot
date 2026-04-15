@@ -110,5 +110,18 @@
     "P": "P",
     "K": "K",
     "Fertility": "Fertility",
-    "Actions": "Actions"
+    "Actions": "Actions",
+    "dashboard_2": "Dashboard 2",
+    "conductivity": "Conductivity",
+    "ph": "Ph",
+    "fertility": "Fertility",
+    "npk_levels": "Npk Levels",
+    "warehouse": "Warehouse",
+    "soil": "Soil",
+    "from_date": "From Date",
+    "to_date": "To Date",
+    "get_data": "Get Data",
+    "paddy": "Paddy",
+    "vegetable": "Vegetable",
+    "device.device_name": "Device.device Name"
 }

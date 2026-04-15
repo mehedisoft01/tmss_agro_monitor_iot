@@ -164,9 +164,10 @@ class DashboardController extends Controller
     //    }
     public function dashboardData(Request $request)
     {
+        $authUser = auth()->user();
         $type = $request->input('type_id');
         $limit = $request->input('limit', 10);
-
+        $color = ($authUser->theme && $authUser->theme == 'bg-default bg-theme2') ? '#000000' : '#FFFFFF';
         // =========================
         // ✅ TYPE = 1 (DeviceStatus)
         // =========================
@@ -221,7 +222,9 @@ class DashboardController extends Controller
 
             return response()->json([
                 'status' => 2000,
-                'result' => $devicesData
+                'result' => $devicesData,
+                'theme_color' => $color
+
             ]);
         }
 
@@ -364,7 +367,8 @@ class DashboardController extends Controller
                 'result' => [
                     'dates' => $dates,
                     'chartData' => $chartData
-                ]
+                ],
+                'theme_color' => $color
             ]);
         }
         return response()->json([
