@@ -70,7 +70,7 @@ onMounted(() => {
             <div class="row mb-2">
                 <label class="col-md-4"><strong>{{ _l('device_name') }} :</strong></label>
                 <div class="col-md-8">
-                    <input type="text" v-model="formObject.device_name" v-validate="'required'" name="device_name" class="form-control">
+                    <input type="text" v-model="formObject.device_name" name="device_name" class="form-control">
                 </div>
             </div>
             <div class="row mb-2">
@@ -86,19 +86,19 @@ onMounted(() => {
             <div class="row mb-2">
                 <label class="col-md-4"><strong>{{ _l('device_location') }} :</strong></label>
                 <div class="col-md-8">
-                    <input type="text" v-model="formObject.device_location" v-validate="'required'" name="device_location" class="form-control">
+                    <input type="text" v-model="formObject.device_location" name="device_location" class="form-control">
                 </div>
             </div>
             <div class="row mb-2">
                 <label class="col-md-4"><strong>{{ _l('device_lat') }} :</strong></label>
                 <div class="col-md-8">
-                    <input type="text" v-model="formObject.device_lat" v-validate="'required'" name="device_lat" class="form-control">
+                    <input type="text" v-model="formObject.device_lat" name="device_lat" class="form-control">
                 </div>
             </div>
             <div class="row mb-2">
                 <label class="col-md-4"><strong>{{ _l('device_long') }} :</strong></label>
                 <div class="col-md-8">
-                    <input type="text" v-model="formObject.device_long" v-validate="'required'" name="device_long" class="form-control">
+                    <input type="text" v-model="formObject.device_long" name="device_long" class="form-control">
                 </div>
             </div>
 
