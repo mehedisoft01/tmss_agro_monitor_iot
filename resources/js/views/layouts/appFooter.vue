@@ -1,6 +1,6 @@
 <template>
     <footer class="page-footer">
-        <p class="mb-0">Copyright © 2025. All right reserved.</p>
+        <p class="mb-0">© Developer by TMSS ICT</p>
     </footer>
 </template>
 

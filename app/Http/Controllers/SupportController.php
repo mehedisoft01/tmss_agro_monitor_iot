@@ -238,6 +238,33 @@ class SupportController extends Controller
 //                });
         }
 
+        if (in_array('device', $input) || isset($input['device'])) {
+            $key = isset($input['device']['objName']) ? $input['device']['objName'] : 'device';
+
+            $data[$key] = collect();
+
+            if (isset($input['device']['type_id'])) {
+                $typeId = $input['device']['type_id'];
+
+                if ($typeId == 1) {
+                    $data[$key] = DB::table('devices')
+                        ->where('device_category', 1)
+                        ->select('device_id', 'display_name as name')
+                        ->get();
+                } elseif ($typeId == 2) {
+                    $query = DB::table('soil_devices')
+                        ->select('id as device_id', 'device_id as name', 'device_name');
+
+                    // Farmer $input filter
+                    if (isset($input['device']['farmer_type']) && $input['device']['farmer_type']) {
+                        $query->where('farmer_type', $input['device']['farmer_type']);
+                    }
+
+                    $data[$key] = $query->get();
+                }
+            }
+        }
+
         if (isset($input['productsItem']) || in_array('productsItem', $input)) {
             $key = isset($input['productsItem']['key']) ? $input['productsItem']['key'] : 'productsItem';
 
