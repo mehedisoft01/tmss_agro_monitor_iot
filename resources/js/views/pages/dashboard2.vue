@@ -1,10 +1,9 @@
 <script setup>
-    import { ref, reactive, computed, onMounted } from 'vue'
+    import { ref, reactive, computed, onMounted,watch } from 'vue'
     import VueApexCharts from "vue3-apexcharts"
     import { useStore } from 'vuex'
     import { useBase, useHttp, appStore } from '@/lib'
 
-    // components
     const apexchart = VueApexCharts
 
     const store = useStore()
@@ -20,21 +19,17 @@
 
     const { getDataList, httpReq, urlGenerate } = useHttp()
 
-    // ================= STATE =================
-
-    const chartData = ref([])
-    const actions = ref([])
     const latestData = reactive({
         temperature: 0,
         humidity: 0,
         battery_percentage: 0
     })
+    const chartData = ref([])
+    const actions = ref([])
     const sensors = ref([])
     const farmHealth = reactive({})
-
-    // ================= CHART =================
-
     const chartSeries = ref([])
+
 
     const chartOptions = ref({
         chart: {
@@ -54,7 +49,6 @@
         }
     })
 
-    // ================= COMPUTED =================
 
     const sensorMap = computed(() => {
         const map = {}
@@ -64,6 +58,14 @@
         return map
     })
 
+    watch(
+        () => formFilter.value.date_from,
+        (newVal) => {
+            if (newVal) {
+                fetchDashboardData()
+            }
+        }
+    )
 
     // Storage API
     const fetchStorageData = async () => {
@@ -92,16 +94,19 @@
             const response = await httpReq({
                 url: '/api/dashboardV2',
                 method: 'GET',
-                params: formFilter
+                params: {
+                    device_id: formFilter.value.device_id,
+                    date_from: formFilter.value.date_from
+                }
             })
 
-            if (response.status === 2000) {
-                chartData.value = response.result || []
-                sensors.value = response.sensors || []
-                Object.assign(farmHealth, response.farmHealth || {})
+            console.log("FINAL:", response)
 
-                updateChart()
-            }
+            chartData.value = response.chartData || []
+            sensors.value = response.sensors || []
+            Object.assign(farmHealth, response.farmHealth || {})
+
+            updateChart()
 
         } catch (error) {
             console.error('Dashboard API Error:', error)
@@ -116,7 +121,12 @@
         const humidityData = chartData.value.map(i => i.humidity)
         const phData = chartData.value.map(i => i.ph)
 
-        chartOptions.value.xaxis.categories = labels
+        chartOptions.value = {
+            ...chartOptions.value,
+            xaxis: {
+                categories: labels
+            }
+        }
 
         chartSeries.value = [
             {
@@ -164,7 +174,6 @@
         return alert
     }
 
-    // ================= LIFECYCLE =================
 
     onMounted(() => {
         fetchDashboardData()
@@ -246,8 +255,8 @@
                                     <!-- text-muted removed -->
                                     <div class="row text-center mt-4">
                                         <div class="col-3" v-if="sensorMap.HUMIDITY">
-                                            <i class="bx bx-water bx-lg ">
-                                                :style="{ color: getColor(sensorMap.HUMIDITY.status) }"></i>
+                                            <i class="fas fa-tint fa-3x"
+                                               :style="{ color: getColor(sensorMap.HUMIDITY.status) }"></i>
 
                                             <div class="fw-bold mt-2"
                                                  :style="{ color: getColor(sensorMap.HUMIDITY.status) }">
@@ -261,7 +270,7 @@
                                             <div class="small">Soil Moisture</div>
                                         </div>
                                         <div class="col-3" v-if="sensorMap.PH">
-                                            <i class="bx bx-flask bx-lg"
+                                            <i class="fas fa-flask fa-3x"
                                                :style="{ color: getColor(sensorMap.PH.status) }"></i>
 
                                             <div class="fw-bold mt-2"
@@ -276,7 +285,7 @@
                                             <div class="small">Soil PH</div>
                                         </div>
                                         <div class="col-3" v-if="sensorMap.TEMPERATURE">
-                                            <i class="bx bx-thermometer bx-lg"
+                                            <i class="fas fa-thermometer-half fa-3x"
                                                :style="{ color: getColor(sensorMap.TEMPERATURE.status) }"></i>
 
                                             <div class="fw-bold mt-2"
@@ -293,7 +302,7 @@
                                         <div class="col-3" v-if="sensorMap.FERTILITY">
                                             <div class="rounded-circle d-flex align-items-center justify-content-center mx-auto"
                                                  style="width:50px;height:50px;background:#198754;">
-                                                <i class="bx bx-bolt text-white"></i>
+                                                <i class="fas fa-bolt text-white"></i>
                                             </div>
 
                                             <div class="fw-bold mt-2"
@@ -311,7 +320,7 @@
 
                                     <div class="row text-center mt-4">
                                         <div class="col-3" v-if="sensorMap.N">
-                                            <i class="bx bx-flask bx-lg"
+                                            <i class="fas fa-flask fa-3x"
                                                :style="{ color: getColor(sensorMap.N.status) }"></i>
 
                                             <div class="fw-bold mt-2"
@@ -326,7 +335,7 @@
                                             <div class="small">N</div>
                                         </div>
                                         <div class="col-3" v-if="sensorMap.P">
-                                            <i class="bx bx-flask bx-lg"
+                                            <i class="fas fa-flask fa-3x"
                                                :style="{ color: getColor(sensorMap.P.status) }"></i>
 
                                             <div class="fw-bold mt-2"
@@ -341,7 +350,7 @@
                                             <div class="small">P</div>
                                         </div>
                                         <div class="col-3" v-if="sensorMap.K">
-                                            <i class="bx bx-flask bx-lg"
+                                            <i class="fas fa-flask fa-3x"
                                                :style="{ color: getColor(sensorMap.K.status) }"></i>
 
                                             <div class="fw-bold mt-2"
@@ -356,7 +365,7 @@
                                             <div class="small">K</div>
                                         </div>
                                         <div class="col-3" v-if="sensorMap.EC">
-                                            <i class="bx bx-flask bx-lg"
+                                            <i class="fas fa-flask fa-3x"
                                                :style="{ color: getColor(sensorMap.EC.status) }"></i>
 
                                             <div class="fw-bold mt-2"
@@ -484,53 +493,15 @@
 </template>
 
 <style scoped>
-    #dashboard {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        background-color: #f8f9fa;
-        min-height: 100vh;
-    }
 
     .alert-box {
-        background-color: #fff9f1;
         border-radius: 10px;
         border: 1px solid #ffe8cc;
     }
 
     .text-orange { color: #f39c12; }
 
-    /* Custom Circular Gauge */
-    .gauge-container {
-        width: 120px;
-        height: 120px;
-        border: 12px solid #198754;
-        border-top-color: #f39c12;
-        border-left-color: #f39c12;
-        border-radius: 50%;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-    }
 
-    .gauge-value {
-        font-size: 2rem;
-        font-weight: bold;
-        line-height: 1;
-    }
-
-    /* .gauge-storage {
-        width: 100px;
-        height: 100px;
-        border: 8px solid #198754;
-        border-top-color: #f39c12;
-        border-left-color: #f39c12;
-        border-radius: 50%;
-        border-bottom-color: transparent !important;
-        margin: 0 auto;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-    } */
     .gauge-storage {
         --value: 0;
 
