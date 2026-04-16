@@ -1,4 +1,6 @@
 <script setup>
+    import {widgetWeatherCurrent } from "@/components";
+
     import { ref, reactive, computed, onMounted,watch } from 'vue'
     import VueApexCharts from "vue3-apexcharts"
     import { useStore } from 'vuex'
@@ -15,22 +17,22 @@
         ...useHttp(),
         ...appStore(),
         ...appStore().useGetters('dataList', 'httpRequest', 'pageDependencies', 'updateId')
-    }
+    };
 
-    const { getDataList, httpReq, urlGenerate } = useHttp()
+    const { getDataList, httpReq, urlGenerate } = useHttp();
 
     const latestData = reactive({
         temperature: 0,
         humidity: 0,
         battery_percentage: 0
-    })
+    });
     const filterObject = ref([])
     const chartData = ref([])
     const actions = ref([])
     const sensors = ref([])
     const farmHealth = reactive({})
     const chartSeries = ref([])
-
+    const weatherData = ref({})
 
     const chartOptions = ref({
         chart: {
@@ -213,11 +215,18 @@
         }
 
         return alert
-    }
+    };
+    const fetchWeatherData = async () => {
+        const res = await httpReq({ url: '/accuweather' });
 
+        weatherData.value = res;
+        console.log("WEATHER44444",weatherData);
+    };
 
     onMounted(() => {
-        fetchDashboardData()
+        fetchDashboardData();
+        fetchWeatherData();
+
         formFilter.value.device_id='';
         filterObject.value.device_id='';
 
@@ -437,6 +446,19 @@
                             </div>
                             <!-- RIGHT SIDE -->
                             <div class="col-lg-5">
+                                <div class="card border-0 shadow-sm p-4">
+                                    <div class="row">
+                                        <div class="col-md-7">
+                                            <h5 class="fw-bold mb-4">{{_l('weather_monitoring')}}</h5>
+                                        </div>
+                                    </div>
+
+                                    <div class="row align-items-center">
+                                        <div class="col-md-12 d-flex justify-content-center">
+                                            <widget-weather-current :weather-data="weatherData"></widget-weather-current>
+                                        </div>
+                                    </div>
+                                </div>
                                 <div class="card border-0 shadow-sm p-4 mb-4">
                                     <div class="d-flex justify-content-between">
                                         <h5 class="fw-bold">{{_l('soil_deep_dive')}}</h5>

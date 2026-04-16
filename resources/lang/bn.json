@@ -150,6 +150,8 @@
   "soil_parameters_-_last_7_days": "মাটির প্যারামিটার - গত ৭ দিন",
   "storage_monitoring": "সংরক্ষণ পর্যবেক্ষণ",
   "select_to_fetch_data": "ডেটা আনতে নির্বাচন করুন",
-  "ec": "বৈদ্যুতিক পরিবাহিতা"
+  "ec": "বৈদ্যুতিক পরিবাহিতা",
+  "weather_monitoring": "আবহাওয়া পর্যবেক্ষণ",
+  "ukhiya,_right_now": "উখিয়া, এখনই"
 
 }

@@ -252,8 +252,8 @@ class DashboardController extends Controller
                     ->when($deviceId, function ($q) use ($deviceId) {
                         $q->where('site_id', $deviceId);
                     })
-                    ->whereBetween('reading_time', [$dateFrom, $dateTo])
-                    ->selectRaw('DATE(reading_time) as date')
+                    ->whereBetween('created_at', [$dateFrom, $dateTo])
+                    ->selectRaw('DATE(created_at) as date')
                     ->groupBy('date')
                     ->orderBy('date')
                     ->pluck('date')
@@ -267,9 +267,9 @@ class DashboardController extends Controller
                     ->when($deviceId, function ($q) use ($deviceId) {
                         $q->where('site_id', $deviceId);
                     })
-                    ->orderBy('reading_time', 'desc')
+                    ->orderBy('created_at', 'desc')
                     ->limit($limit)
-                    ->pluck(DB::raw("DATE_FORMAT(reading_time, '%Y-%m-%d (%H:%i)')"))
+                    ->pluck(DB::raw("DATE_FORMAT(created_at, '%Y-%m-%d (%H:%i)')"))
                     ->unique()
                     ->sort()
                     ->values()
@@ -339,7 +339,7 @@ class DashboardController extends Controller
 
                     $row = DB::table('site_readings')
                         ->where('site_id', $site->id) // ✅ FIXED
-                        ->whereDate('reading_time', $date)
+                        ->whereDate('created_at', $date)
                         ->first();
 
                     $temp[] = $row ? round($row->temperature, 2) : 0;

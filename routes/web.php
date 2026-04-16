@@ -5,8 +5,12 @@ use App\Http\Controllers\Backend\DeviceController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DeviceStatusController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\WeatherController;
 use Illuminate\Support\Facades\Route;
-
+Route::get('/accu/store/{locationId}', [WeatherController::class, 'fetchAndStoreStatus']);
+Route::get('/accuweather/forecasts/{locationId?}', [WeatherController::class, 'getForecasts']);
+Route::get('/accuweather', [WeatherController::class, 'index']);
+Route::get('/accu/{locationId?}', [WeatherController::class, 'fetchStatus']);
 Route::get('/locale.json', [\App\Http\Controllers\SupportController::class, 'getLocalization']);
 Route::get('/update.json', [\App\Http\Controllers\SupportController::class, 'addLocalization']);
 Route::get('/routes.json', [\App\Http\Controllers\SupportController::class, 'getRoutes']);

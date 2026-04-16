@@ -154,5 +154,13 @@
     "soil_parameters_-_last_7_days": "Soil Parameters - Last 7 Days",
     "storage_monitoring": "Storage Monitoring",
     "select_to_fetch_data": "Select To Fetch Data",
-    "ec": "Ec"
+    "ec": "Ec",
+    "user": "User",
+    "controller": "Controller",
+    "method": "Method",
+    "route": "Route",
+    "ip": "Ip",
+    "date": "Date",
+    "weather_monitoring": "Weather Monitoring",
+    "ukhiya,_right_now": "Ukhiya, Right Now"
 }
