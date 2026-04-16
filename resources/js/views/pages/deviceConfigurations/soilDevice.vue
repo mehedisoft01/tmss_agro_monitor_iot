@@ -1,11 +1,14 @@
 <script setup>
 import {dataTable,fromModal,tableTop} from '@/components';
 
-import {ref, onMounted} from 'vue';
+import {ref, onMounted,computed} from 'vue';
 import {useStore} from 'vuex';
 const store = useStore();
 import {useBase, useHttp, appStore} from '@/lib';
+import { useI18n } from 'vue-i18n'
 
+
+const { locale } = useI18n();
 const {getDependency, submitForm, editData, deleteRecord} = {...useHttp()};
 const {_l,can,formFilter, formObject, openModal, closeModal, useGetters, dataList, httpRequest, pageDependencies, updateId,statusBadge,characterLimit,getImage,changeStatus,handleSelectAll,deleteAllRecords} = {
     ...useBase(),
@@ -33,10 +36,12 @@ onMounted(() => {
             <tr v-for="(item, index) in dataList.data" :key="item.id">
                 <td class="fw-medium">{{index+1}}</td>
                 <td>{{item.device_id}}</td>
-                <td>{{item.device_name}}</td>
                 <td>
-                    <span v-if="item.farmer_type == 1">Paddy Farmer</span>
-                    <span v-else-if="item.farmer_type == 2">Vegetable Farmer</span>
+                    {{locale === 'bn' ? (item.device_name_bn || item.device_name) : item.device_name}}
+                </td>
+                <td>
+                    <span v-if="item.farmer_type == 1">{{_l('paddy_farmer')}}</span>
+                    <span v-else-if="item.farmer_type == 2">{{_l('vegetable_farmer')}}</span>
                     <span v-else>-</span>
                 </td>
                 <td>{{item.device_location}}</td>
@@ -71,6 +76,14 @@ onMounted(() => {
                 <label class="col-md-4"><strong>{{ _l('device_name') }} :</strong></label>
                 <div class="col-md-8">
                     <input type="text" v-model="formObject.device_name" name="device_name" class="form-control">
+                </div>
+            </div>
+            <div class="row mb-2">
+                <label class="col-md-4">
+                    <strong>{{ _l('device_name_bng') }} :</strong>
+                </label>
+                <div class="col-md-8">
+                    <input type="text" v-model="formObject.device_name_bn" name="device_name_bn" class="form-control">
                 </div>
             </div>
             <div class="row mb-2">

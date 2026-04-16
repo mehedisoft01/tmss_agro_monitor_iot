@@ -33,9 +33,10 @@
         <template v-slot:data>
             <tr v-for="(item, index) in dataList.data">
                 <td class="fw-medium">{{index+1}}</td>
-                <td>{{item.device_category_id === 1 ? 'Warehouse' :
-                    item.device_category_id === 2 ? 'Soil' : ''}}
+                <td>{{item.device_category_id === 1 ? _l('warehouse') :
+                    item.device_category_id === 2 ? _l('soil') : ''}}
                 </td>
+
                 <td>
                     {{
                     item.sensor_id == 1 ? 'Temperature' :

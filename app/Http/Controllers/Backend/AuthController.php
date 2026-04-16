@@ -101,6 +101,8 @@ class AuthController extends Controller
         $user->username = $request->username ?? $user->username;
         $user->phone = $request->phone ?? $user->phone;
         $user->image = $request->image ?? $user->image;
+        $user->locale = $request->locale ?? $user->locale;
+        $user->theme = $request->theme ?? $user->theme;
 
 
         if ($request->filled('password') && $request->filled('new_password')) {

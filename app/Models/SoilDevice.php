@@ -22,6 +22,7 @@ class SoilDevice extends Model
         'device_location',
         'device_lat',
         'device_long',
+        'device_name_bn',
     ];
 
     public function validate($input = [])

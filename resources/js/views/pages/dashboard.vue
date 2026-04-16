@@ -21,26 +21,44 @@
                             </div>
                         </div>
 
-                        <div class="col-md-2">
+                        <div class="col-md-2 d-none d-md-block">
                             <datepicker :value="filter.date_from" v-model="filter.date_from" class="form-control"  :placeholder="_l('from_date')"/>
                         </div>
 
-                        <div class="col-md-2">
+                        <div class="col-md-2 d-none d-md-block">
                             <datepicker :value="filter.date_to" v-model="filter.date_to" class="form-control"  :placeholder="_l('to_date')"/>
 
                         </div>
 
-                        <div class="col-md-2">
+                        <div class="col-md-2 d-none d-md-block">
                             <button class="btn btn-primary w-100" @click="loadData">{{_l('get_data')}}</button>
                         </div>
-                        <div v-if="filter.farmer_type && pageDependencies.device.length" class="mt-2 d-flex flex-row flex-nowrap gap-2">
+                        <div v-if="filter.farmer_type && pageDependencies.device.length"
+                             class="mt-2 d-flex flex-wrap gap-2">
+
                             <button v-for="device in pageDependencies.device"
                                     :key="device.device_id"
-                                    class="btn btn-sm btn-light flex-shrink-0"
+                                    class="btn btn-sm btn-light"
                                     :class="filter.device_id == device.device_id ? 'active btn-secondary' : ''"
-                                    @click="selectDevice(device)">
-                                {{ device.device_name }}
+                                    @click="selectDevice(device)">{{locale === 'bn' ? (device.device_name_bn || device.device_name) : device.device_name}}
                             </button>
+
+                        </div>
+                        <div class="w-100 d-block d-md-none mt-3">
+                            <div class="mb-2">
+                                <datepicker v-model="filter.date_from" class="form-control" :placeholder="_l('from_date')" />
+                            </div>
+
+                            <div class="mb-2">
+                                <datepicker v-model="filter.date_to" class="form-control" :placeholder="_l('to_date')" />
+                            </div>
+
+                            <div>
+                                <button class="btn btn-primary w-100" @click="loadData">
+                                    {{ _l('get_data') }}
+                                </button>
+                            </div>
+
                         </div>
                     </div>
                 </div>
@@ -145,6 +163,9 @@
     import axios from 'axios'
     import VueApexCharts from 'vue3-apexcharts'
     import { useHttp, useBase, appStore } from "@/lib";
+    import { useI18n } from 'vue-i18n'
+
+    const { locale } = useI18n();
     const { httpReq, getDependency } = useHttp();
     const { formFilter, pageDependencies, _l } = {
         ...useBase(),
@@ -179,7 +200,7 @@
 
     // OPTIONS
     const baseOptions = {
-        chart: { foreColor: themeColor.value, toolbar: { show: false } },
+        chart: { foreColor: '#ffffff', toolbar: { show: false } },
         stroke: { curve: 'smooth', width: 3 },
         legend: { position: 'bottom' },
         xaxis: { categories: [] }
@@ -192,12 +213,12 @@
     const phOptions = ref({ ...baseOptions });
 
     const condOptions = ref({
-        chart: { type: 'bar', foreColor: themeColor.value},
+        chart: { type: 'bar', foreColor: themeColor},
         xaxis: { categories: [] }
     });
 
     const fertilityOptions = ref({
-        chart: { type: 'bar', foreColor: themeColor.value},
+        chart: { type: 'bar', foreColor: themeColor},
         xaxis: { categories: [] }
     });
 

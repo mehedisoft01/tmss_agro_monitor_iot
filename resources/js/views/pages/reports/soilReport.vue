@@ -55,7 +55,7 @@
                     <div class="row">
                         <div class="col-md-3">
                             <select class="form-control" v-model="formFilterState.device_id">
-                                <option value="">Select Device</option>
+                                <option value="">{{_l('select_device')}}</option>
                                 <option v-for="data in pageDependencies.soil_device || []" :key="data.device_id" :value="data.device_id">
                                     {{ data.device_name }}
                                 </option>
@@ -63,22 +63,20 @@
                         </div>
 
                         <div class="col-md-3">
-                            <datepicker v-model="formFilterState.date_from" class="form-control" />
+                            <datepicker v-model="formFilterState.date_from" class="form-control" :placeholder="_l('from_date')" />
                         </div>
                         <div class="col-md-3">
-                            <datepicker v-model="formFilterState.date_to" class="form-control" />
+                            <datepicker v-model="formFilterState.date_to" class="form-control"  :placeholder="_l('to_date')"/>
                         </div>
                         <div class="col-md-3">
-                            <button class="btn btn-primary w-100" @click="getDataList">
-                                Get Data
-                            </button>
+                            <button class="btn btn-primary w-100" @click="getDataList">{{_l('get_data')}}</button>
                         </div>
                     </div>
                 </div>
 
                 <div class="col-md-3">
                     <button class="btn btn-success" @click="excelUrl">
-                        Export Excel
+                        {{_l('export_excel')}}
                     </button>
                 </div>
             </div>

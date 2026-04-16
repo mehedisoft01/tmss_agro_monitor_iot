@@ -253,7 +253,7 @@ class SupportController extends Controller
                         ->get();
                 } elseif ($typeId == 2) {
                     $query = DB::table('soil_devices')
-                        ->select('id as device_id', 'device_id as name', 'device_name');
+                        ->select('id as device_id', 'device_id as name', 'device_name','device_name_bn');
 
                     // Farmer $input filter
                     if (isset($input['device']['farmer_type']) && $input['device']['farmer_type']) {

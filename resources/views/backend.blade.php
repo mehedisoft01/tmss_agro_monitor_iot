@@ -16,8 +16,10 @@
     <link href="{{assets('backend/css/custom.css')}}" rel="stylesheet">
     <link href="{{assets('backend/css/icons.css')}}" rel="stylesheet">
 
+
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link rel="manifest" href="/manifest.json">
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
 
@@ -33,7 +35,7 @@
         }
     </script>
 
-    <title>BatterGo ERP</title>
+    <title>AGRO IOT</title>
 </head>
 
 <body class="{{auth()->user()->theme}}">
@@ -48,6 +50,7 @@
 <script src="{{assets('backend/plugins/datatable/js/jquery.dataTables.min.js')}}"></script>
 <script src="{{assets('backend/plugins/datatable/js/dataTables.bootstrap5.min.js')}}"></script>
 <script src="{{assets('backend/js/app.js')}}"></script>
+
 
     @env('local')
         @vite(['resources/js/app.js'])
