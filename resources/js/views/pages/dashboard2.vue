@@ -24,6 +24,7 @@
         humidity: 0,
         battery_percentage: 0
     })
+    const filterObject = ref([])
     const chartData = ref([])
     const actions = ref([])
     const sensors = ref([])
@@ -35,15 +36,55 @@
         chart: {
             type: 'line',
             height: 200,
-            toolbar: { show: false }
+            toolbar: { show: false },
+            background: 'transparent'
         },
+
         stroke: {
-            curve: 'smooth'
+            curve: 'smooth',
+            width: 3
         },
+
+        colors: ['#0d6efd', '#198754', '#dc3545'],
+
+        tooltip: {
+            theme: 'dark',
+            style: {
+                fontSize: '12px'
+            }
+        },
+
         xaxis: {
-            categories: []
+            categories: [],
+            labels: {
+                style: {
+                    colors: '#d1d5db',
+                    fontSize: '12px'
+                }
+            },
+            axisBorder: {
+                show: true,
+                color: '#6c757d'
+            },
+            axisTicks: {
+                show: true,
+                color: '#6c757d'
+            }
         },
-        colors: ['#dc3545', '#0d6efd', '#198754'],
+
+        yaxis: {
+            labels: {
+                style: {
+                    colors: '#d1d5db',
+                    fontSize: '12px'
+                }
+            }
+        },
+
+        grid: {
+            borderColor: 'rgba(255,255,255,0.1)'
+        },
+
         legend: {
             show: false
         }
@@ -74,7 +115,7 @@
                 url: '/api/storageData',
                 method: 'GET',
                 params: {
-                    device_id: formFilter.value.device_id
+                    device_id: filterObject.value.device_id
                 }
             })
 
@@ -177,6 +218,9 @@
 
     onMounted(() => {
         fetchDashboardData()
+        formFilter.value.device_id='';
+        filterObject.value.device_id='';
+
         getDependency({
             dependency: ['soil_device', 'warehouse_device']
         })
@@ -428,7 +472,7 @@
                                             <h5 class="fw-bold mb-4">Storage Monitoring</h5>
                                         </div>
                                         <div class="col-md-5">
-                                            <select name="option" class="form-control" v-model="formFilter.device_id" @change="fetchStorageData">
+                                            <select name="option" class="form-control" v-model="filterObject.device_id" @change="fetchStorageData">
                                                 <option value="">---Select To Fetch Data---</option>
                                                 <template v-for="(parent, index) in pageDependencies.warehouse_device">
                                                     <option :value="parent.device_id">{{parent.display_name}}</option>
@@ -508,7 +552,6 @@
         width: 100px;
         height: 100px;
         border-radius: 50%;
-
         position: relative;
 
         display: flex;
@@ -518,28 +561,40 @@
 
         background: conic-gradient(
                 #198754 calc(var(--value) * 1%),
-                #f0f0f0 0
+                rgba(255,255,255,0.15) 0
         );
+
+        box-shadow: 0 0 10px rgba(0,0,0,0.3);
     }
 
-    /* inner white circle */
+    /* inner circle */
     .gauge-storage::before {
         content: "";
         position: absolute;
-        inset: 10px;   /* 👈 important fix */
-        background: white;
+        inset: 10px;
+        background: #0d1b2a;
         border-radius: 50%;
         z-index: 1;
     }
 
-    /* text layer */
+    /* text styles */
     .gauge-storage span,
-
     .gauge-storage small {
         position: relative;
         z-index: 2;
+        color: #ffffff;
         text-align: center;
         line-height: 1.2;
+    }
+
+    .gauge-storage span {
+        font-size: 18px;
+        font-weight: bold;
+    }
+
+    .gauge-storage small {
+        font-size: 12px;
+        color: #d1d5db;
     }
 
     .vertical-alert {
