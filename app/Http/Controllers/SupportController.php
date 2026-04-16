@@ -181,14 +181,6 @@ class SupportController extends Controller
             $data[$key] = Role::where('status', 1)->get();
         }
 
-
-        if (isset($input['product_categories']) || in_array('product_categories', $input)) {
-            $key = isset($input['product_categories']['key']) ? $input['product_categories']['key'] : 'product_categories';
-            $data[$key] = ProductCategory::checkWarehouse()
-                ->where('status', 1)
-                ->orderBy('id', 'DESC')
-                ->get();
-        }
         if (in_array('soil_device', $input)) {
             $data['soil_device'] = DB::table('soil_devices')->get();
         }
@@ -557,39 +549,6 @@ class SupportController extends Controller
             $data['components'] = $components;
         }
 
-        if (isset($input['division']) || in_array('division', $input)) {
-            $key = isset($input['division']['key']) ? isset($input['division']['key']) : 'division';
-            $data[$key] = Division::when($user->division_id, function ($query) use ($user) {
-                $query->where('id', $user->division_id);
-            })->where('status', 1)->get();
-        }
-        if (isset($input['district']) || in_array('district', $input)) {
-            $key = isset($input['district']['key']) ? isset($input['district']['key']) : 'district';
-            $data[$key] = District::when($user->district_id, function ($query) use ($user) {
-                $query->where('id', $user->district_id);
-            })
-                ->when($user->division_id, function ($query) use ($user) {
-                    $query->where('division_id', $user->division_id);
-                })
-                ->where('status', 1)->get();
-        }
-        if (isset($input['upazila']) || in_array('upazila', $input)) {
-            $key = isset($input['upazila']['key']) ? isset($input['upazila']['key']) : 'upazila';
-            $data[$key] = Upazila::where('status', 1)->get();
-        }
-
-        if (isset($input['app_download_link']) || in_array('app_download_link', $input)) {
-            $key = isset($input['app_download_link']['key']) ? $input['app_download_link']['key'] : 'app_download_link';
-
-            $data[$key] = Setting::where('key', 'app_download_link')
-                ->where('is_visible', 1)
-                ->value('value');
-        }
-
-        if (isset($input['staff_designation']) || in_array('staff_designation', $input)) {
-            $key = isset($input['staff_designation']['key']) ? isset($input['staff_designation']['key']) : 'staff_designation';
-            $data[$key] = StaffDesignation::where('status', 1)->get();
-        }
         if (isset($input['icons']) || in_array('icons', $input)) {
             $data['icons'] = [
                 'bx bx-home-alt',

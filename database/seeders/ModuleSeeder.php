@@ -38,6 +38,18 @@ class ModuleSeeder extends Seeder
                 ],
             ],
             [
+                'name' => 'dashboard_2',
+                'link' => '/dashboard_2',
+                'permissions' => ['view', 'report', 'print', 'dealers', 'customers', 'warehouses', 'active_items', 'order', 'sale_qty',
+                    'paid', 'due', 'order_amount_info', 'type_wise_sales_info','sales_man_wise_sale','monthly_sales_product', 'monthly_order_product',
+                    'order_status'],
+                'icon' => 'bx bx-home-alt',
+                "component" => "views/pages/dashboard2.vue",
+                'meta' => [
+                    "dataUrl" => "api/dashboard",
+                ],
+            ],
+            [
                 'name' => 'system_settings',
                 'link' => '',
                 'permissions' => ['show'],

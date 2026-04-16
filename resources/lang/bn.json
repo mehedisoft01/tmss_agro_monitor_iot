@@ -133,6 +133,23 @@
   "superadmin": "সুপার অ্যাডমিন",
   "permissions": "অনুমতি",
   "all_modules": "সব মডিউল",
-  "opening_date": "উদ্বোধনের তারিখ"
+  "opening_date": "উদ্বোধনের তারিখ",
+  "farm_and_storage_dashboard": "খামার এবং সংরক্ষণ ড্যাশবোর্ড",
+  "farm_health_overview": "খামারের স্বাস্থ্য পর্যালোচনা",
+  "alert": "সতর্কতা",
+  "soil_moisture": "মাটির আর্দ্রতা",
+  "soil_ph": "মাটির পিএইচ",
+  "soil_temperature": "মাটির তাপমাত্রা",
+  "n": "নাইট্রোজেন (N)",
+  "p": "ফসফরাস (P)",
+  "no_sensor_data_available": "কোনো সেন্সর ডেটা পাওয়া যায়নি",
+  "k": "পটাশিয়াম (K)",
+  "soil_deep_dive": "মাটির বিস্তারিত বিশ্লেষণ",
+  "outlier": "ব্যতিক্রমী মান",
+  "high_outlier": "উচ্চ ব্যতিক্রমী মান",
+  "soil_parameters_-_last_7_days": "মাটির প্যারামিটার - গত ৭ দিন",
+  "storage_monitoring": "সংরক্ষণ পর্যবেক্ষণ",
+  "select_to_fetch_data": "ডেটা আনতে নির্বাচন করুন",
+  "ec": "বৈদ্যুতিক পরিবাহিতা"
 
 }

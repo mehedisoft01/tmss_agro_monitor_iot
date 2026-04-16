@@ -137,5 +137,22 @@
     "Super Admin": "Super Admin",
     "superadmin": "Superadmin",
     "permissions": "Permissions",
-    "all_modules": "All Modules"
+    "all_modules": "All Modules",
+    "farm_and_storage_dashboard": "Farm And Storage Dashboard",
+    "farm_health_overview": "Farm Health Overview",
+    "alert": "Alert",
+    "soil_moisture": "Soil Moisture",
+    "soil_ph": "Soil Ph",
+    "soil_temperature": "Soil Temperature",
+    "n": "N",
+    "p": "P",
+    "no_sensor_data_available": "No Sensor Data Available",
+    "k": "K",
+    "soil_deep_dive": "Soil Deep Dive",
+    "outlier": "Outlier",
+    "high_outlier": "High Outlier",
+    "soil_parameters_-_last_7_days": "Soil Parameters - Last 7 Days",
+    "storage_monitoring": "Storage Monitoring",
+    "select_to_fetch_data": "Select To Fetch Data",
+    "ec": "Ec"
 }

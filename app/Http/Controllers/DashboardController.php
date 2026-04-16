@@ -620,20 +620,16 @@ class DashboardController extends Controller
             }
         }
 
-
-        // =========================
-        // STEP 6: FINAL RESPONSE
-        // =========================
         return response()->json([
             'status' => 2000,
-            'result' => $result,
-
-            // LEFT SIDE
-            'sensors' => $sensors,
-            'farmHealth' => [
-                'score' => $score,
-                'alerts' => $alerts,
-                'actions' => $farmActions,
+            'result' => [
+                'chartData' => $result,
+                'sensors' => $sensors,
+                'farmHealth' => [
+                    'score' => $score,
+                    'alerts' => $alerts,
+                    'actions' => $farmActions,
+                ]
             ]
         ]);
     }
@@ -679,8 +675,10 @@ class DashboardController extends Controller
 
         return response()->json([
             'status' => 2000,
-            'latest' => $latest,
-            'actions' => $actions,
+            'result' => [
+                'latest' => $latest,
+                'actions' => $actions,
+            ]
         ]);
     }
 }
