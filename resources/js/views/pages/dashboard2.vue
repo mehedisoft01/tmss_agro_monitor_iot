@@ -259,7 +259,7 @@
                         </div>
 
 
-                        <div class="row g-4">
+                        <div class="row g-2">
                             <!-- LEFT SIDE -->
                             <div class="col-lg-7">
                                 <div class="card border-0 shadow-sm p-4 h-100">
