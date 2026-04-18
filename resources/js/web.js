@@ -5,7 +5,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import App from './App.vue';
 import { store } from './store';
 import { useInitials } from './lib/initial';
-import {routes} from './router/web'
+// import {routes} from './router/web'
 
 const app = createApp(App);
 const locale = window.locale || 'en'; // Add fallback locale
