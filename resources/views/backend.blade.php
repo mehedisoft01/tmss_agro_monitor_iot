@@ -61,16 +61,16 @@
                 $appJs = $manifest['resources/js/app.js'];
             @endphp
 
-            <script type="module" src="{{ assets('public/build/' . $appJs['file']) }}"></script>
+            <script type="module" src="{{ assets('build/' . $appJs['file']) }}"></script>
 
             @if(isset($appJs['css']))
                 @foreach($appJs['css'] as $css)
-                    <link rel="stylesheet" href="{{ assets('public/build/' . $css) }}">
+                    <link rel="stylesheet" href="{{ assets('build/' . $css) }}">
                 @endforeach
             @endif
 
             @if(isset($manifest['resources/css/app.css']))
-                <link rel="stylesheet" href="{{ assets('/public/build/' . $manifest['resources/css/app.css']['file']) }}">
+                <link rel="stylesheet" href="{{ assets('build/' . $manifest['resources/css/app.css']['file']) }}">
             @endif
             @endenv
 </body>
