@@ -16,6 +16,9 @@ Route::get('/update.json', [\App\Http\Controllers\SupportController::class, 'add
 Route::get('/routes.json', [\App\Http\Controllers\SupportController::class, 'getRoutes']);
 Route::get('/load.json', [\App\Http\Controllers\SupportController::class, 'loadJson']);
 
+
+Route::post('/device/save_log', [DeviceController::class, 'iotData']);
+
 Route::middleware('guest')->group(function () {
     Route::get('/', [\App\Http\Controllers\Backend\AuthController::class, 'login'])->name('login');
     Route::get('login', [\App\Http\Controllers\Backend\AuthController::class, 'login'])->name('login');

@@ -240,10 +240,8 @@
     <div class="page-wrapper">
         <div class="page-content">
             <div class="row">
-                <div class="total_counter">
-                    <div class="row card_items p-4">
-
-                        <h2 class="fw-bold mb-4">{{_l('farm_and_storage_dashboard')}}</h2>
+                <div class="card">
+                    <div class="card-header bg-light">
                         <div class="row mb-4">
                             <div class="col-md-2">
                                 <select class="form-control pointer" v-model="formFilter.device_id" @change="fetchDashboardData">
@@ -258,9 +256,7 @@
                             </div>
                         </div>
 
-
                         <div class="row g-2">
-                            <!-- LEFT SIDE -->
                             <div class="col-lg-7">
                                 <div class="card border-0 shadow-sm p-4 h-100">
                                     <div class="d-flex justify-content-between align-items-start mb-4">
@@ -444,7 +440,6 @@
                                     </div>
                                 </div>
                             </div>
-                            <!-- RIGHT SIDE -->
                             <div class="col-lg-5">
                                 <div class="card border-0 shadow-sm p-4">
                                     <div class="row">

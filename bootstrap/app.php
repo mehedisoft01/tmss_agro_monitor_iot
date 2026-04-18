@@ -20,6 +20,12 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'jwt.auth' => \App\Http\Middleware\JwtMiddleware::class,
         ]);
+        $middleware->validateCsrfTokens(except: [
+            '*/device/save_log',
+            'device/save_log',
+            'device/*',
+        ]);
+
 
     })
     ->withExceptions(function (Exceptions $exceptions): void {
