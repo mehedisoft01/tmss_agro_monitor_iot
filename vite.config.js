@@ -4,6 +4,7 @@ import laravel from 'laravel-vite-plugin';
 import ViteNotifier from 'vite-plugin-notifier';
 
 export default defineConfig({
+  base:'/public/build/',
   resolve: {
     alias: {
       '@': '/resources/js',
