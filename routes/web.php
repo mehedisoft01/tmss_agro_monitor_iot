@@ -66,6 +66,7 @@ Route::middleware([\App\Http\Middleware\AuthMiddleware::class, \App\Http\Middlew
             ->name('soil_reports.excel');
 
         Route::get('/soil_reports', [\App\Http\Controllers\ReportController::class, 'soilReport']);
+        Route::resource('/site_reading_list', \App\Http\Controllers\SiteReadingController::class);
 
         Route::get('/dashboard', [DashboardController::class, 'dashboardData']);
         Route::get('/upload_excell', [DashboardController::class, 'uploadExcell']);

@@ -175,6 +175,16 @@ class ModuleSeeder extends Seeder
                             "dataUrl" => "api/soil_device",
                         ]
                     ],
+                    [
+                        'name' => 'soil_device_data',
+                        'link' => '/site_reading_list',
+                        'permissions' => array_merge($resourcePermissions, []),
+                        'icon' => 'bx bx-radio-circle',
+                        "component" => "views/pages/deviceConfigurations/siteReading.vue",
+                        'meta' => [
+                            "dataUrl" => "api/site_reading_list",
+                        ]
+                    ],
                 ]
             ],
             [

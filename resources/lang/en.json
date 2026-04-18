@@ -162,5 +162,10 @@
     "ip": "Ip",
     "date": "Date",
     "weather_monitoring": "Weather Monitoring",
-    "ukhiya,_right_now": "Ukhiya, Right Now"
+    "ukhiya,_right_now": "Ukhiya, Right Now",
+    "site_reading_list": "Site Reading List",
+    "temperature(c)": "Temperature(c)",
+    "humidity(%)": "Humidity(%)",
+    "soil_device_data": "Soil Device Data",
+    "temperature(°C)": "Temperature(°C)"
 }

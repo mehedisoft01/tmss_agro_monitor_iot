@@ -41,14 +41,22 @@
 
         window.open(`/api/soil_reports/excel?${params}`, "_blank");
     };
+    const setTodayDate = () => {
+        const today = new Date().toISOString().split("T")[0];
+
+        formFilterState.date_from = today;
+        formFilterState.date_to = today;
+    };
 
     onMounted(() => {
         getDependency({ dependency: ["soil_device"] });
+        setTodayDate();
+
     });
 </script>
 
 <template>
-    <reportComponent :headings="['Sl','Device Name','Date','Temperature(°C)','Humidity(%)','Conductivity','N','P','K','Fertility','Remarks']" :setting="true">
+    <reportComponent :headings="['sl','device_name','date','temperature(°C)','humidity(%)','conductivity','n','p','k','fertility','remarks']" :setting="true">
         <template v-slot:filter>
             <div class="row">
                 <div class="col-md-9 text-left">

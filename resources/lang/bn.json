@@ -152,6 +152,12 @@
   "select_to_fetch_data": "ডেটা আনতে নির্বাচন করুন",
   "ec": "বৈদ্যুতিক পরিবাহিতা",
   "weather_monitoring": "আবহাওয়া পর্যবেক্ষণ",
-  "ukhiya,_right_now": "উখিয়া, এখনই"
+  "ukhiya,_right_now": "উখিয়া, এখনই",
+  "date": "তারিখ",
+  "temperature(°C)": "তাপমাত্রা (c)",
+  "temperature(c)": "তাপমাত্রা (c)",
+  "humidity(%)": "আর্দ্রতা (%)",
+  "conductivity": "পরিবাহিতা",
+  "soil_device_data": "মাটির ডিভাইসের ডাটা"
 
 }
