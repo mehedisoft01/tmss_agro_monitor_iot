@@ -27,7 +27,7 @@ class SiteReadingController extends Controller
                     $date_to . ' 23:59:59'
                 ]);
             })
-            ->orderBy('d.device_id', 'desc')
+            ->orderBy('sr.created_at', 'desc')
             ->orderBy('sr.created_at')
             ->select(
                 'sr.*',
