@@ -27,7 +27,7 @@
 <template>
     <dataTable :headings="tableHeaders" :setting="true">
         <template v-slot:tableTop>
-            <tableTop  :defaultObject="{}"></tableTop>
+            <tableTop :defaultAddButton="can('device_thresholds.store')" :defaultObject="{}"></tableTop>
         </template>
 
         <template v-slot:data>
@@ -56,10 +56,10 @@
                 <td>{{item.max_value}}</td>
                 <td>{{item.remarks}}</td>
                 <td>
-                    <a @click="editData({data:item, id:item.id, modal:'fromModal'})" class="btn btn-outline-secondary action">
+                    <a @click="editData({data:item, id:item.id, modal:'fromModal'})" v-if="can('device_thresholds.update')" class="btn btn-outline-secondary action">
                         <i class='bx bxs-edit text-warning'></i>
                     </a>
-                    <a @click="deleteRecord({targetId:item.id,listIndex:index, listObject:dataList.data})"  class="btn btn-outline-secondary action">
+                    <a @click="deleteRecord({targetId:item.id,listIndex:index, listObject:dataList.data})" v-if="can('device_thresholds.destroy')" class="btn btn-outline-secondary action">
                         <i class='bx bxs-trash text-danger'></i>
                     </a>
                 </td>

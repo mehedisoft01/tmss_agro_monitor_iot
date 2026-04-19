@@ -27,7 +27,7 @@
 <template>
     <dataTable :headings="tableHeaders" :setting="true">
         <template v-slot:tableTop>
-            <tableTop  :defaultObject="{division_id:'',district_id:'',upazila_id:''}"></tableTop>
+            <tableTop :defaultAddButton="can('devices.store')" :defaultObject="{division_id:'',district_id:'',upazila_id:''}"></tableTop>
         </template>
 
         <template v-slot:data>
@@ -41,10 +41,10 @@
                     <a @click="changeStatus({obj:online})" class="pointer" v-html="statusBadge(item?.online)"></a>
                 </td>
                 <td>
-                    <a @click="editData({data:item, id:item.id, modal:'fromModal'})" class="btn btn-outline-secondary action">
+                    <a @click="editData({data:item, id:item.id, modal:'fromModal'})" v-if="can('devices.update')" class="btn btn-outline-secondary action">
                         <i class='bx bxs-edit text-warning'></i>
                     </a>
-                    <a @click="deleteRecord({targetId:item.id,listIndex:index, listObject:dataList.data})"  class="btn btn-outline-secondary action">
+                    <a @click="deleteRecord({targetId:item.id,listIndex:index, listObject:dataList.data})" v-if="can('devices.destroy')" class="btn btn-outline-secondary action">
                         <i class='bx bxs-trash text-danger'></i>
                     </a>
                 </td>

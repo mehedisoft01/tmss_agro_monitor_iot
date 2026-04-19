@@ -48,10 +48,10 @@ onMounted(() => {
                 <td>{{item.device_lat}}</td>
                 <td>{{item.device_long}}</td>
                 <td>
-                    <a @click="editData({data:item, id:item.id, modal:'fromModal'})" class="btn btn-outline-secondary action">
+                    <a @click="editData({data:item, id:item.id, modal:'fromModal'})" v-if="can('soil_device.update')" class="btn btn-outline-secondary action">
                         <i class='bx bxs-edit text-warning'></i>
                     </a>
-                    <a @click="deleteRecord({targetId:item.id,listIndex:index, listObject:dataList.data})"  class="btn btn-outline-secondary action">
+                    <a @click="deleteRecord({targetId:item.id,listIndex:index, listObject:dataList.data})"  v-if="can('soil_device.update')" class="btn btn-outline-secondary action">
                         <i class='bx bxs-trash text-danger'></i>
                     </a>
                 </td>
