@@ -629,7 +629,7 @@
     .ticker {
         display: flex;
         flex-direction: column;
-        animation: scrollUp 15s linear infinite;
+        animation: scrollUp 30s linear infinite;
     }
 
     .ticker-item {
