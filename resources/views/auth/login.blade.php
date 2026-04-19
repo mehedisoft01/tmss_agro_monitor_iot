@@ -19,7 +19,7 @@
     <link href="{{assets('backend/css/custom.css')}}" rel="stylesheet">
     <link href="{{assets('backend/css/icons.css')}}" rel="stylesheet">
 
-    <title>BatterGo ERP</title>
+    <title>AGRO IOT</title>
 </head>
 
 @php
