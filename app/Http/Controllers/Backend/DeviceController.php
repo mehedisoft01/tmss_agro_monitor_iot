@@ -299,7 +299,7 @@ class DeviceController extends Controller
             'p'              => $data['P'] ?? 0,
             'k'              => $data['K'] ?? 0,
             'fertility'      => $data['battery'] ?? 0,            // map battery to fertility
-            'created_at'     => now(),
+            'created_at'     => now()->addHours(6),
         ]);
 
         return response()->json(['status' => 'success']);
