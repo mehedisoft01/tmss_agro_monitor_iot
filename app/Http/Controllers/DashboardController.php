@@ -166,6 +166,7 @@ class DashboardController extends Controller
     {
         $authUser = auth()->user();
         $type = $request->input('type_id');
+        $device_id = $request->input('device_id');
         $limit = $request->input('limit', 10);
         $color = ($authUser->theme && $authUser->theme == 'bg-default bg-theme2') ? '#000000' : '#FFFFFF';
         // =========================
@@ -199,6 +200,9 @@ class DashboardController extends Controller
             $data = DeviceStatus::with('device')
                 ->whereIn('id', $filteredIds)
                 ->orderBy('device_id', 'asc')
+                ->when($device_id, function ($query) use ($device_id) {
+                    $query->where('device_id', $device_id);
+                })
                 ->get();
 
             $devicesData = [];

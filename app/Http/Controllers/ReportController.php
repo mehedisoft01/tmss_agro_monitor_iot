@@ -37,7 +37,7 @@ class ReportController extends Controller
                     $date_to . ' 23:59:59'
                 ]);
             })
-            ->orderBy('device_id')
+            ->orderBy('device_id', 'desc')
             ->get()
             ->map(function ($item) {
                 $item->formatted_date = \Carbon\Carbon::parse($item->created_at)->format('Y-m-d H:i');
@@ -69,7 +69,7 @@ class ReportController extends Controller
                 ]);
             })
             ->orderBy('d.device_id')
-            ->orderBy('sr.created_at')           // তারিখ অনুসারে সাজানো
+            ->orderBy('sr.created_at', 'desc' )           // তারিখ অনুসারে সাজানো
             ->select(
                 'sr.*',
                 'd.device_name',

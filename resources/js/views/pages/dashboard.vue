@@ -53,9 +53,22 @@
 
                             <button v-for="device in pageDependencies.device"
                                     :key="device.device_id"
-                                    class="btn btn-sm btn-info"
-                                    :class="filter.device_id == device.device_id ? 'active btn-secondary' : ''"
+                                    class="btn btn-sm btn-primary"
+                                    :class="activeDeviceId === device.device_id ? 'active btn-info' : ''"
                                     @click="selectDevice(device)">{{locale === 'bn' ? (device.device_name_bn || device.device_name) : device.device_name}}
+                            </button>
+
+                        </div>
+                        <div v-if="filter.type_id == 1"
+                             class="mt-2 d-flex flex-wrap gap-2">
+                            <button
+                                    v-for="device in pageDependencies.device"
+                                    :key="device.device_id"
+                                    class="btn btn-sm btn-primary"
+                                    :class="activeDeviceId === device.device_id ? 'active btn-info' : ''"
+                                    @click="selectDevice(device)"
+                            >
+                                {{ device.name }}
                             </button>
 
                         </div>
@@ -169,6 +182,9 @@
             </div>
         </div>
     </div>
+    <div class="page_loader" v-if="loading">
+        <i class='bx bx-loader bx-spin text-warning'></i>
+    </div>
 </template>
 
 
@@ -182,13 +198,16 @@
 
     const { locale } = useI18n();
     const { httpReq, getDependency } = useHttp();
-    const { formFilter, pageDependencies, _l } = {
+    const { formFilter, pageDependencies, _l,httpRequest } = {
         ...useBase(),
         ...appStore(),
         ...useHttp(),
-        ...appStore().useGetters("pageDependencies")
+        ...appStore().useGetters("pageDependencies",'httpRequest')
     };
     const {getDataList,urlGenerate} = useHttp();
+    const props = defineProps({
+        loader: {type:Boolean, default:true},
+    });
 
     const apexchart = VueApexCharts;
 
@@ -213,14 +232,15 @@
 
     const categories = ref([]);
     const themeColor = ref();
-
+    const loading = ref(false);
     // OPTIONS
     const baseOptions = {
         chart: { foreColor: '#ffffff', toolbar: { show: false } },
         stroke: { curve: 'smooth', width: 3 },
-        legend: { position: 'bottom' },
+        legend: { position: 'bottom',show: true },
         xaxis: { categories: [] },
         tooltip: {theme: 'dark'}
+
 
     };
 
@@ -297,82 +317,83 @@
     };
     // METHODS
     const loadData = async () => {
+        loading.value = true;
 
-        const res = await axios.get('/api/dashboard', {
-            params: filter.value
-        });
-
-        const result = res.data.result;
-
-        updateChartColors(res.data.theme_color);
-
-        let allDates = [];
-
-        tempSeries.value = [];
-        humSeries.value = [];
-        npkSeries.value = [];
-
-        if (filter.value.type_id == 1) {
-
-            const temp = [];
-            const hum = [];
-
-            Object.entries(result || {}).forEach(([name, device]) => {
-
-                allDates = device.dates || [];
-
-                temp.push({
-                    name,
-                    data: device.temperature || []
-                });
-
-                hum.push({
-                    name,
-                    data: device.humidity || []
-                });
+        try {
+            const res = await axios.get('/api/dashboard', {
+                params: filter.value,
             });
 
-            tempSeries.value = temp;
-            humSeries.value = hum;
+            const result = res.data.result;
 
-        } else {
+            updateChartColors(res.data.theme_color);
 
-            allDates = result?.dates || [];
+            let allDates = [];
 
-            soilTempSeries.value = Object.entries(result?.chartData?.temperature || {})
-                .map(([k, v]) => ({ name: k, data: v }));
+            if (filter.value.type_id == 1) {
 
-            soilHumSeries.value = Object.entries(result?.chartData?.humidity || {})
-                .map(([k, v]) => ({ name: k, data: v }));
+                const temp = [];
+                const hum = [];
 
-            condSeries.value = Object.entries(result?.chartData?.conductivity || {})
-                .map(([k, v]) => ({ name: k, data: v }));
+                Object.entries(result || {}).forEach(([name, device]) => {
+                    allDates = device.dates || [];
 
-            phSeries.value = Object.entries(result?.chartData?.ph || {})
-                .map(([k, v]) => ({ name: k, data: v }));
+                    temp.push({
+                        name: String(name || 'Device'),
+                        data: device.temperature || []
+                    });
 
-            fertilitySeries.value = Object.entries(result?.chartData?.fertility || {})
-                .map(([k, v]) => ({ name: k, data: v }));
-
-            let npk = [];
-
-            ['n', 'p', 'k'].forEach(key => {
-                Object.entries(result?.chartData?.[key] || {}).forEach(([site, values]) => {
-                    npk.push({
-                        name: `${site} (${key.toUpperCase()})`,
-                        data: values
+                    hum.push({
+                        name: String(name || 'Device'),
+                        data: device.humidity || []
                     });
                 });
-            });
 
-            npkSeries.value = npk;
+                tempSeries.value = temp;
+                humSeries.value = hum;
+
+            } else {
+
+                allDates = result?.dates || [];
+
+                soilTempSeries.value = Object.entries(result?.chartData?.temperature || {})
+                    .map(([k, v]) => ({ name: k, data: v }));
+
+                soilHumSeries.value = Object.entries(result?.chartData?.humidity || {})
+                    .map(([k, v]) => ({ name: k, data: v }));
+
+                condSeries.value = Object.entries(result?.chartData?.conductivity || {})
+                    .map(([k, v]) => ({ name: k, data: v }));
+
+                phSeries.value = Object.entries(result?.chartData?.ph || {})
+                    .map(([k, v]) => ({ name: k, data: v }));
+
+                fertilitySeries.value = Object.entries(result?.chartData?.fertility || {})
+                    .map(([k, v]) => ({ name: k, data: v }));
+
+                let npk = [];
+
+                ['n', 'p', 'k'].forEach(key => {
+                    Object.entries(result?.chartData?.[key] || {}).forEach(([site, values]) => {
+                        npk.push({
+                            name: `${site} (${key.toUpperCase()})`,
+                            data: values
+                        });
+                    });
+                });
+
+                npkSeries.value = npk;
+            }
+
+            categories.value = allDates;
+            updateXAxis(allDates);
+
+        } catch (error) {
+            console.error('API Error:', error);
+
+        } finally {
+            loading.value = false;
         }
-
-        // 🔥 IMPORTANT: set categories once
-        categories.value = allDates;
-
-        // 🔥 update all charts
-        updateXAxis(allDates);
     };
     // UI ACTIONS
     const onTypeChange = () => {
@@ -396,10 +417,13 @@
                 }}});
         loadData();
     };
+    const activeDeviceId = ref(null);
     const selectDevice = (device) => {
         filter.value.device_id = device.device_id;
+        activeDeviceId.value = device.device_id;
         loadData()
     };
+
 
     onMounted(() => {
         loadData();

@@ -33,6 +33,7 @@
     const farmHealth = reactive({})
     const chartSeries = ref([])
     const weatherData = ref({})
+    const loading = ref(false);
 
     const chartOptions = ref({
         chart: {
@@ -113,6 +114,7 @@
     // Storage API
     const fetchStorageData = async () => {
         try {
+            loading.value = true;
             const response = await httpReq({
                 url: '/api/storageData',
                 method: 'GET',
@@ -128,12 +130,15 @@
 
         } catch (error) {
             console.error('Storage API Error:', error)
+        }finally {
+            loading.value = false;
         }
     }
 
     // Dashboard API
     const fetchDashboardData = async () => {
         try {
+            loading.value = true;
             const response = await httpReq({
                 url: '/api/dashboardV2',
                 method: 'GET',
@@ -153,6 +158,8 @@
 
         } catch (error) {
             console.error('Dashboard API Error:', error)
+        }finally {
+            loading.value = false;
         }
     }
 
@@ -243,7 +250,7 @@
                 <div class="card-header bg-light">
                     <div class="row mb-2">
                         <div class="col-md-2">
-                            <select class="form-control pointer" v-model="formFilter.device_id" >
+                            <select class="form-control pointer" v-model="formFilter.device_id" @click="fetchDashboardData">
                                 <option value="">{{_l('select_device')}}</option>
                                 <template v-for="(data, index) in pageDependencies.soil_device">
                                     <option :value="data.id">{{data.device_name}}</option>
@@ -252,7 +259,7 @@
 
                         </div>
                         <div class="col-md-2">
-                            <datepicker class="form-control" v-model="formFilter.date_from"  :placeholder="_l('from_date')"></datepicker>
+                            <datepicker class="form-control" v-model="formFilter.date_from"  :placeholder="_l('from_date')" @click="fetchDashboardData" ></datepicker>
                         </div>
                         <div class="col-md-2 d-none d-md-block">
                             <button class="btn btn-primary w-100" @click="fetchDashboardData">{{_l('get_data')}}</button>
@@ -546,7 +553,7 @@
                 </div>
             </div>
 
-            <div class="page_loader" v-if="httpRequest">
+            <div class="page_loader" v-if="loading">
                 <i class='bx bx-loader bx-spin text-warning'></i>
             </div>
         </div>
