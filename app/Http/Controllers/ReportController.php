@@ -37,7 +37,8 @@ class ReportController extends Controller
                     $date_to . ' 23:59:59'
                 ]);
             })
-            ->orderBy('device_id', 'desc')
+            ->orderBy('device_id')
+            ->orderBy('created_at', 'desc')
             ->get()
             ->map(function ($item) {
                 $item->formatted_date = \Carbon\Carbon::parse($item->created_at)->format('Y-m-d H:i');
