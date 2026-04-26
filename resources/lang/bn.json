@@ -157,7 +157,9 @@
   "temperature(°C)": "তাপমাত্রা (c)",
   "temperature(c)": "তাপমাত্রা (c)",
   "humidity(%)": "আর্দ্রতা (%)",
-  "conductivity": "পরিবাহিতা",
-  "soil_device_data": "মাটির ডিভাইসের ডাটা"
+  "soil_device_data": "মাটির ডিভাইসের ডাটা",
+  "farm_condition_score": "খামারের অবস্থা স্কোর",
+  "min_alert": "সর্বনিম্ন সতর্কতা",
+  "max_alert": "সর্বোচ্চ সতর্কতা"
 
 }

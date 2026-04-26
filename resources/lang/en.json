@@ -167,5 +167,8 @@
     "temperature(c)": "Temperature(c)",
     "humidity(%)": "Humidity(%)",
     "soil_device_data": "Soil Device Data",
-    "temperature(°C)": "Temperature(°C)"
+    "temperature(°C)": "Temperature(°C)",
+    "farm_condition_score": "Farm Condition Score",
+    "min_alert": "Min Alert",
+    "max_alert": "Max Alert"
 }

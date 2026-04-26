@@ -96,9 +96,11 @@
                             <div class="card">
                                 <div class="card-header">
                                     <label> <i class="bx bxs-thermometer me-2 text-danger font-18"></i>{{_l('temperature')}} (°C)</label>
+
                                 </div>
                                 <div class="card-body">
                                     <apexchart type="line" height="350" :options="tempOptions" :series="tempSeries" />
+                                    <small class="d-block text-center mt-2">{{dateRangeText}}</small>
                                 </div>
                             </div>
                         </div>
@@ -109,6 +111,7 @@
                                 </div>
                                 <div class="card-body">
                                     <apexchart type="line" height="350" :options="humOptions" :series="humSeries" />
+                                    <small class="d-block text-center mt-2">{{dateRangeText}}</small>
                                 </div>
                             </div>
                         </div>
@@ -121,6 +124,7 @@
                                 </div>
                                 <div class="card-body">
                                     <apexchart type="line" height="350" :options="soilTempOptions" :series="soilTempSeries" />
+                                    <small class="d-block text-center mt-2">{{dateRangeText}}</small>
                                 </div>
                             </div>
                         </div>
@@ -131,6 +135,7 @@
                                 </div>
                                 <div class="card-body">
                                     <apexchart type="line" height="350" :options="soilHumOptions" :series="soilHumSeries" />
+                                    <small class="d-block text-center mt-2">{{dateRangeText}}</small>
                                 </div>
                             </div>
                         </div>
@@ -142,6 +147,7 @@
                                 </div>
                                 <div class="card-body">
                                     <apexchart type="bar" height="350" :options="condOptions" :series="condSeries" />
+                                    <small class="d-block text-center mt-2">{{dateRangeText}}</small>
                                 </div>
                             </div>
                         </div>
@@ -153,6 +159,7 @@
                                 </div>
                                 <div class="card-body">
                                     <apexchart type="line" height="350" :options="phOptions" :series="phSeries" />
+                                    <small class="d-block text-center mt-2">{{dateRangeText}}</small>
                                 </div>
                             </div>
                         </div>
@@ -163,6 +170,7 @@
                                 </div>
                                 <div class="card-body">
                                     <apexchart type="bar" height="350" :options="fertilityOptions" :series="fertilitySeries"/>
+                                    <small class="d-block text-center mt-2">{{dateRangeText}}</small>
                                 </div>
                             </div>
                         </div>
@@ -174,6 +182,7 @@
                                 </div>
                                 <div class="card-body">
                                     <apexchart type="bar" height="350" :options="npkOptions" :series="npkSeries"/>
+                                    <small class="d-block text-center mt-2">{{dateRangeText}}</small>
                                 </div>
                             </div>
                         </div>
@@ -189,7 +198,7 @@
 
 
 <script setup>
-    import { ref, onMounted } from 'vue'
+    import { ref, onMounted,computed } from 'vue'
 
     import axios from 'axios'
     import VueApexCharts from 'vue3-apexcharts'
@@ -424,7 +433,24 @@
         loadData()
     };
 
+    const formatDate = (date) => {
+        if (!date) return '';
 
+        return new Date(date).toLocaleDateString('en-GB', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric'
+        });
+    };
+
+    const dateRangeText = computed(() => {
+        const from = filter.value.date_from;
+        const to = filter.value.date_to;
+
+        if (!from || !to) return '';
+
+        return `${formatDate(from)} → ${formatDate(to)}`;
+    });
     onMounted(() => {
         loadData();
         getDependency({dependency:{device: {

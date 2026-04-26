@@ -303,10 +303,13 @@
                                 </div>
 
                                 <div class="text-center">
-                                    <div class="gauge-storage"
+                                    <div class="gauge-storage d-flex flex-column justify-content-center align-items-center"
                                          :style="{ '--value': farmHealth.score }">
-                                        <span class="h4">{{ farmHealth.score }}</span>
+                                        <span class="h4 mb-0">{{ farmHealth.score }}</span>
                                     </div>
+                                    <span class="d-block text-center mt-2" style="font-size: 12px;">
+                                        {{ _l('farm_condition_score') }}
+                                    </span>
                                 </div>
                             </div>
 
@@ -509,7 +512,7 @@
 
                             <div class="row align-items-center">
 
-                                <div class="col-md-4 d-flex justify-content-center">
+                                <div class="col-md-6 d-flex justify-content-center">
                                     <div class="gauge-storage"
                                          :style="{ '--value': latestData.temperature }">
                                         <span class="h4">{{ latestData.temperature }}°C</span>
@@ -517,20 +520,20 @@
                                     </div>
                                 </div>
 
-                                <div class="col-md-4 d-flex justify-content-center">
+                                <div class="col-md-6 d-flex justify-content-center">
                                     <div class="gauge-storage"
                                          :style="{ '--value': latestData.humidity }">
                                         <span class="h4">{{ latestData.humidity }}%</span>
                                         <small>Humidity</small>
                                     </div>
                                 </div>
-                                <div class="col-md-4 d-flex justify-content-center">
-                                    <div class="gauge-storage"
-                                         :style="{ '--value': latestData.battery_percentage }">
-                                        <span class="h4">{{ latestData.battery_percentage }}%</span>
-                                        <small>Battery</small>
-                                    </div>
-                                </div>
+<!--                                <div class="col-md-4 d-flex justify-content-center">-->
+<!--                                    <div class="gauge-storage"-->
+<!--                                         :style="{ '&#45;&#45;value': latestData.battery_percentage }">-->
+<!--                                        <span class="h4">{{ latestData.battery_percentage }}%</span>-->
+<!--                                        <small>Battery</small>-->
+<!--                                    </div>-->
+<!--                                </div>-->
                             </div>
 
                             <!-- STORAGE ACTIONS -->
@@ -598,11 +601,15 @@
         inset: 10px;
         background: #0d1b2a;
         border-radius: 50%;
-        z-index: 1;
+        z-index: 0;
+
     }
 
     /* text styles */
-    .gauge-storage span,
+    .gauge-storage span {
+        z-index: 1;
+        position: relative;
+    }
     .gauge-storage small {
         position: relative;
         z-index: 2;

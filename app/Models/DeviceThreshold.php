@@ -20,6 +20,8 @@ class DeviceThreshold extends model
         'min_value',
         'max_value',
         'remarks',
+        'min_alert',
+        'max_alert'
     ];
 
     public function validate($input)

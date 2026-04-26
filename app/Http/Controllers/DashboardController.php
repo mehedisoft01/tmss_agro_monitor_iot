@@ -356,14 +356,14 @@ class DashboardController extends Controller
                     $k[] = $row ? (int)$row->k : 0;
                 }
 
-                $chartData['temperature'][$site->device_id] = $temp;
-                $chartData['humidity'][$site->device_id] = $hum;
-                $chartData['conductivity'][$site->device_id] = $conductivity;
-                $chartData['ph'][$site->device_id] = $ph;
-                $chartData['fertility'][$site->device_id] = $fertility;
-                $chartData['n'][$site->device_id] = $n;
-                $chartData['p'][$site->device_id] = $p;
-                $chartData['k'][$site->device_id] = $k;
+                $chartData['temperature'][$site->device_name] = $temp;
+                $chartData['humidity'][$site->device_name] = $hum;
+                $chartData['conductivity'][$site->device_name] = $conductivity;
+                $chartData['ph'][$site->device_name] = $ph;
+                $chartData['fertility'][$site->device_name] = $fertility;
+                $chartData['n'][$site->device_name] = $n;
+                $chartData['p'][$site->device_name] = $p;
+                $chartData['k'][$site->device_name] = $k;
             }
 
             return response()->json([
@@ -587,7 +587,6 @@ class DashboardController extends Controller
         if (!empty($alerts)) {
 
             foreach ($alerts as $alert) {
-
                 // NUTRIENT DEFICIENCY
                 if (str_contains($alert, 'N') && str_contains($alert, 'LOW')) {
                     $farmActions[] = "Nitrogen Low → Apply fertilizer";

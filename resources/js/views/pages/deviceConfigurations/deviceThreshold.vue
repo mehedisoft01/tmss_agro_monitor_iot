@@ -112,8 +112,18 @@
                 </div>
 
                 <div class="mb-2">
+                    <label class="col-form-label">{{ _l('min_alert') }}:</label>
+                    <input type="text" v-model="formObject.min_alert" class="form-control">
+                </div>
+
+                <div class="mb-2">
                     <label class="col-form-label">{{ _l('max_value') }} :</label>
                     <input type="number" v-model="formObject.max_value" class="form-control">
+                </div>
+
+                <div class="mb-2">
+                    <label class="col-form-label">{{ _l('max_alert') }}:</label>
+                    <input type="text" v-model="formObject.max_alert" class="form-control">
                 </div>
             </div>
             <div class="mb-2">
