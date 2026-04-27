@@ -510,7 +510,7 @@
                                 </div>
                             </div>
 
-                            <div class="row align-items-center">
+                            <div class="row align-items-center mt-3 mb-4">
 
                                 <div class="col-md-6 d-flex justify-content-center">
                                     <div class="gauge-storage"
@@ -537,20 +537,20 @@
                             </div>
 
                             <!-- STORAGE ACTIONS -->
-                            <div class="mt-4">
-                                <h6 class="fw-bold fs-5">{{_l('actions')}}</h6>
+<!--                            <div class="mt-4">-->
+<!--                                <h6 class="fw-bold fs-5">{{_l('actions')}}</h6>-->
 
-                                <div class="row mt-2 fs-6">
-                                    <div class="col-12">
-                                        <p v-for="(action, index) in actions"
-                                           :key="index"
-                                           class="mb-2">
-                                            <i class="fas fa-exclamation-triangle me-2 text-danger"></i>
-                                            {{ action }}
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
+<!--                                <div class="row mt-2 fs-6">-->
+<!--                                    <div class="col-12">-->
+<!--                                        <p v-for="(action, index) in actions"-->
+<!--                                           :key="index"-->
+<!--                                           class="mb-2">-->
+<!--                                            <i class="fas fa-exclamation-triangle me-2 text-danger"></i>-->
+<!--                                            {{ action }}-->
+<!--                                        </p>-->
+<!--                                    </div>-->
+<!--                                </div>-->
+<!--                            </div>-->
                         </div>
                     </div>
                 </div>

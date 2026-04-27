@@ -558,71 +558,53 @@ class DashboardController extends Controller
         // =========================
         // STEP 5: FARM HEALTH SCORE + ALERTS
         // =========================
-        $score = 100;
-        $alerts = [];
         $hasData = false;
+        $alerts = [];
+        $farmActions = [];
+        $score = 100;
 
         foreach ($sensors as $s) {
+
             if ($s['value'] > 0) {
                 $hasData = true;
             }
 
-            if ($s['status'] === 'LOW') {
+            $threshold = $thresholds[(string)$s['id']] ?? null;
+
+            if (!$threshold) continue;
+
+            $value = $s['value'];
+
+            // ======================
+            // LOW
+
+            if ($value < $threshold->min_value) {
+
                 $score -= 10;
-                $alerts[] = "{$s['name']} is LOW";
+
+                if (!empty($threshold->min_alert)) {
+                    $alerts[] = $threshold->min_alert;
+                }
+
+                if (!empty($threshold->min_action)) {
+                    $farmActions[] = $threshold->min_action;
+                }
             }
 
-            if ($s['status'] === 'HIGH') {
+// HIGH
+            if ($value > $threshold->max_value) {
+
                 $score -= 10;
-                $alerts[] = "{$s['name']} is HIGH";
-            }
-        }
-        if (!$hasData) {
-            $score = 0;
-        }
-        $score = max(0, $score);
 
-        $farmActions = [];
-
-        if (!empty($alerts)) {
-
-            foreach ($alerts as $alert) {
-                // NUTRIENT DEFICIENCY
-                if (str_contains($alert, 'N') && str_contains($alert, 'LOW')) {
-                    $farmActions[] = "Nitrogen Low → Apply fertilizer";
+                if (!empty($threshold->max_alert)) {
+                    $alerts[] = $threshold->max_alert;
                 }
 
-                if (str_contains($alert, 'P') && str_contains($alert, 'LOW')) {
-                    $farmActions[] = "Phosphorus (P) is LOW → Use phosphate fertilizer";
-                }
-
-                if (str_contains($alert, 'K') && str_contains($alert, 'LOW')) {
-                    $farmActions[] = "Potassium (K) is LOW → Apply potash fertilizer";
-                }
-
-                // SOIL CONDITIONS
-                if (str_contains($alert, 'HUMIDITY') && str_contains($alert, 'LOW')) {
-                    $farmActions[] = "Low Soil Moisture → Irrigation needed";
-                }
-
-                if (str_contains($alert, 'FERTILITY') && str_contains($alert, 'LOW')) {
-                    $farmActions[] = "FERTILITY is LOW → Improve soil nutrients / compost";
-                }
-
-                if (str_contains($alert, 'PH') && str_contains($alert, 'LOW')) {
-                    $farmActions[] = "Soil is acidic → Add lime";
-                }
-
-                if (str_contains($alert, 'PH') && str_contains($alert, 'HIGH')) {
-                    $farmActions[] = "Soil is alkaline → Add organic compost";
-                }
-
-                if (str_contains($alert, 'TEMPERATURE') && str_contains($alert, 'HIGH')) {
-                    $farmActions[] = "High Temperature → Use shading / cooling system";
+                if (!empty($threshold->max_action)) {
+                    $farmActions[] = $threshold->max_action;
                 }
             }
         }
-
         return response()->json([
             'status' => 2000,
             'result' => [
