@@ -178,7 +178,7 @@
                         <div class="col-md-12">
                             <div class="card">
                                 <div class="card-header">
-                                    <label> <i class="bx bxs-flask me-2 text-success font-18"></i>{{_l('npk_levels')}}</label>
+                                    <label> <i class="bx bxs-flask me-2 text-success font-18"></i>{{_l('n_p_k_levels')}}(Nitrogen,Phosphorus,Potassium)</label>
                                 </div>
                                 <div class="card-body">
                                     <apexchart type="bar" height="350" :options="npkOptions" :series="npkSeries"/>

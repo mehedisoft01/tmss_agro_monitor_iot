@@ -176,6 +176,7 @@ class DashboardController extends Controller
         if ($type == 1) {
 
             $subQuery = DeviceStatus::query();
+//            $subQuery->where('created_at', '>=', now()->subHours(24));
 
             if ($request->option) {
                 $subQuery->where('device_id', $request->option);
@@ -271,12 +272,19 @@ class DashboardController extends Controller
                     ->when($deviceId, function ($q) use ($deviceId) {
                         $q->where('site_id', $deviceId);
                     })
+                    ->selectRaw("
+        MIN(created_at) as created_at,
+        DATE_FORMAT(created_at, '%Y-%m-%d %H:') as hour_part,
+        FLOOR(MINUTE(created_at) / 30) as half_hour
+    ")
+                    ->groupBy('hour_part', 'half_hour')
                     ->orderBy('created_at', 'desc')
                     ->limit($limit)
-                    ->pluck(DB::raw("DATE_FORMAT(created_at, '%Y-%m-%d (%H:%i)')"))
-                    ->unique()
-                    ->sort()
-                    ->values()
+                    ->get()
+                    ->pluck('created_at')
+                    ->map(function ($time) {
+                        return \Carbon\Carbon::parse($time)->format('Y-m-d (H:i)');
+                    })
                     ->toArray();
             }
 
@@ -614,7 +622,8 @@ class DashboardController extends Controller
                     'score' => $score,
                     'alerts' => $alerts,
                     'actions' => $farmActions,
-                ]
+                ],
+                'fetched_at' => now()->format('Y-m-d H:i:s')
             ]
         ]);
     }

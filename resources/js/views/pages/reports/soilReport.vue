@@ -56,7 +56,7 @@
 </script>
 
 <template>
-    <reportComponent :headings="['sl','device_name','date','temperature(°C)','humidity(%)','conductivity','n','p','k','fertility','remarks']" :setting="true">
+    <reportComponent :headings="['sl','device_name','date','temperature(°C)','humidity(%)','conductivity','nitrogen','phosphorus','potassium','fertility','remarks']" :setting="true">
         <template v-slot:filter>
             <div class="row">
                 <div class="col-md-9 text-left">

@@ -170,5 +170,10 @@
     "temperature(°C)": "Temperature(°C)",
     "farm_condition_score": "Farm Condition Score",
     "min_alert": "Min Alert",
-    "max_alert": "Max Alert"
+    "max_alert": "Max Alert",
+    "nitrogen": "Nitrogen",
+    "phosphorus": "Phosphorus",
+    "potassium": "Potassium",
+    "electrical_conductivity": "Electrical Conductivity",
+    "n_p_k_levels": "N P K Levels"
 }

@@ -34,6 +34,7 @@
     const chartSeries = ref([])
     const weatherData = ref({})
     const loading = ref(false);
+    const fetchedAt = ref('');
 
     const chartOptions = ref({
         chart: {
@@ -48,7 +49,7 @@
             width: 3
         },
 
-        colors: ['#0d6efd', '#198754', '#dc3545'],
+        colors: ['#dc3545', '#0d6efd', '#198754'],
 
         tooltip: {
             theme: 'dark',
@@ -146,13 +147,14 @@
                     device_id: formFilter.value.device_id,
                     date_from: formFilter.value.date_from
                 }
-            })
+            });
 
-            console.log("FINAL:", response)
+            console.log("FINAL:", response);
 
-            chartData.value = response.chartData || []
-            sensors.value = response.sensors || []
-            Object.assign(farmHealth, response.farmHealth || {})
+            chartData.value = response.chartData || [];
+            sensors.value = response.sensors || [];
+            Object.assign(farmHealth, response.farmHealth || {});
+            fetchedAt.value = response.fetched_at;
 
             updateChart()
 
@@ -281,8 +283,8 @@
                                             <i class="text-orange fas fa-exclamation-triangle me-2 fs-5"></i>
                                             <strong>{{_l('alert')}}</strong>
                                         </p>
-                                        <div class="ticker-wrapper">
-                                            <div class="ticker" v-if="farmHealth.alerts && farmHealth.alerts.length">
+                                        <div class="ticker-wrapper" style="overflow: scroll;">
+                                            <div class="ticker"  v-if="farmHealth.alerts && farmHealth.alerts.length">
                                                 <p v-for="(alert, index) in farmHealth.alerts"
                                                    :key="index"
                                                    class="ticker-item mb-2 fs-6">
@@ -303,13 +305,11 @@
                                 </div>
 
                                 <div class="text-center">
-                                    <div class="gauge-storage d-flex flex-column justify-content-center align-items-center"
-                                         :style="{ '--value': farmHealth.score }">
-                                        <span class="h4 mb-0">{{ farmHealth.score }}</span>
+                                    <div>
+                                        <small class="h5 mb-4">
+                                            Last updated: {{ fetchedAt }}
+                                        </small>
                                     </div>
-                                    <span class="d-block text-center mt-2" style="font-size: 12px;">
-                                        {{ _l('farm_condition_score') }}
-                                    </span>
                                 </div>
                             </div>
 
@@ -377,6 +377,21 @@
 
                                     <div class="small">{{_l('fertility')}}</div>
                                 </div>
+                                <div class="col-3" v-if="sensorMap.EC">
+                                    <i class="fas fa-flask fa-3x"
+                                       :style="{ color: getColor(sensorMap.EC.status) }"></i>
+
+                                    <div class="fw-bold mt-2"
+                                         :style="{ color: getColor(sensorMap.EC.status) }">
+                                        {{ sensorMap.EC.status }}
+                                    </div>
+
+                                    <div class="h4 mb-0">
+                                        {{ sensorMap.EC.value }}<small>mg/kg</small>
+                                    </div>
+
+                                    <div class="small">{{ _l('electrical_conductivity') }}</div>
+                                </div>
                             </div>
 
                             <div class="row text-center mt-4">
@@ -393,7 +408,7 @@
                                         {{ sensorMap.N.value }}<small>mg/kg</small>
                                     </div>
 
-                                    <div class="small">{{_l('n')}}</div>
+                                    <div class="small">{{_l('nitrogen')}}</div>
                                 </div>
                                 <div class="col-3" v-if="sensorMap.P">
                                     <i class="fas fa-flask fa-3x"
@@ -408,7 +423,7 @@
                                         {{ sensorMap.P.value }}<small>mg/kg</small>
                                     </div>
 
-                                    <div class="small">{{_l('p')}}</div>
+                                    <div class="small">{{_l('phosphorus')}}</div>
                                 </div>
                                 <div class="col-3" v-if="sensorMap.K">
                                     <i class="fas fa-flask fa-3x"
@@ -423,23 +438,23 @@
                                         {{ sensorMap.K.value }}<small>mg/kg</small>
                                     </div>
 
-                                    <div class="small">{{_l('k')}}</div>
+                                    <div class="small">{{_l('potassium')}}</div>
                                 </div>
-                                <div class="col-3" v-if="sensorMap.EC">
-                                    <i class="fas fa-flask fa-3x"
-                                       :style="{ color: getColor(sensorMap.EC.status) }"></i>
+<!--                                <div class="col-3" v-if="sensorMap.EC">-->
+<!--                                    <i class="fas fa-flask fa-3x"-->
+<!--                                       :style="{ color: getColor(sensorMap.EC.status) }"></i>-->
 
-                                    <div class="fw-bold mt-2"
-                                         :style="{ color: getColor(sensorMap.EC.status) }">
-                                        {{ sensorMap.EC.status }}
-                                    </div>
+<!--                                    <div class="fw-bold mt-2"-->
+<!--                                         :style="{ color: getColor(sensorMap.EC.status) }">-->
+<!--                                        {{ sensorMap.EC.status }}-->
+<!--                                    </div>-->
 
-                                    <div class="h4 mb-0">
-                                        {{ sensorMap.EC.value }}<small>mg/kg</small>
-                                    </div>
+<!--                                    <div class="h4 mb-0">-->
+<!--                                        {{ sensorMap.EC.value }}<small>mg/kg</small>-->
+<!--                                    </div>-->
 
-                                    <div class="small">{{ _l('ec') }}</div>
-                                </div>
+<!--                                    <div class="small">{{ _l('electrical_conductivity') }}</div>-->
+<!--                                </div>-->
                             </div>
 
                             <hr class="my-4">
@@ -643,7 +658,7 @@
     .ticker {
         display: flex;
         flex-direction: column;
-        animation: scrollUp 15s linear infinite;
+        animation: linear infinite;
     }
 
     .ticker-item {
@@ -654,16 +669,16 @@
     }
 
 
-    /* animation */
-    @keyframes scrollUp {
-        0% {
-            transform: translateY(100%);
-        }
-        100% {
-            transform: translateY(-100%);
-        }
-    }
-    .card {
-        border-radius: 15px;
-    }
+    /*!* animation *!*/
+    /*@keyframes scrollUp {*/
+    /*    0% {*/
+    /*        transform: translateY(100%);*/
+    /*    }*/
+    /*    100% {*/
+    /*        transform: translateY(-100%);*/
+    /*    }*/
+    /*}*/
+    /*.card {*/
+    /*    border-radius: 15px;*/
+    /*}*/
 </style>
