@@ -37,10 +37,11 @@
     const loading = ref(false);
     const fetchedAt = ref('');
 
+
     const chartOptions = ref({
         chart: {
             type: 'line',
-            height: 200,
+            height: 300,
             toolbar: { show: false },
             background: 'transparent'
         },
@@ -551,10 +552,10 @@
                                 ? _l('soil_parameters_-_last_7_days')
                                 : _l('soil_parameters_-_last_24_hours') }}
                             </p>
-                            <div style="height: 200px;">
+                            <div style="height: 300px;">
                                 <apexchart
                                         type="line"
-                                        height="200"
+                                        height="300"
                                         :options="chartOptions"
                                         :series="chartSeries"
                                 />

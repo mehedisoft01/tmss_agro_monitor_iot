@@ -270,6 +270,9 @@
     const condOptions = ref({
         chart: { type: 'bar', foreColor: themeColor},
         xaxis: { categories: [] },
+        dataLabels: {
+            enabled: false
+        },
         tooltip: {theme: 'dark'}
 
     });
@@ -284,6 +287,9 @@
     const npkOptions = ref({
         chart: { type: 'bar', foreColor: themeColor },
         xaxis: { categories: [] },
+        dataLabels: {
+            enabled: false
+        },
         tooltip: {theme: 'dark'}
 
     });
