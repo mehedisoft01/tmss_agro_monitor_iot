@@ -256,7 +256,14 @@
         stroke: { curve: 'smooth', width: 3 },
         legend: { position: 'bottom',show: true },
         xaxis: { categories: [] },
-        tooltip: {theme: 'dark'}
+        tooltip: {theme: 'dark'},
+        yaxis: {
+            labels: {
+                formatter: function (val) {
+                    return parseFloat(val).toFixed(2)
+                }
+            }
+        }
 
 
     };
@@ -273,7 +280,14 @@
         dataLabels: {
             enabled: false
         },
-        tooltip: {theme: 'dark'}
+        tooltip: {theme: 'dark'},
+        yaxis: {
+            labels: {
+                formatter: function (val) {
+                    return parseFloat(val).toFixed(2)
+                }
+            }
+        }
 
     });
 
@@ -290,7 +304,14 @@
         dataLabels: {
             enabled: false
         },
-        tooltip: {theme: 'dark'}
+        tooltip: {theme: 'dark'},
+        yaxis: {
+            labels: {
+                formatter: function (val) {
+                    return parseFloat(val).toFixed(2)
+                }
+            }
+        }
 
     });
     const updateChartColors = (color) => {
