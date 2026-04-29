@@ -308,8 +308,17 @@ class DashboardController extends Controller
             $latest = DB::table('site_readings')
                 ->where('site_id', $siteId)
                 ->orderBy('created_at', 'desc')
+                ->select(
+                    'ph',
+                    'temperature',
+                    'humidity',
+                    'n',
+                    'p',
+                    'k',
+                    'fertility',
+                    DB::raw('conductivity as ec')
+                )
                 ->first();
-
             $days = [
                 '6 days ago' => $baseDate->copy()->subDays(6)->toDateString(),
                 '4 days ago' => $baseDate->copy()->subDays(4)->toDateString(),
@@ -330,7 +339,7 @@ class DashboardController extends Controller
                     'temperature' => $row->temperature ?? 0,
                     'humidity' => $row->humidity ?? 0,
                     'ph' => $row->ph ?? 0,
-                    'ec' => $row->conductivity ?? 0,
+                    'ec' => $row->conductivity  ?? 0,
                 ];
             }
 
@@ -406,10 +415,9 @@ class DashboardController extends Controller
             'N' => $latest->n ?? 0,
             'P' => $latest->p ?? 0,
             'K' => $latest->k ?? 0,
-            'EC' => $latest->conductivity ?? 0,
+            'EC' => $latest->ec ?? 0,
             'FERTILITY' => $latest->fertility ?? 0,
         ];
-
         // =========================
         // THRESHOLDS
         // =========================
