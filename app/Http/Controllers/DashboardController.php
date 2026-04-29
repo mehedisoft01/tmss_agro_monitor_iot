@@ -304,6 +304,12 @@ class DashboardController extends Controller
         // =========================
         if ($mode === 'live') {
 
+            // ✅ FIX: always latest row
+            $latest = DB::table('site_readings')
+                ->where('site_id', $siteId)
+                ->orderBy('created_at', 'desc')
+                ->first();
+
             $days = [
                 '6 days ago' => $baseDate->copy()->subDays(6)->toDateString(),
                 '4 days ago' => $baseDate->copy()->subDays(4)->toDateString(),
@@ -325,12 +331,9 @@ class DashboardController extends Controller
                     'humidity' => $row->humidity ?? 0,
                     'ph' => $row->ph ?? 0,
                     'ec' => $row->conductivity ?? 0,
-
                 ];
-                if ($label === "Today") {
-                    $latest = $row;
-                }
             }
+
         }
 
         // =========================
@@ -392,11 +395,10 @@ class DashboardController extends Controller
             7 => 'K',
             8 => 'EC',
             9 => 'PH',
-            1 => 'TEMPERATURE',
+            10 => 'TEMPERATURE',
             11 => 'HUMIDITY',
             12 => 'FERTILITY',
         ];
-
         $latestValues = [
             'PH' => $latest->ph ?? 0,
             'TEMPERATURE' => $latest->temperature ?? 0,
@@ -404,7 +406,7 @@ class DashboardController extends Controller
             'N' => $latest->n ?? 0,
             'P' => $latest->p ?? 0,
             'K' => $latest->k ?? 0,
-            'EC' => $latest->ec ?? 0,
+            'EC' => $latest->conductivity ?? 0,
             'FERTILITY' => $latest->fertility ?? 0,
         ];
 
