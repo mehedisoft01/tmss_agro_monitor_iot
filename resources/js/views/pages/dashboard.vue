@@ -9,7 +9,7 @@
                         <div class="col-12 col-md-2" style="width: 18%">
                             <div class="segment-control1">
                                 <input type="radio" id="type1" value="1" v-model="filter.type_id"  @change="onTypeChange">
-                                <label style="margin: 0;padding: 6px 26px;" for="type1">{{_l('warehouse')}}</label>
+                                <label style="margin: 0;padding: 6px 49px;" for="type1">{{_l('miller')}}</label>
 
                                 <input type="radio" id="type2" value="2" v-model="filter.type_id" @change="onTypeChange">
                                 <label style="margin: 0;padding: 6px 49px; " for="type2">{{_l('soil')}}</label>
@@ -22,32 +22,38 @@
                         </div>
 
                         <div class="col-md-2 d-none d-md-block">
-                            <datepicker :value="filter.date_from" v-model="filter.date_from" class="form-control"  :placeholder="_l('from_date')"/>
+                            <select class="form-control" v-model="filter.time_priod" @change="loadData">
+                                <option value="">Select Range</option>
+                                <option value="24">24 Hours</option>
+                                <option value="3">3 Days</option>
+                                <option value="7">7 Days</option>
+                                <option value="30">30 Days</option>
+                            </select>
                         </div>
 
-                        <div class="col-md-2 d-none d-md-block">
-                            <datepicker :value="filter.date_to" v-model="filter.date_to" class="form-control"  :placeholder="_l('to_date')"/>
+<!--                        <div class="col-md-2 d-none d-md-block">-->
+<!--                            <datepicker :value="filter.date_to" v-model="filter.date_to" class="form-control"  :placeholder="_l('to_date')"/>-->
 
-                        </div>
+<!--                        </div>-->
 
                         <div class="col-md-2 d-none d-md-block">
                             <button class="btn btn-primary w-100" @click="loadData">{{_l('get_data')}}</button>
                         </div>
-                        <div class="col-12 col-md-2  d-none d-md-block">
-                            <div class="limit-segment">
-                                <input type="radio" id="s1" value="10" v-model="filter.limit" @change="loadData">
-                                <label for="s1">10</label>
+<!--                        <div class="col-12 col-md-2  d-none d-md-block">-->
+<!--                            <div class="limit-segment">-->
+<!--                                <input type="radio" id="s1" value="10" v-model="filter.limit" @change="loadData">-->
+<!--                                <label for="s1">10</label>-->
 
-                                <input type="radio" id="s2" value="25" v-model="filter.limit" @change="loadData">
-                                <label for="s2">25</label>
+<!--                                <input type="radio" id="s2" value="25" v-model="filter.limit" @change="loadData">-->
+<!--                                <label for="s2">25</label>-->
 
-                                <input type="radio" id="s3" value="50" v-model="filter.limit" @change="loadData">
-                                <label for="s3">50</label>
+<!--                                <input type="radio" id="s3" value="50" v-model="filter.limit" @change="loadData">-->
+<!--                                <label for="s3">50</label>-->
 
-                                <input type="radio" id="s4" value="100" v-model="filter.limit" @change="loadData">
-                                <label for="s4">100</label>
-                            </div>
-                        </div>
+<!--                                <input type="radio" id="s4" value="100" v-model="filter.limit" @change="loadData">-->
+<!--                                <label for="s4">100</label>-->
+<!--                            </div>-->
+<!--                        </div>-->
                         <div v-if="filter.farmer_type && pageDependencies.device?.length"
                              class="mt-2 d-flex flex-wrap gap-2">
 
@@ -73,12 +79,14 @@
 
                         </div>
                         <div class="w-100 d-block d-md-none mt-3">
-                            <div class="mb-2">
-                                <datepicker v-model="filter.date_from" class="form-control" :placeholder="_l('from_date')" />
-                            </div>
-
-                            <div class="mb-2">
-                                <datepicker v-model="filter.date_to" class="form-control" :placeholder="_l('to_date')" />
+                            <div class="col-md-3">
+                                <select class="form-control" v-model="filter.time_priod" @change="loadData">
+                                    <option value="">Select Range</option>
+                                    <option value="24">24 Hours</option>
+                                    <option value="3">3 Days</option>
+                                    <option value="7">7 Days</option>
+                                    <option value="30">30 Days</option>
+                                </select>
                             </div>
 
                             <div>
@@ -163,17 +171,17 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-12">
-                            <div class="card">
-                                <div class="card-header">
-                                    <label> <i class='bx bx-spa me-2 text-success font-18'></i>{{_l('fertility')}}</label>
-                                </div>
-                                <div class="card-body">
-                                    <apexchart type="bar" height="350" :options="fertilityOptions" :series="fertilitySeries"/>
-                                    <small class="d-block text-center mt-2">{{dateRangeText}}</small>
-                                </div>
-                            </div>
-                        </div>
+<!--                        <div class="col-md-12">-->
+<!--                            <div class="card">-->
+<!--                                <div class="card-header">-->
+<!--                                    <label> <i class='bx bx-spa me-2 text-success font-18'></i>{{_l('fertility')}}</label>-->
+<!--                                </div>-->
+<!--                                <div class="card-body">-->
+<!--                                    <apexchart type="bar" height="350" :options="fertilityOptions" :series="fertilitySeries"/>-->
+<!--                                    <small class="d-block text-center mt-2">{{dateRangeText}}</small>-->
+<!--                                </div>-->
+<!--                            </div>-->
+<!--                        </div>-->
 
                         <div class="col-md-12">
                             <div class="card">
@@ -244,7 +252,7 @@
     const loading = ref(false);
     // OPTIONS
     const baseOptions = {
-        chart: { foreColor: '#ffffff', toolbar: { show: false } },
+        chart: { foreColor: themeColor, toolbar: { show: false } },
         stroke: { curve: 'smooth', width: 3 },
         legend: { position: 'bottom',show: true },
         xaxis: { categories: [] },
@@ -457,6 +465,8 @@
                     type_id: filter.value.type_id,
                 }}})
     });
+
+    filter.value.time_priod ='24';
 </script>
 <style>
     .segment-control1 {

@@ -165,6 +165,14 @@
   "phosphorus": "ফসফরাস",
   "potassium": "পটাশিয়াম",
   "electrical_conductivity": "বৈদ্যুতিক পরিবাহিতা",
-  "n_p_k_levels": "এন পি কে মাত্রা"
+  "n_p_k_levels": "এন পি কে মাত্রা",
+  "Live Data": "লাইভ ডেটা",
+  "live_data": "লাইভ ডেটা",
+  "live_update": "লাইভ আপডেট",
+  "last_24_hours_avg": "গত ২৪ ঘণ্টার গড়",
+  "24_hours_average_data": "২৪ ঘণ্টার গড় ডেটা",
+  "miller": "মিলার",
+  "miller_reports": "মিলার রিপোর্ট",
+  "soil_parameters_-_last_24_hours": "মাটির পরামিতি - গত ২৪ ঘণ্টা"
 
 }

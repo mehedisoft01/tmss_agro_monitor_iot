@@ -5,6 +5,7 @@
     import VueApexCharts from "vue3-apexcharts"
     import { useStore } from 'vuex'
     import { useBase, useHttp, appStore } from '@/lib'
+    import axios from 'axios'
 
     const apexchart = VueApexCharts
 
@@ -94,7 +95,7 @@
         }
     })
 
-
+    const healthMode = ref('live');
     const sensorMap = computed(() => {
         const map = {}
         sensors.value.forEach(s => {
@@ -110,7 +111,10 @@
                 fetchDashboardData()
             }
         }
-    )
+    );
+    watch(healthMode, () => {
+        fetchDashboardData();
+    });
 
     // Storage API
     const fetchStorageData = async () => {
@@ -135,35 +139,61 @@
             loading.value = false;
         }
     }
-
     // Dashboard API
+    // const fetchDashboardData = async () => {
+    //     try {
+    //         loading.value = true;
+    //
+    //         const response =  httpReq({
+    //             url: '/api/dashboardV2',
+    //             method: 'GET',
+    //             params: {
+    //                 device_id: formFilter.value.device_id,
+    //                 date_from: formFilter.value.date_from,
+    //                 mode: healthMode.value
+    //             }
+    //         });
+    //
+    //         console.log("res",response)
+    //         chartData.value = response.chartData || [];
+    //         sensors.value = response.sensors || [];
+    //         Object.assign(farmHealth, response.farmHealth || {});
+    //         fetchedAt.value = response.fetched_at;
+    //         console.log(chartData.value);
+    //
+    //         updateChart();
+    //
+    //     } catch (error) {
+    //         console.error(error);
+    //     } finally {
+    //         loading.value = false;
+    //     }
+    // };
     const fetchDashboardData = async () => {
         try {
             loading.value = true;
-            const response = await httpReq({
-                url: '/api/dashboardV2',
-                method: 'GET',
+
+            const response = await axios.get('/api/dashboardV2', {
                 params: {
                     device_id: formFilter.value.device_id,
-                    date_from: formFilter.value.date_from
-                }
-            });
+                    date_from: formFilter.value.date_from,
+                    mode: healthMode.value
+                }            });
 
-            console.log("FINAL:", response);
+            console.log("res",response)
+            chartData.value = response.data.chartData || [];
+            sensors.value = response.data.sensors || [];
+            Object.assign(farmHealth, response.data.farmHealth || {});
+            fetchedAt.value = response.data.fetched_at;
 
-            chartData.value = response.chartData || [];
-            sensors.value = response.sensors || [];
-            Object.assign(farmHealth, response.farmHealth || {});
-            fetchedAt.value = response.fetched_at;
-
-            updateChart()
+            updateChart();
 
         } catch (error) {
-            console.error('Dashboard API Error:', error)
-        }finally {
+            console.error(error);
+        } finally {
             loading.value = false;
         }
-    }
+    };
 
     // ================= CHART LOGIC =================
 
@@ -278,12 +308,12 @@
                                         <i class="bx bx-flask bx-lg"></i>
                                        {{_l('farm_health_overview')}}
                                     </h5>
-                                    <div class="alert-box p-3 mt-3 vertical-alert">
+                                    <div class="alert-box p-3 mt-3  vertical-alert">
                                         <p class="mb-2 fs-5">
                                             <i class="text-orange fas fa-exclamation-triangle me-2 fs-5"></i>
                                             <strong>{{_l('alert')}}</strong>
                                         </p>
-                                        <div class="ticker-wrapper" style="overflow: scroll;">
+                                        <div class="ticker-wrapper" style="overflow: auto;">
                                             <div class="ticker"  v-if="farmHealth.alerts && farmHealth.alerts.length">
                                                 <p v-for="(alert, index) in farmHealth.alerts"
                                                    :key="index"
@@ -307,8 +337,32 @@
                                 <div class="text-center">
                                     <div>
                                         <small class="h5 mb-4">
-                                            Last updated: {{ fetchedAt }}
+
+                                            <span v-if="healthMode === 'live'">
+                                                🟢 {{_l('live_data')}} : {{ fetchedAt }}
+                                            </span>
+
+                                            <span v-else>
+                                                📊 {{_l('24_hours_average_data')}}
+                                            </span>
+
                                         </small>
+                                    </div>
+                                    <div class="d-flex gap-4 mb-3" style="margin-top: 50px">
+
+                                        <label class="d-flex align-items-center gap-2 fs-6 fw-semibold cursor-pointer">
+                                            <input type="radio"
+                                                   value="live" v-model="healthMode" class="form-check-input scale-radio">{{_l('live_update')}}
+                                        </label>
+
+                                        <label class="d-flex align-items-center gap-2 fs-6 fw-semibold cursor-pointer">
+                                            <input type="radio"
+                                                   value="24h"
+                                                   v-model="healthMode"
+                                                   class="form-check-input scale-radio">
+                                           {{_l('last_24_hours_avg')}}
+                                        </label>
+
                                     </div>
                                 </div>
                             </div>
@@ -360,23 +414,23 @@
 
                                     <div class="small">{{_l('soil_temperature')}}</div>
                                 </div>
-                                <div class="col-3" v-if="sensorMap.FERTILITY">
-                                    <div class="rounded-circle d-flex align-items-center justify-content-center mx-auto"
-                                         style="width:50px;height:50px;background:#198754;">
-                                        <i class="fas fa-bolt text-white"></i>
-                                    </div>
+<!--                                <div class="col-3" v-if="sensorMap.FERTILITY">-->
+<!--                                    <div class="rounded-circle d-flex align-items-center justify-content-center mx-auto"-->
+<!--                                         style="width:50px;height:50px;background:#198754;">-->
+<!--                                        <i class="fas fa-bolt text-white"></i>-->
+<!--                                    </div>-->
 
-                                    <div class="fw-bold mt-2"
-                                         :style="{ color: getColor(sensorMap.FERTILITY.status) }">
-                                        {{ sensorMap.FERTILITY.status }}
-                                    </div>
+<!--                                    <div class="fw-bold mt-2"-->
+<!--                                         :style="{ color: getColor(sensorMap.FERTILITY.status) }">-->
+<!--                                        {{ sensorMap.FERTILITY.status }}-->
+<!--                                    </div>-->
 
-                                    <div class="h4 mb-0">
-                                        {{ sensorMap.FERTILITY.value }}
-                                    </div>
+<!--                                    <div class="h4 mb-0">-->
+<!--                                        {{ sensorMap.FERTILITY.value }}-->
+<!--                                    </div>-->
 
-                                    <div class="small">{{_l('fertility')}}</div>
-                                </div>
+<!--                                    <div class="small">{{_l('fertility')}}</div>-->
+<!--                                </div>-->
                                 <div class="col-3" v-if="sensorMap.EC">
                                     <i class="fas fa-flask fa-3x"
                                        :style="{ color: getColor(sensorMap.EC.status) }"></i>
@@ -492,8 +546,11 @@
                                 </div>
                             </div>
 
-                            <p class="small mb-1">{{_l('soil_parameters_-_last_7_days')}}</p>
-
+                            <p class="small mb-1">
+                                {{ healthMode === 'live'
+                                ? _l('soil_parameters_-_last_7_days')
+                                : _l('soil_parameters_-_last_24_hours') }}
+                            </p>
                             <div style="height: 200px;">
                                 <apexchart
                                         type="line"
@@ -644,9 +701,10 @@
     }
 
     .vertical-alert {
-        height: 120px; /* control visible area */
+        height: 160px; /* control visible area */
         overflow: hidden;
         position: relative;
+        width:350px;
     }
 
     .ticker-wrapper {

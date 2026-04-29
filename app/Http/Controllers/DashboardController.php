@@ -8,6 +8,9 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Carbon\CarbonPeriod;
+
+
 
 class DashboardController extends Controller
 {
@@ -15,320 +18,155 @@ class DashboardController extends Controller
 
     public function __construct() {}
 
-    //    public function dashboardData(Request $request)
-    //    {
-    //        $deviceId    = $request->input('option');
-    //        $dateFrom  = $request->input('date_from');
-    //        $dateTo    = $request->input('date_to');
-    //
-    //        $dateFrom = $dateFrom ? Carbon::parse($dateFrom) : null;
-    //        $dateTo   = $dateTo ? Carbon::parse($dateTo) : null;
-    //
-    //        if (!$dateFrom && !$dateTo) {
-    //            $dateTo = Carbon::now();
-    //            $dateFrom = $dateTo->copy()->subDays(6);
-    //        } elseif ($dateFrom && !$dateTo) {
-    //            $dateTo = Carbon::now();
-    //        } elseif (!$dateFrom && $dateTo) {
-    //            $dateFrom = $dateTo->copy()->subDays(6);
-    //        }
-    //
-    //        $diffDays = $dateFrom->diffInDays($dateTo) + 1;
-    //        if ($diffDays > 7) {
-    //            return returnData(4000, [],"You can only search a maximum of 7 days at a time.");
-    //        }
-    //
-    //        $dates = DB::table('site_readings')
-    //            ->when($deviceId, function($q) use ($deviceId){
-    //                $q->where('site_id', $deviceId);
-    //            })
-    //            ->whereBetween('reading_time', [$dateFrom, $dateTo])
-    //            ->selectRaw('DATE(reading_time) as date')
-    //            ->groupBy('date')
-    //            ->orderBy('date')
-    //            ->pluck('date')
-    //            ->toArray();
-    //        $sitesQuery = DB::table('sites');
-    //        if ($deviceId) $sitesQuery->where('id', $deviceId);
-    //        $sites = $sitesQuery->get();
-    //
-    //        // Initialize chart data
-    //        $chartData = [
-    //            'temperature'   => [],
-    //            'humidity'      => [],
-    //            'conductivity'  => [],
-    //            'ph'            => [],
-    //            'fertility'     => [],
-    //            'n'             => [],
-    //            'p'             => [],
-    //            'k'             => []
-    //        ];
-    //
-    //        // Collect readings per site
-    //        foreach ($sites as $site) {
-    //            $temp = $hum = $conductivity = $ph = $fertility = $n = $p = $k = [];
-    //
-    //            foreach ($dates as $date) {
-    //                $row = DB::table('site_readings')
-    //                    ->where('site_id', $site->id)
-    //                    ->whereDate('reading_time', $date)
-    //                    ->first();
-    //
-    //                $temp[]          = $row ? round($row->temperature, 2) : 0;
-    //                $hum[]           = $row ? (int)$row->humidity : 0;
-    //                $conductivity[]  = $row ? (int)$row->conductivity : 0;
-    //                $ph[]            = $row ? round($row->ph, 1) : 0;
-    //                $fertility[]     = $row ? (int)$row->fertility : 0;
-    //                $n[]             = $row ? (int)$row->n : 0;
-    //                $p[]             = $row ? (int)$row->p : 0;
-    //                $k[]             = $row ? (int)$row->k : 0;
-    //            }
-    //
-    //            $chartData['temperature'][$site->name]   = $temp;
-    //            $chartData['humidity'][$site->name]      = $hum;
-    //            $chartData['conductivity'][$site->name]  = $conductivity;
-    //            $chartData['ph'][$site->name]            = $ph;
-    //            $chartData['fertility'][$site->name]     = $fertility;
-    //            $chartData['n'][$site->name]             = $n;
-    //            $chartData['p'][$site->name]             = $p;
-    //            $chartData['k'][$site->name]             = $k;
-    //        }
-    //
-    //        return returnData(2000, [
-    //            'dates'     => $dates,
-    //            'chartData' => $chartData
-    //        ]);
-    //    }
-
-
-    //    public function dashboardData(Request $request)
-    //    {
-    //        $limit = $request->input('limit', 10);
-    //
-    //        // Step 1: Base query
-    //        $subQuery = DeviceStatus::query();
-    //
-    //        // ✅ Device filter
-    //        if ($request->option) {
-    //            $subQuery->where('device_id', $request->option);
-    //        }
-    //
-    //        // ✅ Date filter
-    //        if ($request->date_from) {
-    //            $subQuery->whereDate('created_at', '>=', $request->date_from);
-    //        }
-    //
-    //        if ($request->date_to) {
-    //            $subQuery->whereDate('created_at', '<=', $request->date_to);
-    //        }
-    //
-    //        // Step 2: Apply ROW_NUMBER per device
-    //        $subQuery->select('id')->selectRaw("ROW_NUMBER() OVER (PARTITION BY device_id ORDER BY created_at DESC) as rn");
-    //
-    //        // Step 3: Get filtered IDs
-    //        $filteredIds = DB::table(DB::raw("({$subQuery->toSql()}) as t"))
-    //            ->mergeBindings($subQuery->getQuery())
-    //            ->where('rn', '<=', $limit)
-    //            ->pluck('id');
-    //
-    //        // Step 4: Fetch final data
-    //        $data = DeviceStatus::with('device')
-    //            ->whereIn('id', $filteredIds)
-    //            ->orderBy('device_id', 'asc')
-    //            ->get();
-    //
-    //        // Step 5: Group by device
-    //        $devicesData = [];
-    //
-    //        foreach ($data as $row) {
-    //            $deviceName = $row->device->display_name ?? 'Device';
-    //            $time = \Carbon\Carbon::parse($row->created_at)->format('H:i');
-    //
-    //            if (!isset($devicesData[$deviceName])) {
-    //                $devicesData[$deviceName] = [
-    //                    'dates' => [],
-    //                    'temperature' => [],
-    //                    'humidity' => []
-    //                ];
-    //            }
-    //
-    //            $devicesData[$deviceName]['dates'][] = $time;
-    //            $devicesData[$deviceName]['temperature'][] = $row->temperature;
-    //            $devicesData[$deviceName]['humidity'][] = $row->humidity;
-    //        }
-    //
-    //        return response()->json([
-    //            'status' => 2000,
-    //            'result' => $devicesData
-    //        ]);
-    //    }
     public function dashboardData(Request $request)
     {
         $authUser = auth()->user();
+
         $type = $request->input('type_id');
         $device_id = $request->input('device_id');
-        $limit = $request->input('limit', 10);
-        $color = ($authUser->theme && $authUser->theme == 'bg-default bg-theme2') ? '#000000' : '#FFFFFF';
-        // =========================
-        // ✅ TYPE = 1 (DeviceStatus)
-        // =========================
+        $time = (int) $request->input('time_priod', 24);
 
+        // =========================
+        // INTERVAL SET (IMPORTANT)
+        // =========================
+        if ($time == 24) {
+            $intervalHour = 1;
+            $totalHours = 24;
+        } elseif ($time == 3) {
+            $intervalHour = 3;
+            $totalHours = 72;
+        } elseif ($time == 7) {
+            $intervalHour = 7;
+            $totalHours = 168;
+        } elseif ($time == 30) {
+            $intervalHour = 30;
+            $totalHours = 720;
+        } else {
+            $intervalHour = 1;
+            $totalHours = 24;
+        }
+
+        $color = ($authUser->theme && $authUser->theme == 'bg-default bg-theme2')
+            ? '#000000'
+            : '#FFFFFF';
+
+        // =========================
+        // DATE RANGE
+        // =========================
+        $end = now()->startOfHour();
+        $start = $end->copy()->subHours($totalHours - 1);
+
+        // =========================
+        // LABELS + BUCKET
+        // =========================
+        $labels = [];
+        $bucket = [];
+
+        $period = CarbonPeriod::create($start, "{$intervalHour} hours", $end);
+
+        foreach ($period as $dt) {
+            $key = $dt->format('Y-m-d H:00:00');
+
+            $labels[] = $dt->format('d-M (H:i)');
+
+            $bucket[$key] = [
+                'temperature_sum' => 0,
+                'humidity_sum' => 0,
+                'count' => 0,
+            ];
+        }
+
+        // =========================
+        // TYPE 1
+        // =========================
         if ($type == 1) {
 
-            $subQuery = DeviceStatus::query();
-//            $subQuery->where('created_at', '>=', now()->subHours(24));
-
-            if ($request->option) {
-                $subQuery->where('device_id', $request->option);
-            }
-
-            if ($request->date_from) {
-                $subQuery->whereDate('created_at', '>=', $request->date_from);
-            }
-
-            if ($request->date_to) {
-                $subQuery->whereDate('created_at', '<=', $request->date_to);
-            }
-
-            $subQuery->select('id')
-                ->selectRaw("ROW_NUMBER() OVER (PARTITION BY device_id ORDER BY created_at DESC) as rn");
-
-            $filteredIds = DB::table(DB::raw("({$subQuery->toSql()}) as t"))
-                ->mergeBindings($subQuery->getQuery())
-                ->where('rn', '<=', $limit)
-                ->pluck('id');
-
-            $data = DeviceStatus::with('device')
-                ->whereIn('id', $filteredIds)
-                ->orderBy('device_id', 'asc')
-                ->when($device_id, function ($query) use ($device_id) {
-                    $query->where('device_id', $device_id);
+            $raw = DB::table('device_statuses as ds')
+                ->join('devices as d', 'd.device_id', '=', 'ds.device_id')
+                ->when($device_id, function ($q) use ($device_id) {
+                    $q->where('ds.device_id', $device_id);
                 })
+                ->whereBetween('ds.created_at', [$start, $end])
+                ->selectRaw("
+                ds.device_id,
+                d.display_name,
+                DATE_FORMAT(ds.created_at, '%Y-%m-%d %H:00:00') as hour_time,
+                AVG(ds.temperature) as temperature,
+                AVG(ds.humidity) as humidity
+            ")
+                ->groupBy('ds.device_id', 'd.display_name', 'hour_time')
+                ->orderBy('hour_time')
                 ->get();
 
-            $devicesData = [];
+            $devices = [];
 
-            foreach ($data as $row) {
-                $deviceName = $row->device->display_name ?? 'Device';
-                $time = \Carbon\Carbon::parse($row->created_at)->format('Y-m-d (H:i)');
+            foreach ($raw as $row) {
 
-                if (!isset($devicesData[$deviceName])) {
-                    $devicesData[$deviceName] = [
-                        'dates' => [],
-                        'temperature' => [],
-                        'humidity' => []
+                $deviceName = $row->display_name ?? ('Device-' . $row->device_id);
+
+                if (!isset($devices[$deviceName])) {
+                    $devices[$deviceName] = [
+                        'device_name' => $deviceName,
+                        'dates' => $labels,
+                        'temperature' => array_fill(0, count($labels), 0),
+                        'humidity' => array_fill(0, count($labels), 0),
                     ];
                 }
 
-                $devicesData[$deviceName]['dates'][] = $time;
-                $devicesData[$deviceName]['temperature'][] = $row->temperature;
-                $devicesData[$deviceName]['humidity'][] = $row->humidity;
+                // interval bucket match
+                $dt = Carbon::parse($row->hour_time);
+
+                $index = array_search(
+                    $dt->format('d-M (H:i)'),
+                    $labels
+                );
+
+                if ($index !== false) {
+                    $devices[$deviceName]['temperature'][$index] = round($row->temperature, 2);
+                    $devices[$deviceName]['humidity'][$index] = round($row->humidity, 2);
+                }
             }
 
             return response()->json([
                 'status' => 2000,
-                'result' => $devicesData,
+                'result' => $devices,
+                'dates' => $labels,
                 'theme_color' => $color
-
             ]);
         }
 
         // =========================
-        // ✅ TYPE = 2 (Site Readings - old logic)
+        // TYPE 2 (SOIL)
         // =========================
-
         if ($type == 2) {
 
-            $deviceId = $request->input('option');
-
-            $dateFrom = $request->input('date_from');
-            $dateTo = $request->input('date_to');
-
-            $dateFrom = $dateFrom ? \Carbon\Carbon::parse($dateFrom) : null;
-            $dateTo = $dateTo ? \Carbon\Carbon::parse($dateTo) : null;
-
-            // =========================
-            // ✅ CASE 1: If date range given
-            // =========================
-
-            if ($dateFrom && $dateTo) {
-
-                $dates = DB::table('site_readings')
-                    ->when($deviceId, function ($q) use ($deviceId) {
-                        $q->where('site_id', $deviceId);
-                    })
-                    ->whereBetween('created_at', [$dateFrom, $dateTo])
-                    ->selectRaw('DATE(created_at) as date')
-                    ->groupBy('date')
-                    ->orderBy('date')
-                    ->pluck('date')
-                    ->toArray();
-            } else {
-                // =========================
-                // ✅ CASE 2: Default → last 7 records (not days)
-                // =========================
-
-                $dates = DB::table('site_readings')
-                    ->when($deviceId, function ($q) use ($deviceId) {
-                        $q->where('site_id', $deviceId);
-                    })
-                    ->selectRaw("
-        MIN(created_at) as created_at,
-        DATE_FORMAT(created_at, '%Y-%m-%d %H:') as hour_part,
-        FLOOR(MINUTE(created_at) / 30) as half_hour
-    ")
-                    ->groupBy('hour_part', 'half_hour')
-                    ->orderBy('created_at', 'desc')
-                    ->limit($limit)
-                    ->get()
-                    ->pluck('created_at')
-                    ->map(function ($time) {
-                        return \Carbon\Carbon::parse($time)->format('Y-m-d (H:i)');
-                    })
-                    ->toArray();
-            }
-
-            // =========================
-            // ✅ Devices (sites)
-            // =========================
-            //            $sitesQuery = DB::table('soil_devices')
-            //                ->whereExists(function ($query) use ($deviceId) {
-            //                    $query->select(DB::raw(1))
-            //                        ->from('site_readings')
-            //                        ->when($deviceId, function ($q) use ($deviceId) {
-            //                            $q->where('site_readings.site_id', $deviceId);
-            //                        });
-            //                });
-            //
-            //
-            //            if ($deviceId) {
-            //                $sitesQuery->where('id', $deviceId);
-            //            }
-            //
-            //            $sites = $sitesQuery->get();
-
-            $deviceId = $request->device_id ?? $request->option;
-
-            $sitesQuery = DB::table('soil_devices')
-                ->when($request->farmer_type, function ($q) use ($request) {
-                    $q->where('farmer_type', $request->farmer_type);
+            $raw = DB::table('site_readings')
+                ->when($device_id, function ($q) use ($device_id) {
+                    $q->where('site_id', $device_id);
                 })
-                ->when($deviceId, function ($query) use ($deviceId) {
-                    $query->where('id', $deviceId);
+                ->whereBetween('created_at', [$start, $end])
+                ->selectRaw("
+                site_id,
+                DATE_FORMAT(created_at, '%Y-%m-%d %H:00:00') as hour_time,
+                AVG(temperature) as temperature,
+                AVG(humidity) as humidity,
+                AVG(conductivity) as conductivity,
+                AVG(ph) as ph,
+                AVG(fertility) as fertility,
+                AVG(n) as n,
+                AVG(p) as p,
+                AVG(k) as k
+            ")
+                ->groupBy('site_id', 'hour_time')
+                ->orderBy('hour_time')
+                ->get();
+
+            $sites = DB::table('soil_devices')
+                ->when($device_id, function ($q) use ($device_id) {
+                    $q->where('id', $device_id);
                 })
-                ->whereExists(function ($query) use ($deviceId) {
-                    $query->select(DB::raw(1))
-                        ->from('site_readings')
-                        ->when($deviceId, function ($q) use ($deviceId) {
-                            $q->where('site_readings.site_id', $deviceId);
-                        });
-                });
+                ->get();
 
-            $sites = $sitesQuery->get();
-
-            // =========================
-            // ✅ Chart Data
-            // =========================
             $chartData = [
                 'temperature' => [],
                 'humidity' => [],
@@ -340,56 +178,49 @@ class DashboardController extends Controller
                 'k' => []
             ];
 
-            // =========================
-            // ✅ Build chart
-            // =========================
             foreach ($sites as $site) {
 
-                $temp = $hum = $conductivity = $ph = $fertility = $n = $p = $k = [];
+                foreach ($labels as $i => $label) {
 
-                foreach ($dates as $date) {
+                    $match = null;
 
-                    $row = DB::table('site_readings')
-                        ->where('site_id', $site->id) // ✅ FIXED
-                        ->whereDate('created_at', $date)
-                        ->first();
+                    foreach ($raw as $row) {
 
-                    $temp[] = $row ? round($row->temperature, 2) : 0;
-                    $hum[] = $row ? (int)$row->humidity : 0;
-                    $conductivity[] = $row ? (int)$row->conductivity : 0;
-                    $ph[] = $row ? round($row->ph, 1) : 0;
-                    $fertility[] = $row ? (int)$row->fertility : 0;
-                    $n[] = $row ? (int)$row->n : 0;
-                    $p[] = $row ? (int)$row->p : 0;
-                    $k[] = $row ? (int)$row->k : 0;
+                        $rowHour = Carbon::parse($row->hour_time)->format('d-M (H:i)');
+                        $labelHour = $label;
+
+                        if ($row->site_id == $site->id && $rowHour == $labelHour) {
+                            $match = $row;
+                            break;
+                        }
+                    }
+
+                    $chartData['temperature'][$site->device_name][] = $match->temperature ?? 0;
+                    $chartData['humidity'][$site->device_name][] = $match->humidity ?? 0;
+                    $chartData['conductivity'][$site->device_name][] = $match->conductivity ?? 0;
+                    $chartData['ph'][$site->device_name][] = $match->ph ?? 0;
+                    $chartData['fertility'][$site->device_name][] = $match->fertility ?? 0;
+                    $chartData['n'][$site->device_name][] = $match->n ?? 0;
+                    $chartData['p'][$site->device_name][] = $match->p ?? 0;
+                    $chartData['k'][$site->device_name][] = $match->k ?? 0;
                 }
-
-                $chartData['temperature'][$site->device_name] = $temp;
-                $chartData['humidity'][$site->device_name] = $hum;
-                $chartData['conductivity'][$site->device_name] = $conductivity;
-                $chartData['ph'][$site->device_name] = $ph;
-                $chartData['fertility'][$site->device_name] = $fertility;
-                $chartData['n'][$site->device_name] = $n;
-                $chartData['p'][$site->device_name] = $p;
-                $chartData['k'][$site->device_name] = $k;
             }
 
             return response()->json([
                 'status' => 2000,
                 'result' => [
-                    'dates' => $dates,
+                    'dates' => $labels,
                     'chartData' => $chartData
                 ],
                 'theme_color' => $color
             ]);
         }
+
         return response()->json([
             'status' => 4000,
             'message' => 'Invalid type'
         ]);
     }
-
-
     public function uploadExcell() {}
 
     public function submitUploadExcell(Request $request)
@@ -458,58 +289,102 @@ class DashboardController extends Controller
     public function dashboardDataV2(Request $request)
     {
         $siteId = $request->device_id;
-        $date = $request->date_from;
+        $mode = $request->input('mode', 'live');
 
         $selectedDate = $request->date_from;
         $baseDate = $selectedDate
             ? \Carbon\Carbon::parse($selectedDate)
             : now();
 
-        $days = [
-            '6 days ago' => $baseDate->copy()->subDays(6)->toDateString(),
-            '4 days ago' => $baseDate->copy()->subDays(4)->toDateString(),
-            '2 days ago' => $baseDate->copy()->subDays(2)->toDateString(),
-            'Today' => $baseDate->toDateString(),
-        ];
-
         $result = [];
         $latest = null;
 
         // =========================
-        // STEP 2: BUILD CHART DATA
+        // LIVE MODE
         // =========================
-        foreach ($days as $label => $date) {
+        if ($mode === 'live') {
 
-            $row = DB::table('site_readings')
-                ->where('site_id', $siteId)
-                ->whereDate('created_at', $date)
-                ->orderBy('created_at', 'desc')
-                ->first();
-
-            if (!$row) {
-                $result[] = [
-                    'label' => $label,
-                    'temperature' => 0,
-                    'humidity' => 0,
-                    'ph' => 0
-                ];
-                continue;
-            }
-
-            $result[] = [
-                'label' => $label,
-                'temperature' => $row->temperature,
-                'humidity' => $row->humidity,
-                'ph' => $row->ph
+            $days = [
+                '6 days ago' => $baseDate->copy()->subDays(6)->toDateString(),
+                '4 days ago' => $baseDate->copy()->subDays(4)->toDateString(),
+                '2 days ago' => $baseDate->copy()->subDays(2)->toDateString(),
+                'Today' => $baseDate->toDateString(),
             ];
 
-            if ($label == "Today") {
-                $latest = $row;
+            foreach ($days as $label => $date) {
+
+                $row = DB::table('site_readings')
+                    ->where('site_id', $siteId)
+                    ->whereDate('created_at', $date)
+                    ->orderBy('created_at', 'desc')
+                    ->first();
+
+                $result[] = [
+                    'label' => $label,
+                    'temperature' => $row->temperature ?? 0,
+                    'humidity' => $row->humidity ?? 0,
+                    'ph' => $row->ph ?? 0,
+                    'ec' => $row->conductivity ?? 0,
+
+                ];
+                if ($label === "Today") {
+                    $latest = $row;
+                }
             }
         }
 
         // =========================
-        // STEP 4: LEFT SIDE SENSOR ENGINE
+        // 24 HOURS MODE
+        // =========================
+        if ($mode === '24h') {
+
+            $latest = DB::table('site_readings')
+                ->where('site_id', $siteId)
+                ->where('created_at', '>=', now()->subHours(24))
+                ->selectRaw("
+                ROUND(AVG(ph), 2) as ph,
+                ROUND(AVG(temperature), 2) as temperature,
+                ROUND(AVG(humidity), 2) as humidity,
+                ROUND(AVG(n), 2) as n,
+                ROUND(AVG(p), 2) as p,
+                ROUND(AVG(k), 2) as k,
+                ROUND(AVG(conductivity), 2) as ec,
+                ROUND(AVG(fertility), 2) as fertility
+            ")
+                ->first();
+
+            $result = DB::table('site_readings')
+                ->where('site_id', $siteId)
+                ->where('created_at', '>=', now()->subHours(24))
+                ->selectRaw("
+                DATE_FORMAT(created_at, '%H:00') as label,
+                ROUND(AVG(temperature), 2) as temperature,
+                ROUND(AVG(humidity), 2) as humidity,
+                ROUND(AVG(ph), 2) as ph
+            ")
+                ->groupBy(DB::raw("DATE_FORMAT(created_at, '%H:00')"))
+                ->orderBy('label')
+                ->get();
+        }
+
+        // =========================
+        // SAFE FALLBACK
+        // =========================
+        if (!$latest) {
+            $latest = (object)[
+                'ph' => 0,
+                'temperature' => 0,
+                'humidity' => 0,
+                'n' => 0,
+                'p' => 0,
+                'k' => 0,
+                'ec' => 0,
+                'fertility' => 0,
+            ];
+        }
+
+        // =========================
+        // SENSOR MAP
         // =========================
         $sensorMap = [
             5 => 'N',
@@ -517,7 +392,7 @@ class DashboardController extends Controller
             7 => 'K',
             8 => 'EC',
             9 => 'PH',
-            10 => 'TEMPERATURE',
+            1 => 'TEMPERATURE',
             11 => 'HUMIDITY',
             12 => 'FERTILITY',
         ];
@@ -533,12 +408,18 @@ class DashboardController extends Controller
             'FERTILITY' => $latest->fertility ?? 0,
         ];
 
+        // =========================
+        // THRESHOLDS
+        // =========================
         $thresholds = DB::table('device_thresholds')
             ->where('device_category_id', 2)
             ->get()
             ->keyBy('sensor_id');
 
         $sensors = [];
+        $alerts = [];
+        $farmActions = [];
+        $score = 100;
 
         foreach ($sensorMap as $id => $name) {
 
@@ -548,85 +429,49 @@ class DashboardController extends Controller
             $status = 'OK';
 
             if ($threshold) {
+
                 if ($value < $threshold->min_value) {
                     $status = 'LOW';
-                } elseif ($value > $threshold->max_value) {
+                    $score -= 10;
+
+                    if ($threshold->min_alert) $alerts[] = $threshold->min_alert;
+                    if ($threshold->min_action) $farmActions[] = $threshold->min_action;
+                }
+
+                if ($value > $threshold->max_value) {
                     $status = 'HIGH';
+                    $score -= 10;
+
+                    if ($threshold->max_alert) $alerts[] = $threshold->max_alert;
+                    if ($threshold->max_action) $farmActions[] = $threshold->max_action;
                 }
             }
 
             $sensors[] = [
                 'id' => $id,
                 'name' => $name,
-                'value' => $value,
+                'value' => round($value, 2), // 🔥 clean output
                 'status' => $status
             ];
         }
 
         // =========================
-        // STEP 5: FARM HEALTH SCORE + ALERTS
+        // RESPONSE
         // =========================
-        $hasData = false;
-        $alerts = [];
-        $farmActions = [];
-        $score = 100;
-
-        foreach ($sensors as $s) {
-
-            if ($s['value'] > 0) {
-                $hasData = true;
-            }
-
-            $threshold = $thresholds[(string)$s['id']] ?? null;
-
-            if (!$threshold) continue;
-
-            $value = $s['value'];
-
-            // ======================
-            // LOW
-
-            if ($value < $threshold->min_value) {
-
-                $score -= 10;
-
-                if (!empty($threshold->min_alert)) {
-                    $alerts[] = $threshold->min_alert;
-                }
-
-                if (!empty($threshold->min_action)) {
-                    $farmActions[] = $threshold->min_action;
-                }
-            }
-
-// HIGH
-            if ($value > $threshold->max_value) {
-
-                $score -= 10;
-
-                if (!empty($threshold->max_alert)) {
-                    $alerts[] = $threshold->max_alert;
-                }
-
-                if (!empty($threshold->max_action)) {
-                    $farmActions[] = $threshold->max_action;
-                }
-            }
-        }
         return response()->json([
             'status' => 2000,
-            'result' => [
-                'chartData' => $result,
-                'sensors' => $sensors,
-                'farmHealth' => [
-                    'score' => $score,
-                    'alerts' => $alerts,
-                    'actions' => $farmActions,
-                ],
-                'fetched_at' => now()->format('Y-m-d H:i:s')
-            ]
+            'chartData' => $result,
+            'sensors' => $sensors,
+            'farmHealth' => [
+                'score' => $score,
+                'alerts' => $alerts,
+                'actions' => $farmActions,
+            ],
+            'fetched_at' => now()->format('Y-m-d H:i:s')
         ]);
     }
+
+
     public function storageData(Request $request)
     {
         $deviceId = $request->device_id;
