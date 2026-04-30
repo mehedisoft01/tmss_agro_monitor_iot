@@ -216,16 +216,17 @@
                 name: 'Soil Moisture',
                 data: humidityData
             },
-            {
-                name: 'PH',
-                data: phData
-            },
+
             {
                 name: 'Temperature',
                 data: temperatureData
+            },
+            {
+                name: 'PH',
+                data: phData
             }
         ]
-    }
+    };
 
     // ================= HELPERS =================
 
