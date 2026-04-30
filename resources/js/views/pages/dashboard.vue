@@ -379,8 +379,10 @@
                 const temp = [];
                 const hum = [];
 
+                // ✅ correct dates source
+                allDates = res.data.dates || [];
+
                 Object.entries(result || {}).forEach(([name, device]) => {
-                    allDates = device.dates || [];
 
                     temp.push({
                         name: String(name || 'Device'),
@@ -449,6 +451,7 @@
                 }}});
 
         loadData();
+        activeDeviceId.value = null;
     };
 
     const setFarmerType = (type) => {

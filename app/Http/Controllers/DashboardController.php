@@ -18,6 +18,224 @@ class DashboardController extends Controller
 
     public function __construct() {}
 
+//    public function dashboardData(Request $request)
+//    {
+//        $authUser = auth()->user();
+//
+//        $type = $request->input('type_id');
+//        $device_id = $request->input('device_id');
+//        $time = (int) $request->input('time_priod', 23);
+//
+//        // =========================
+//        // INTERVAL SET
+//        // =========================
+//        if ($time == 24) {
+//            $intervalHour = 1;
+//            $totalHours = 24;
+//        } elseif ($time == 3) {
+//            $intervalHour = 3;
+//            $totalHours = 72;
+//        } elseif ($time == 7) {
+//            $intervalHour = 7;
+//            $totalHours = 168;
+//        } elseif ($time == 30) {
+//            $intervalHour = 30;
+//            $totalHours = 720;
+//        } else {
+//            $intervalHour = 1;
+//            $totalHours = 24;
+//        }
+//
+//        $color = ($authUser->theme && $authUser->theme == 'bg-default bg-theme2')
+//            ? '#000000'
+//            : '#FFFFFF';
+//
+//        // =========================
+//        // DATE RANGE (REALTIME)
+//        // =========================
+//        $end = now();
+//        $start = $end->copy()->subHours($totalHours - 1);
+//
+//        // =========================
+//        // TYPE 1
+//        // =========================
+//        if ($type == 1) {
+//
+//            $raw = DB::table('device_statuses as ds')
+//                ->join('devices as d', 'd.device_id', '=', 'ds.device_id')
+//                ->when($device_id, function ($q) use ($device_id) {
+//                    $q->where('ds.device_id', $device_id);
+//                })
+//                ->whereBetween('ds.created_at', [$start, $end])
+//                ->selectRaw("
+//                ds.device_id,
+//                d.display_name,
+//
+//                FROM_UNIXTIME(
+//                    FLOOR(UNIX_TIMESTAMP(ds.created_at) / (3600 * {$intervalHour}))
+//                    * (3600 * {$intervalHour})
+//                ) as bucket_time,
+//
+//                AVG(ds.temperature) as temperature,
+//                AVG(ds.humidity) as humidity
+//            ")
+//                ->groupBy('ds.device_id', 'd.display_name', 'bucket_time')
+//                ->orderBy('bucket_time')
+//                ->get();
+//
+//            $devices = [];
+//            $labels = [];
+//            $labelIndex = [];
+//
+//            // 👉 LABEL BUILD
+//            foreach ($raw as $row) {
+//                $key = $row->bucket_time;
+//
+//                if (!isset($labelIndex[$key])) {
+//                    $labelIndex[$key] = count($labels);
+//                    $labels[] = \Carbon\Carbon::parse($key)->format('d-M H:i');
+//                }
+//            }
+//
+//            // 👉 INIT DEVICE ARRAY
+//            foreach ($raw as $row) {
+//                $name = $row->display_name ?? ('Device-' . $row->device_id);
+//
+//                if (!isset($devices[$name])) {
+//                    $devices[$name] = [
+//                        'device_name' => $name,
+//                        'temperature' => array_fill(0, count($labels), 0),
+//                        'humidity' => array_fill(0, count($labels), 0),
+//                    ];
+//                }
+//            }
+//
+//            // 👉 FILL DATA
+//            foreach ($raw as $row) {
+//                $name = $row->display_name ?? ('Device-' . $row->device_id);
+//                $key = $row->bucket_time;
+//
+//                if (!isset($labelIndex[$key])) continue;
+//
+//                $i = $labelIndex[$key];
+//
+//                $devices[$name]['temperature'][$i] = round($row->temperature, 2);
+//                $devices[$name]['humidity'][$i] = round($row->humidity, 2);
+//            }
+//
+//            return response()->json([
+//                'status' => 2000,
+//                'result' => $devices,
+//                'dates' => $labels,
+//                'theme_color' => $color
+//            ]);
+//        }
+//
+//        // =========================
+//        // TYPE 2
+//        // =========================
+//        if ($type == 2) {
+//
+//            $raw = DB::table('site_readings')
+//                ->when($device_id, function ($q) use ($device_id) {
+//                    $q->where('site_id', $device_id);
+//                })
+//                ->whereBetween('created_at', [$start, $end])
+//                ->selectRaw("
+//                site_id,
+//
+//                FROM_UNIXTIME(
+//                    FLOOR(UNIX_TIMESTAMP(created_at) / (3600 * {$intervalHour}))
+//                    * (3600 * {$intervalHour})
+//                ) as bucket_time,
+//
+//                AVG(temperature) as temperature,
+//                AVG(humidity) as humidity,
+//                AVG(conductivity) as conductivity,
+//                AVG(ph) as ph,
+//                AVG(fertility) as fertility,
+//                AVG(n) as n,
+//                AVG(p) as p,
+//                AVG(k) as k
+//            ")
+//                ->groupBy('site_id', 'bucket_time')
+//                ->orderBy('bucket_time')
+//                ->get();
+//
+//            $sites = DB::table('soil_devices')
+//                ->when($device_id, function ($q) use ($device_id) {
+//                    $q->where('id', $device_id);
+//                })
+//                ->get();
+//
+//            $chartData = [];
+//            $labels = [];
+//            $labelIndex = [];
+//
+//            // 👉 LABEL BUILD
+//            foreach ($raw as $row) {
+//                $key = $row->bucket_time;
+//
+//                if (!isset($labelIndex[$key])) {
+//                    $labelIndex[$key] = count($labels);
+//                    $labels[] = \Carbon\Carbon::parse($key)->format('d-M H:i');
+//                }
+//            }
+//
+//            // 👉 INIT
+//            foreach ($sites as $site) {
+//
+//                $name = $site->device_name;
+//
+//                $chartData['temperature'][$name] = array_fill(0, count($labels), 0);
+//                $chartData['humidity'][$name] = array_fill(0, count($labels), 0);
+//                $chartData['conductivity'][$name] = array_fill(0, count($labels), 0);
+//                $chartData['ph'][$name] = array_fill(0, count($labels), 0);
+//                $chartData['fertility'][$name] = array_fill(0, count($labels), 0);
+//                $chartData['n'][$name] = array_fill(0, count($labels), 0);
+//                $chartData['p'][$name] = array_fill(0, count($labels), 0);
+//                $chartData['k'][$name] = array_fill(0, count($labels), 0);
+//            }
+//
+//            // 👉 FILL DATA
+//            foreach ($raw as $row) {
+//
+//                $site = $sites->firstWhere('id', $row->site_id);
+//                if (!$site) continue;
+//
+//                $name = $site->device_name;
+//                $key = $row->bucket_time;
+//
+//                if (!isset($labelIndex[$key])) continue;
+//
+//                $i = $labelIndex[$key];
+//
+//                $chartData['temperature'][$name][$i] = round($row->temperature, 2);
+//                $chartData['humidity'][$name][$i] = round($row->humidity, 2);
+//                $chartData['conductivity'][$name][$i] = round($row->conductivity, 2);
+//                $chartData['ph'][$name][$i] = round($row->ph, 2);
+//                $chartData['fertility'][$name][$i] = round($row->fertility, 2);
+//                $chartData['n'][$name][$i] = round($row->n, 2);
+//                $chartData['p'][$name][$i] = round($row->p, 2);
+//                $chartData['k'][$name][$i] = round($row->k, 2);
+//            }
+//
+//            return response()->json([
+//                'status' => 2000,
+//                'result' => [
+//                    'dates' => $labels,
+//                    'chartData' => $chartData
+//                ],
+//                'theme_color' => $color
+//            ]);
+//        }
+//
+//        return response()->json([
+//            'status' => 4000,
+//            'message' => 'Invalid type'
+//        ]);
+//    }
+
     public function dashboardData(Request $request)
     {
         $authUser = auth()->user();
@@ -27,7 +245,7 @@ class DashboardController extends Controller
         $time = (int) $request->input('time_priod', 24);
 
         // =========================
-        // INTERVAL SET (IMPORTANT)
+        // INTERVAL SET
         // =========================
         if ($time == 24) {
             $intervalHour = 1;
@@ -51,34 +269,29 @@ class DashboardController extends Controller
             : '#FFFFFF';
 
         // =========================
-        // DATE RANGE
+        // RANGE
         // =========================
-        $end = now()->startOfHour();
+        $end = now();
         $start = $end->copy()->subHours($totalHours - 1);
 
         // =========================
-        // LABELS + BUCKET
+        // FIXED LABELS (ALL HOURS INCLUDED)
         // =========================
         $labels = [];
-        $bucket = [];
+        $labelIndex = [];
 
         $period = CarbonPeriod::create($start, "{$intervalHour} hours", $end);
 
         foreach ($period as $dt) {
             $key = $dt->format('Y-m-d H:00:00');
 
-            $labels[] = $dt->format('d-M (H:i)');
-
-            $bucket[$key] = [
-                'temperature_sum' => 0,
-                'humidity_sum' => 0,
-                'count' => 0,
-            ];
+            $labelIndex[$key] = count($labels);
+            $labels[] = $dt->format('d-M H:00');
         }
 
-        // =========================
+        // ==========================================================
         // TYPE 1
-        // =========================
+        // ==========================================================
         if ($type == 1) {
 
             $raw = DB::table('device_statuses as ds')
@@ -90,41 +303,38 @@ class DashboardController extends Controller
                 ->selectRaw("
                 ds.device_id,
                 d.display_name,
-                DATE_FORMAT(ds.created_at, '%Y-%m-%d %H:00:00') as hour_time,
+
+                DATE_FORMAT(ds.created_at, '%Y-%m-%d %H:00:00') as bucket_time,
+
                 AVG(ds.temperature) as temperature,
                 AVG(ds.humidity) as humidity
             ")
-                ->groupBy('ds.device_id', 'd.display_name', 'hour_time')
-                ->orderBy('hour_time')
+                ->groupBy('ds.device_id', 'd.display_name', 'bucket_time')
+                ->orderBy('bucket_time')
                 ->get();
 
             $devices = [];
 
             foreach ($raw as $row) {
 
-                $deviceName = $row->display_name ?? ('Device-' . $row->device_id);
+                $name = $row->display_name ?? ('Device-' . $row->device_id);
 
-                if (!isset($devices[$deviceName])) {
-                    $devices[$deviceName] = [
-                        'device_name' => $deviceName,
-                        'dates' => $labels,
+                if (!isset($devices[$name])) {
+                    $devices[$name] = [
+                        'device_name' => $name,
                         'temperature' => array_fill(0, count($labels), 0),
                         'humidity' => array_fill(0, count($labels), 0),
                     ];
                 }
 
-                // interval bucket match
-                $dt = Carbon::parse($row->hour_time);
+                $key = Carbon::parse($row->bucket_time)->format('Y-m-d H:00:00');
 
-                $index = array_search(
-                    $dt->format('d-M (H:i)'),
-                    $labels
-                );
+                if (!isset($labelIndex[$key])) continue;
 
-                if ($index !== false) {
-                    $devices[$deviceName]['temperature'][$index] = round($row->temperature, 2);
-                    $devices[$deviceName]['humidity'][$index] = round($row->humidity, 2);
-                }
+                $i = $labelIndex[$key];
+
+                $devices[$name]['temperature'][$i] = round($row->temperature ?? 0, 2);
+                $devices[$name]['humidity'][$i] = round($row->humidity ?? 0, 2);
             }
 
             return response()->json([
@@ -135,9 +345,9 @@ class DashboardController extends Controller
             ]);
         }
 
-        // =========================
-        // TYPE 2 (SOIL)
-        // =========================
+        // ==========================================================
+        // TYPE 2
+        // ==========================================================
         if ($type == 2) {
 
             $raw = DB::table('site_readings')
@@ -147,7 +357,9 @@ class DashboardController extends Controller
                 ->whereBetween('created_at', [$start, $end])
                 ->selectRaw("
                 site_id,
-                DATE_FORMAT(created_at, '%Y-%m-%d %H:00:00') as hour_time,
+
+                DATE_FORMAT(created_at, '%Y-%m-%d %H:00:00') as bucket_time,
+
                 AVG(temperature) as temperature,
                 AVG(humidity) as humidity,
                 AVG(conductivity) as conductivity,
@@ -157,8 +369,8 @@ class DashboardController extends Controller
                 AVG(p) as p,
                 AVG(k) as k
             ")
-                ->groupBy('site_id', 'hour_time')
-                ->orderBy('hour_time')
+                ->groupBy('site_id', 'bucket_time')
+                ->orderBy('bucket_time')
                 ->get();
 
             $sites = DB::table('soil_devices')
@@ -167,43 +379,43 @@ class DashboardController extends Controller
                 })
                 ->get();
 
-            $chartData = [
-                'temperature' => [],
-                'humidity' => [],
-                'conductivity' => [],
-                'ph' => [],
-                'fertility' => [],
-                'n' => [],
-                'p' => [],
-                'k' => []
-            ];
+            $chartData = [];
 
             foreach ($sites as $site) {
 
-                foreach ($labels as $i => $label) {
+                $name = $site->device_name;
 
-                    $match = null;
+                $chartData['temperature'][$name] = array_fill(0, count($labels), 0);
+                $chartData['humidity'][$name] = array_fill(0, count($labels), 0);
+                $chartData['conductivity'][$name] = array_fill(0, count($labels), 0);
+                $chartData['ph'][$name] = array_fill(0, count($labels), 0);
+                $chartData['fertility'][$name] = array_fill(0, count($labels), 0);
+                $chartData['n'][$name] = array_fill(0, count($labels), 0);
+                $chartData['p'][$name] = array_fill(0, count($labels), 0);
+                $chartData['k'][$name] = array_fill(0, count($labels), 0);
+            }
 
-                    foreach ($raw as $row) {
+            foreach ($raw as $row) {
 
-                        $rowHour = Carbon::parse($row->hour_time)->format('d-M (H:i)');
-                        $labelHour = $label;
+                $site = $sites->firstWhere('id', $row->site_id);
+                if (!$site) continue;
 
-                        if ($row->site_id == $site->id && $rowHour == $labelHour) {
-                            $match = $row;
-                            break;
-                        }
-                    }
+                $name = $site->device_name;
 
-                    $chartData['temperature'][$site->device_name][] = $match->temperature ?? 0;
-                    $chartData['humidity'][$site->device_name][] = $match->humidity ?? 0;
-                    $chartData['conductivity'][$site->device_name][] = $match->conductivity ?? 0;
-                    $chartData['ph'][$site->device_name][] = $match->ph ?? 0;
-                    $chartData['fertility'][$site->device_name][] = $match->fertility ?? 0;
-                    $chartData['n'][$site->device_name][] = $match->n ?? 0;
-                    $chartData['p'][$site->device_name][] = $match->p ?? 0;
-                    $chartData['k'][$site->device_name][] = $match->k ?? 0;
-                }
+                $key = Carbon::parse($row->bucket_time)->format('Y-m-d H:00:00');
+
+                if (!isset($labelIndex[$key])) continue;
+
+                $i = $labelIndex[$key];
+
+                $chartData['temperature'][$name][$i] = round($row->temperature ?? 0, 2);
+                $chartData['humidity'][$name][$i] = round($row->humidity ?? 0, 2);
+                $chartData['conductivity'][$name][$i] = round($row->conductivity ?? 0, 2);
+                $chartData['ph'][$name][$i] = round($row->ph ?? 0, 2);
+                $chartData['fertility'][$name][$i] = round($row->fertility ?? 0, 2);
+                $chartData['n'][$name][$i] = round($row->n ?? 0, 2);
+                $chartData['p'][$name][$i] = round($row->p ?? 0, 2);
+                $chartData['k'][$name][$i] = round($row->k ?? 0, 2);
             }
 
             return response()->json([
