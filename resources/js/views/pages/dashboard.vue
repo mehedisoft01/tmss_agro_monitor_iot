@@ -79,7 +79,7 @@
 
                         </div>
                         <div class="w-100 d-block d-md-none mt-3">
-                            <div class="col-md-3">
+                            <div class="col-md-3 mb-3">
                                 <select class="form-control" v-model="filter.time_priod" @change="loadData">
                                     <option value="">Select Range</option>
                                     <option value="24">24 Hours</option>
