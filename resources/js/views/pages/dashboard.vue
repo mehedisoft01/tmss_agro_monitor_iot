@@ -199,7 +199,7 @@
             </div>
         </div>
     </div>
-    <div class="page_loader" v-if="loading">
+    <div class="page_loaders" v-if="loading">
         <i class='bx bx-loader bx-spin text-warning'></i>
     </div>
 </template>
@@ -566,5 +566,27 @@
     /* Active hover */
     .limit-segment input:checked + label:hover {
         background: #0b5ed7 !important;
+    }
+
+
+    .page_loaders {
+        position: absolute;
+        top: 25%;
+        left: 50%;
+        transform: translateX(-50%);
+        right: 0;
+        bottom: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+
+        padding-top: 40px;
+        z-index: 10; /* make sure it's above modal content */
+    }
+
+    .page_loaders i {
+        font-size: 2rem; /* adjust size if needed */
     }
 </style>
