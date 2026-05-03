@@ -38,93 +38,95 @@
 </script>
 
 <template>
-    <div class="card" style="width: 500px;">
-        <div class="card-header spaced-content">
-            <h1>{{_l('ukhiya,_right_now')}}</h1>
-            <p class="sub">{{recordedAt}}</p>
+    <div class="card weather-card mx-auto">
+
+        <div class="card-header spaced-content text-center text-md-start">
+            <h6 class="mb-1">{{ _l('ukhiya,_right_now') }}</h6>
+            <p class="sub mb-0 small">{{ recordedAt }}</p>
         </div>
 
         <div class="card-body">
-            <div class="row mb-2">
-                <div class="col-6">
-                    <div class="d-flex">
-                        <img class="icon" :src="weatherIcon" width="48" height="48">
-                        <div class="text-start">
-                            <div class="display-temp">{{weatherData.temperature}}°<span class="sub">C</span>
+
+            <!-- TOP SECTION -->
+            <div class="row mb-3">
+
+                <div class="col-12 col-md-6 mb-3 mb-md-0">
+                    <div class="d-flex align-items-center justify-content-center justify-content-md-start">
+                        <img class="icon me-2" :src="weatherIcon" width="48" height="48">
+
+                        <div>
+                            <div class="display-temp">
+                                {{ weatherData.temperature }}°
+                                <span class="sub">C</span>
                             </div>
                         </div>
                     </div>
-                    <div class="text-start mt-2 weather-text">{{weatherData.weather_text}}</div>
-                </div>
-                <div class="col-6">
-                    <div class="text-start">
-                        Real Feel {{weatherData.real_feel_temperature}}°
-                    </div>
-                    <div class="text-start">
-                        Real Feel Shade {{weatherData.real_feel_shade_temperature}}°
+
+                    <div class="text-center text-md-start mt-2 weather-text">
+                        {{ weatherData.weather_text }}
                     </div>
                 </div>
+
+                <div class="col-12 col-md-6 text-center text-md-start">
+                    <div>Real Feel {{ weatherData.real_feel_temperature }}°</div>
+                    <div>Real Feel Shade {{ weatherData.real_feel_shade_temperature }}°</div>
+                </div>
+
             </div>
+
+            <!-- DETAILS -->
             <div class="row">
-                <div class="col-6">
-                    <div class="d-flex justify-content-between">
-                        <div>Max UV Index</div>
-                        <div>{{weatherData.uv_index}} {{ weatherData.uv_index_text ? `(${weatherData.uv_index_text})` : '' }}</div>
 
-                    </div>
-                    <div class="d-flex justify-content-between">
-                        <div>Wind</div>
-                        <div>{{weatherData.wind_direction_text}} {{weatherData.wind}} km/h</div>
-
-                    </div>
-                    <div class="d-flex justify-content-between">
-                        <div>Wind Gusts</div>
-                        <div>{{ weatherData.wind_gust }} km/h</div>
-
-                    </div>
-                    <div class="d-flex justify-content-between">
-                        <div>Humidity</div>
-                        <div>{{weatherData.relative_humidity}}%</div>
-
-                    </div>
-                    <div class="d-flex justify-content-between">
-                        <div>Indoor Humidity</div>
-                        <div>{{weatherData.indoor_relative_humidity}}%{{ humidityText }}</div>
-                    </div>
+                <!-- LEFT -->
+                <div class="col-12 col-md-6 mb-2">
+                    <div class="d-flex justify-content-between"><span>Max UV</span><span>{{weatherData.uv_index}} {{ weatherData.uv_index_text ? `(${weatherData.uv_index_text})` : '' }}</span></div>
+                    <div class="d-flex justify-content-between"><span>Wind</span><span>{{weatherData.wind_direction_text}} {{weatherData.wind}} km/h</span></div>
+                    <div class="d-flex justify-content-between"><span>Wind Gusts</span><span>{{ weatherData.wind_gust }} km/h</span></div>
+                    <div class="d-flex justify-content-between"><span>Humidity</span><span>{{weatherData.relative_humidity}}%</span></div>
+                    <div class="d-flex justify-content-between"><span>Indoor</span><span>{{weatherData.indoor_relative_humidity}}%{{ humidityText }}</span></div>
                 </div>
-                <div class="col-6">
-                    <div class="d-flex justify-content-between">
-                        <div>Dew Point</div>
-                        <div>{{weatherData.dew_point}}° C</div>
-                    </div>
-                    <div class="d-flex justify-content-between">
-                        <div>Pressure</div>
-                        <div>{{ weatherData.pressure_tendancy_code }} {{weatherData.pressure}} mb</div>
-                    </div>
-                    <div class="d-flex justify-content-between">
-                        <div>Cloud Cover</div>
-                        <div>{{weatherData.cloud_cover}}%</div>
-                    </div>
-                    <div class="d-flex justify-content-between">
-                        <div>Visibility</div>
-                        <div>{{weatherData.visibility}} km</div>
-                    </div>
-                    <div class="d-flex justify-content-between">
-                        <div>Cloud Ceiling</div>
-                        <div>{{weatherData.ceiling}} m</div>
-                    </div>
+
+                <!-- RIGHT -->
+                <div class="col-12 col-md-6">
+                    <div class="d-flex justify-content-between"><span>Dew Point</span><span>{{weatherData.dew_point}}°C</span></div>
+                    <div class="d-flex justify-content-between"><span>Pressure</span><span>{{ weatherData.pressure_tendancy_code }} {{weatherData.pressure}} mb</span></div>
+                    <div class="d-flex justify-content-between"><span>Cloud</span><span>{{weatherData.cloud_cover}}%</span></div>
+                    <div class="d-flex justify-content-between"><span>Visibility</span><span>{{weatherData.visibility}} km</span></div>
+                    <div class="d-flex justify-content-between"><span>Ceiling</span><span>{{weatherData.ceiling}} m</span></div>
                 </div>
+
             </div>
+
         </div>
     </div>
 </template>
-
 <style scoped>
+
+    .weather-card {
+        width: 100%;
+        max-width: 500px;
+    }
+
+    .card-body {
+        overflow-x: hidden;
+    }
+
     .display-temp {
-        margin-left: 10px;
-        font-size: 2rem;
+        font-size: 1.8rem;
     }
+
     .weather-text {
-        font-size: 1.2rem;
+        font-size: 1rem;
     }
+
+    @media (max-width: 576px) {
+        .display-temp {
+            font-size: 1.5rem;
+        }
+
+        .weather-text {
+            font-size: 0.9rem;
+        }
+    }
+
 </style>

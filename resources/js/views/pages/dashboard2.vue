@@ -51,7 +51,7 @@
             width: 3
         },
 
-        colors: ['#dc3545', '#0d6efd', '#198754'],
+        colors: ['#dc3545', '#198754', '#0d6efd'],
 
         tooltip: {
             theme: 'dark',
@@ -283,7 +283,7 @@
             <div class="card">
                 <div class="card-header bg-light">
                     <div class="row mb-2">
-                        <div class="col-md-2">
+                        <div class="col-md-2 mb-2">
                             <select class="form-control pointer" v-model="formFilter.device_id" @click="fetchDashboardData">
                                 <option value="">{{_l('select_device')}}</option>
                                 <template v-for="(data, index) in pageDependencies.soil_device">
@@ -304,57 +304,77 @@
                 <div class=" card-body row">
                     <div class="col-lg-7">
                         <div class="card border-0 shadow-sm p-4 h-100">
-                            <div class="d-flex justify-content-between align-items-start mb-4">
-                                <div>
+                            <div class="d-flex flex-column flex-md-row justify-content-between align-items-start mb-4 gap-3">
+
+                                <!-- LEFT SECTION -->
+                                <div class="w-100">
                                     <h5 class="fw-bold d-flex align-items-center gap-2">
                                         <i class="bx bx-flask bx-lg"></i>
-                                       {{_l('farm_health_overview')}}
+                                        {{ _l('farm_health_overview') }}
                                     </h5>
-                                    <div class="alert-box p-3 mt-3  vertical-alert">
-                                        <p class="mb-2 fs-5">
-                                            <i class="text-orange fas fa-exclamation-triangle me-2 fs-5"></i>
-                                            <strong>{{_l('alert')}}</strong>
-                                        </p>
-                                        <div class="ticker-wrapper" style="overflow: auto;">
-                                            <div class="ticker"  v-if="farmHealth.alerts && farmHealth.alerts.length">
-                                                <p v-for="(alert, index) in farmHealth.alerts"
-                                                   :key="index"
-                                                   class="ticker-item mb-2 fs-6">
 
-                                                    <i class="fas fa-exclamation-circle me-2 fs-5"
+                                    <div class="alert-box p-3 mt-3 vertical-alert w-100">
+
+                                        <p class="mb-2 fs-6 fs-md-5 d-flex align-items-center">
+                                            <i class="text-orange fas fa-exclamation-triangle me-2"></i>
+                                            <strong>{{ _l('alert') }}</strong>
+                                        </p>
+
+                                        <div class="ticker-wrapper">
+
+                                            <div class="ticker" v-if="farmHealth.alerts && farmHealth.alerts.length">
+
+                                                <div v-for="(alert, index) in farmHealth.alerts"
+                                                     :key="index"
+                                                     class="ticker-item d-flex align-items-start gap-2 mb-2">
+
+                                                    <i class="fas fa-exclamation-circle flex-shrink-0 mt-1"
                                                        :style="{ color: getAlertColor(alert) }"></i>
 
-                                                    {{ formatAlert(alert) }}
+                                                    <span class="text-break">
+                                                        {{ formatAlert(alert) }}
+                                                    </span>
 
-                                                </p>
+                                                </div>
 
                                             </div>
 
-                                            <p v-else class="text-success">{{_l('no_sensor_data_available')}}</p>
+                                            <p v-else class="text-success small">
+                                                {{ _l('no_sensor_data_available') }}
+                                            </p>
+
                                         </div>
 
                                     </div>
                                 </div>
 
-                                <div class="text-center">
+
+                                <!-- RIGHT SECTION -->
+                                <div class="text-center text-md-end w-100 w-md-auto">
+
                                     <div>
-                                        <small class="h5 mb-4">
+                                        <small class="h5 mb-3 d-block">
 
                                             <span v-if="healthMode === 'live'">
-                                                🟢 {{_l('live_data')}} : {{ fetchedAt }}
+                                                🟢 {{ _l('live_data') }} : {{ fetchedAt }}
                                             </span>
 
                                             <span v-else>
-                                                📊 {{_l('24_hours_average_data')}}
+                                                📊 {{ _l('24_hours_average_data') }}
                                             </span>
 
                                         </small>
                                     </div>
-                                    <div class="d-flex gap-4 mb-3" style="margin-top: 50px">
+
+                                    <!-- RADIO BUTTONS -->
+                                    <div class="d-flex flex-wrap justify-content-center justify-content-md-end gap-3 mt-3 mt-md-5">
 
                                         <label class="d-flex align-items-center gap-2 fs-6 fw-semibold cursor-pointer">
                                             <input type="radio"
-                                                   value="live" v-model="healthMode" class="form-check-input scale-radio">{{_l('live_update')}}
+                                                   value="live"
+                                                   v-model="healthMode"
+                                                   class="form-check-input scale-radio">
+                                            {{ _l('live_update') }}
                                         </label>
 
                                         <label class="d-flex align-items-center gap-2 fs-6 fw-semibold cursor-pointer">
@@ -362,12 +382,15 @@
                                                    value="24h"
                                                    v-model="healthMode"
                                                    class="form-check-input scale-radio">
-                                           {{_l('last_24_hours_avg')}}
+                                            {{ _l('last_24_hours_avg') }}
                                         </label>
 
                                     </div>
+
                                 </div>
+
                             </div>
+
 
                             <!-- text-muted removed -->
                             <div class="row text-center mt-4">
@@ -586,7 +609,7 @@
 
                             <div class="row align-items-center mt-3 mb-4">
 
-                                <div class="col-md-6 d-flex justify-content-center">
+                                <div class="col-md-6 d-flex justify-content-center mb-2">
                                     <div class="gauge-storage"
                                          :style="{ '--value': latestData.temperature }">
                                         <span class="h4">{{ latestData.temperature }}°C</span>
