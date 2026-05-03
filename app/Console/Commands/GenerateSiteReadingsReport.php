@@ -64,7 +64,7 @@ class GenerateSiteReadingsReport extends Command
             FROM site_readings a
             WHERE a.created_at >= '2026-05-01'
               AND a.site_id IN (SELECT site_id FROM device_info)
-              and a.temperature>0
+              and a.temperature>0 and a.humidity>0 and a.conductivity>0 and a.ph>0 and a.n>0 and a.p>0 and a.k>0
         ),
         
         base AS (
