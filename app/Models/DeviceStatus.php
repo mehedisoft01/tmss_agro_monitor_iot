@@ -11,7 +11,7 @@ class DeviceStatus extends Model
     use HasFactory;
     use ModelScopes;
 
-    protected $table = 'device_statuses';
+    protected $table = 'device_statuses_report';
     protected $fillable = [
         'device_id',
         'online',

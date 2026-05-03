@@ -13,7 +13,7 @@ class NotificationController extends Controller
 
         $perPage = $is_read !== null ? 2 : input('perPage');
 
-        $data = Notification::with('device')
+        $data = Notification::with('device','soilDevice')
             ->orderBy('id', 'desc')
             ->when($is_read !== null, function ($query) use ($is_read) {
                 $query->where('is_read', $is_read);

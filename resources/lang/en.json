@@ -183,5 +183,6 @@
     "24_hours_average_data": "24 Hours Average Data",
     "miller": "Miller",
     "miller_reports": "Miller Reports",
-    "soil_parameters_-_last_24_hours": "Soil Parameters - Last 24 Hours"
+    "soil_parameters_-_last_24_hours": "Soil Parameters - Last 24 Hours",
+    "soil_moisture(%)": "Soil Moisture(%)"
 }

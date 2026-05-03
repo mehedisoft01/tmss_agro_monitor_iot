@@ -56,7 +56,7 @@
 </script>
 
 <template>
-    <reportComponent :headings="['sl','device_name','date','temperature(°C)','humidity(%)','conductivity','nitrogen','phosphorus','potassium','fertility','remarks']" :setting="true">
+    <reportComponent :headings="['sl','device_name','date','temperature(°C)','soil_moisture(%)','conductivity','nitrogen','phosphorus','potassium','ph','remarks']" :setting="true">
         <template v-slot:filter>
             <div class="row">
                 <div class="col-md-9 text-left">
@@ -105,7 +105,7 @@
                     <td>{{ item.n ?? '-' }}</td>
                     <td>{{ item.p ?? '-' }}</td>
                     <td>{{ item.k ?? '-' }}</td>
-                    <td>{{ item.fertility ?? '-' }}</td>
+                    <td>{{ item.ph ?? '-' }}</td>
                     <td></td>
                 </tr>
 

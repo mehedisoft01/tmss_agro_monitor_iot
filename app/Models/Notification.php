@@ -26,4 +26,8 @@ class Notification extends Model
     {
         return $this->belongsTo(Device::class,'device_id','device_id');
     }
+    public function soilDevice()
+    {
+        return $this->belongsTo(SoilDevice::class,'device_id','device_id');
+    }
 }

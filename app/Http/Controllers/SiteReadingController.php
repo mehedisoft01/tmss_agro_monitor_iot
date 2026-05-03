@@ -16,7 +16,7 @@ class SiteReadingController extends Controller
         $date_from = $request->input('date_from');
         $date_to = $request->input('date_to');
 
-        $data = DB::table('site_readings as sr')
+        $data = DB::table('site_readings_report as sr')
             ->leftJoin('soil_devices as d', 'sr.site_id', '=', 'd.id')
             ->when($device, function ($query) use ($device) {
                 $query->where('d.device_id', $device);

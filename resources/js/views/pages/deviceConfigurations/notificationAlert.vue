@@ -42,7 +42,7 @@
             <tr v-for="(item, index) in dataList.data">
                 <td class="fw-medium">{{parseInt(dataList.from)+index}}</td>
                 <td>
-                    {{ item.device?.display_name || item.device?.device_id || item.device_id }}
+                    {{ item.device?.display_name || item.device?.device_id || item.soil_device?.device_name}}
                 </td>
                 <td>{{item.device_category_id === 1 ? 'Warehouse' :
                     item.device_category_id === 2 ? 'Soil' : ''}}

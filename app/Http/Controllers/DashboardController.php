@@ -294,7 +294,7 @@ class DashboardController extends Controller
         // ==========================================================
         if ($type == 1) {
 
-            $raw = DB::table('device_statuses as ds')
+            $raw = DB::table('device_statuses_report as ds')
                 ->join('devices as d', 'd.device_id', '=', 'ds.device_id')
                 ->when($device_id, function ($q) use ($device_id) {
                     $q->where('ds.device_id', $device_id);
@@ -350,7 +350,7 @@ class DashboardController extends Controller
         // ==========================================================
         if ($type == 2) {
 
-            $raw = DB::table('site_readings')
+            $raw = DB::table('site_readings_report')
                 ->when($device_id, function ($q) use ($device_id) {
                     $q->where('site_id', $device_id);
                 })
@@ -517,7 +517,7 @@ class DashboardController extends Controller
         if ($mode === 'live') {
 
             // ✅ FIX: always latest row
-            $latest = DB::table('site_readings')
+            $latest = DB::table('site_readings_report')
                 ->where('site_id', $siteId)
                 ->orderBy('created_at', 'desc')
                 ->select(
@@ -540,7 +540,7 @@ class DashboardController extends Controller
 
             foreach ($days as $label => $date) {
 
-                $row = DB::table('site_readings')
+                $row = DB::table('site_readings_report')
                     ->where('site_id', $siteId)
                     ->whereDate('created_at', $date)
                     ->orderBy('created_at', 'desc')
@@ -562,7 +562,7 @@ class DashboardController extends Controller
         // =========================
         if ($mode === '24h') {
 
-            $latest = DB::table('site_readings')
+            $latest = DB::table('site_readings_report')
                 ->where('site_id', $siteId)
                 ->where('created_at', '>=', now()->subHours(24))
                 ->selectRaw("
@@ -577,7 +577,7 @@ class DashboardController extends Controller
             ")
                 ->first();
 
-            $result = DB::table('site_readings')
+            $result = DB::table('site_readings_report')
                 ->where('site_id', $siteId)
                 ->where('created_at', '>=', now()->subHours(24))
                 ->selectRaw("
@@ -699,7 +699,7 @@ class DashboardController extends Controller
         $deviceId = $request->device_id;
 
 
-        $latest = DB::table('device_statuses')
+        $latest = DB::table('device_statuses_report')
             ->where('device_id', $deviceId)
             ->orderBy('created_at', 'desc')
             ->first();
