@@ -14,7 +14,7 @@
         ...appStore().useGetters('dataList', 'httpRequest', 'pageDependencies', 'updateId')
     };
 
-    const tableHeaders = ref(["#", "device_name", "date", "temperature(c)","humidity(%)","conductivity","n","p","k","fertility", "remarks"]);
+    const tableHeaders = ref(["#", "device_name", "date", "temperature(c)","humidity(%)","conductivity",'nitrogen','phosphorus','potassium',"fertility", "remarks"]);
     const {getDataList, httpReq,urlGenerate} = useHttp();
 
     onMounted(() => {

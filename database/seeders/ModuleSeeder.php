@@ -195,7 +195,7 @@ class ModuleSeeder extends Seeder
                 'meta' => [],
                 'submenus' => [
                     [
-                        'name' => 'warehouse_reports',
+                        'name' => 'miller_reports',
                         'link' => '/warehouse_reports',
                         'permissions' => array_merge($resourcePermissions, []),
                         'icon' => 'bx bx-radio-circle',

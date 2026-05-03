@@ -9,7 +9,7 @@
                         <div class="col-12 col-md-2" style="width: 18%">
                             <div class="segment-control1">
                                 <input type="radio" id="type1" value="1" v-model="filter.type_id"  @change="onTypeChange">
-                                <label style="margin: 0;padding: 6px 26px;" for="type1">{{_l('warehouse')}}</label>
+                                <label style="margin: 0;padding: 6px 49px;" for="type1">{{_l('miller')}}</label>
 
                                 <input type="radio" id="type2" value="2" v-model="filter.type_id" @change="onTypeChange">
                                 <label style="margin: 0;padding: 6px 49px; " for="type2">{{_l('soil')}}</label>
@@ -22,32 +22,38 @@
                         </div>
 
                         <div class="col-md-2 d-none d-md-block">
-                            <datepicker :value="filter.date_from" v-model="filter.date_from" class="form-control"  :placeholder="_l('from_date')"/>
+                            <select class="form-control" v-model="filter.time_priod" @change="loadData">
+                                <option value="">Select Range</option>
+                                <option value="24">24 Hours</option>
+                                <option value="3">3 Days</option>
+                                <option value="7">7 Days</option>
+                                <option value="30">30 Days</option>
+                            </select>
                         </div>
 
-                        <div class="col-md-2 d-none d-md-block">
-                            <datepicker :value="filter.date_to" v-model="filter.date_to" class="form-control"  :placeholder="_l('to_date')"/>
+<!--                        <div class="col-md-2 d-none d-md-block">-->
+<!--                            <datepicker :value="filter.date_to" v-model="filter.date_to" class="form-control"  :placeholder="_l('to_date')"/>-->
 
-                        </div>
+<!--                        </div>-->
 
                         <div class="col-md-2 d-none d-md-block">
                             <button class="btn btn-primary w-100" @click="loadData">{{_l('get_data')}}</button>
                         </div>
-                        <div class="col-12 col-md-2  d-none d-md-block">
-                            <div class="limit-segment">
-                                <input type="radio" id="s1" value="10" v-model="filter.limit" @change="loadData">
-                                <label for="s1">10</label>
+<!--                        <div class="col-12 col-md-2  d-none d-md-block">-->
+<!--                            <div class="limit-segment">-->
+<!--                                <input type="radio" id="s1" value="10" v-model="filter.limit" @change="loadData">-->
+<!--                                <label for="s1">10</label>-->
 
-                                <input type="radio" id="s2" value="25" v-model="filter.limit" @change="loadData">
-                                <label for="s2">25</label>
+<!--                                <input type="radio" id="s2" value="25" v-model="filter.limit" @change="loadData">-->
+<!--                                <label for="s2">25</label>-->
 
-                                <input type="radio" id="s3" value="50" v-model="filter.limit" @change="loadData">
-                                <label for="s3">50</label>
+<!--                                <input type="radio" id="s3" value="50" v-model="filter.limit" @change="loadData">-->
+<!--                                <label for="s3">50</label>-->
 
-                                <input type="radio" id="s4" value="100" v-model="filter.limit" @change="loadData">
-                                <label for="s4">100</label>
-                            </div>
-                        </div>
+<!--                                <input type="radio" id="s4" value="100" v-model="filter.limit" @change="loadData">-->
+<!--                                <label for="s4">100</label>-->
+<!--                            </div>-->
+<!--                        </div>-->
                         <div v-if="filter.farmer_type && pageDependencies.device?.length"
                              class="mt-2 d-flex flex-wrap gap-2">
 
@@ -73,12 +79,14 @@
 
                         </div>
                         <div class="w-100 d-block d-md-none mt-3">
-                            <div class="mb-2">
-                                <datepicker v-model="filter.date_from" class="form-control" :placeholder="_l('from_date')" />
-                            </div>
-
-                            <div class="mb-2">
-                                <datepicker v-model="filter.date_to" class="form-control" :placeholder="_l('to_date')" />
+                            <div class="col-md-3 mb-3">
+                                <select class="form-control" v-model="filter.time_priod" @change="loadData">
+                                    <option value="">Select Range</option>
+                                    <option value="24">24 Hours</option>
+                                    <option value="3">3 Days</option>
+                                    <option value="7">7 Days</option>
+                                    <option value="30">30 Days</option>
+                                </select>
                             </div>
 
                             <div>
@@ -96,9 +104,11 @@
                             <div class="card">
                                 <div class="card-header">
                                     <label> <i class="bx bxs-thermometer me-2 text-danger font-18"></i>{{_l('temperature')}} (°C)</label>
+
                                 </div>
                                 <div class="card-body">
                                     <apexchart type="line" height="350" :options="tempOptions" :series="tempSeries" />
+                                    <small class="d-block text-center mt-2">{{dateRangeText}}</small>
                                 </div>
                             </div>
                         </div>
@@ -109,6 +119,7 @@
                                 </div>
                                 <div class="card-body">
                                     <apexchart type="line" height="350" :options="humOptions" :series="humSeries" />
+                                    <small class="d-block text-center mt-2">{{dateRangeText}}</small>
                                 </div>
                             </div>
                         </div>
@@ -121,6 +132,7 @@
                                 </div>
                                 <div class="card-body">
                                     <apexchart type="line" height="350" :options="soilTempOptions" :series="soilTempSeries" />
+                                    <small class="d-block text-center mt-2">{{dateRangeText}}</small>
                                 </div>
                             </div>
                         </div>
@@ -131,6 +143,7 @@
                                 </div>
                                 <div class="card-body">
                                     <apexchart type="line" height="350" :options="soilHumOptions" :series="soilHumSeries" />
+                                    <small class="d-block text-center mt-2">{{dateRangeText}}</small>
                                 </div>
                             </div>
                         </div>
@@ -142,6 +155,7 @@
                                 </div>
                                 <div class="card-body">
                                     <apexchart type="bar" height="350" :options="condOptions" :series="condSeries" />
+                                    <small class="d-block text-center mt-2">{{dateRangeText}}</small>
                                 </div>
                             </div>
                         </div>
@@ -153,27 +167,30 @@
                                 </div>
                                 <div class="card-body">
                                     <apexchart type="line" height="350" :options="phOptions" :series="phSeries" />
+                                    <small class="d-block text-center mt-2">{{dateRangeText}}</small>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-12">
-                            <div class="card">
-                                <div class="card-header">
-                                    <label> <i class='bx bx-spa me-2 text-success font-18'></i>{{_l('fertility')}}</label>
-                                </div>
-                                <div class="card-body">
-                                    <apexchart type="bar" height="350" :options="fertilityOptions" :series="fertilitySeries"/>
-                                </div>
-                            </div>
-                        </div>
+<!--                        <div class="col-md-12">-->
+<!--                            <div class="card">-->
+<!--                                <div class="card-header">-->
+<!--                                    <label> <i class='bx bx-spa me-2 text-success font-18'></i>{{_l('fertility')}}</label>-->
+<!--                                </div>-->
+<!--                                <div class="card-body">-->
+<!--                                    <apexchart type="bar" height="350" :options="fertilityOptions" :series="fertilitySeries"/>-->
+<!--                                    <small class="d-block text-center mt-2">{{dateRangeText}}</small>-->
+<!--                                </div>-->
+<!--                            </div>-->
+<!--                        </div>-->
 
                         <div class="col-md-12">
                             <div class="card">
                                 <div class="card-header">
-                                    <label> <i class="bx bxs-flask me-2 text-success font-18"></i>{{_l('npk_levels')}}</label>
+                                    <label> <i class="bx bxs-flask me-2 text-success font-18"></i>{{_l('n_p_k_levels')}}(Nitrogen,Phosphorus,Potassium)</label>
                                 </div>
                                 <div class="card-body">
                                     <apexchart type="bar" height="350" :options="npkOptions" :series="npkSeries"/>
+                                    <small class="d-block text-center mt-2">{{dateRangeText}}</small>
                                 </div>
                             </div>
                         </div>
@@ -182,14 +199,14 @@
             </div>
         </div>
     </div>
-    <div class="page_loader" v-if="loading">
+    <div class="page_loaders" v-if="loading">
         <i class='bx bx-loader bx-spin text-warning'></i>
     </div>
 </template>
 
 
 <script setup>
-    import { ref, onMounted } from 'vue'
+    import { ref, onMounted,computed } from 'vue'
 
     import axios from 'axios'
     import VueApexCharts from 'vue3-apexcharts'
@@ -235,11 +252,18 @@
     const loading = ref(false);
     // OPTIONS
     const baseOptions = {
-        chart: { foreColor: '#ffffff', toolbar: { show: false } },
+        chart: { foreColor: themeColor, toolbar: { show: false } },
         stroke: { curve: 'smooth', width: 3 },
         legend: { position: 'bottom',show: true },
         xaxis: { categories: [] },
-        tooltip: {theme: 'dark'}
+        tooltip: {theme: 'dark'},
+        yaxis: {
+            labels: {
+                formatter: function (val) {
+                    return parseFloat(val).toFixed(2)
+                }
+            }
+        }
 
 
     };
@@ -253,7 +277,17 @@
     const condOptions = ref({
         chart: { type: 'bar', foreColor: themeColor},
         xaxis: { categories: [] },
-        tooltip: {theme: 'dark'}
+        dataLabels: {
+            enabled: false
+        },
+        tooltip: {theme: 'dark'},
+        yaxis: {
+            labels: {
+                formatter: function (val) {
+                    return parseFloat(val).toFixed(2)
+                }
+            }
+        }
 
     });
 
@@ -267,7 +301,17 @@
     const npkOptions = ref({
         chart: { type: 'bar', foreColor: themeColor },
         xaxis: { categories: [] },
-        tooltip: {theme: 'dark'}
+        dataLabels: {
+            enabled: false
+        },
+        tooltip: {theme: 'dark'},
+        yaxis: {
+            labels: {
+                formatter: function (val) {
+                    return parseFloat(val).toFixed(2)
+                }
+            }
+        }
 
     });
     const updateChartColors = (color) => {
@@ -335,8 +379,10 @@
                 const temp = [];
                 const hum = [];
 
+                // ✅ correct dates source
+                allDates = res.data.dates || [];
+
                 Object.entries(result || {}).forEach(([name, device]) => {
-                    allDates = device.dates || [];
 
                     temp.push({
                         name: String(name || 'Device'),
@@ -405,6 +451,7 @@
                 }}});
 
         loadData();
+        activeDeviceId.value = null;
     };
 
     const setFarmerType = (type) => {
@@ -424,13 +471,32 @@
         loadData()
     };
 
+    const formatDate = (date) => {
+        if (!date) return '';
 
+        return new Date(date).toLocaleDateString('en-GB', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric'
+        });
+    };
+
+    const dateRangeText = computed(() => {
+        const from = filter.value.date_from;
+        const to = filter.value.date_to;
+
+        if (!from || !to) return '';
+
+        return `${formatDate(from)} → ${formatDate(to)}`;
+    });
     onMounted(() => {
         loadData();
         getDependency({dependency:{device: {
                     type_id: filter.value.type_id,
                 }}})
     });
+
+    filter.value.time_priod ='24';
 </script>
 <style>
     .segment-control1 {
@@ -503,5 +569,27 @@
     /* Active hover */
     .limit-segment input:checked + label:hover {
         background: #0b5ed7 !important;
+    }
+
+
+    .page_loaders {
+        position: absolute;
+        top: 25%;
+        left: 50%;
+        transform: translateX(-50%);
+        right: 0;
+        bottom: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+
+        padding-top: 40px;
+        z-index: 10; /* make sure it's above modal content */
+    }
+
+    .page_loaders i {
+        font-size: 2rem; /* adjust size if needed */
     }
 </style>

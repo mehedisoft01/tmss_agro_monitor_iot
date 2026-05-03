@@ -167,5 +167,21 @@
     "temperature(c)": "Temperature(c)",
     "humidity(%)": "Humidity(%)",
     "soil_device_data": "Soil Device Data",
-    "temperature(°C)": "Temperature(°C)"
+    "temperature(°C)": "Temperature(°C)",
+    "farm_condition_score": "Farm Condition Score",
+    "min_alert": "Min Alert",
+    "max_alert": "Max Alert",
+    "nitrogen": "Nitrogen",
+    "phosphorus": "Phosphorus",
+    "potassium": "Potassium",
+    "electrical_conductivity": "Electrical Conductivity",
+    "n_p_k_levels": "N P K Levels",
+    "Live Data": "Live Data",
+    "live_data": "Live Data",
+    "live_update": "Live Update",
+    "last_24_hours_avg": "Last 24 Hours Avg",
+    "24_hours_average_data": "24 Hours Average Data",
+    "miller": "Miller",
+    "miller_reports": "Miller Reports",
+    "soil_parameters_-_last_24_hours": "Soil Parameters - Last 24 Hours"
 }

@@ -5,6 +5,7 @@
     import VueApexCharts from "vue3-apexcharts"
     import { useStore } from 'vuex'
     import { useBase, useHttp, appStore } from '@/lib'
+    import axios from 'axios'
 
     const apexchart = VueApexCharts
 
@@ -34,11 +35,13 @@
     const chartSeries = ref([])
     const weatherData = ref({})
     const loading = ref(false);
+    const fetchedAt = ref('');
+
 
     const chartOptions = ref({
         chart: {
             type: 'line',
-            height: 200,
+            height: 300,
             toolbar: { show: false },
             background: 'transparent'
         },
@@ -48,7 +51,7 @@
             width: 3
         },
 
-        colors: ['#0d6efd', '#198754', '#dc3545'],
+        colors: ['#dc3545', '#198754', '#0d6efd'],
 
         tooltip: {
             theme: 'dark',
@@ -93,7 +96,7 @@
         }
     })
 
-
+    const healthMode = ref('live');
     const sensorMap = computed(() => {
         const map = {}
         sensors.value.forEach(s => {
@@ -109,7 +112,10 @@
                 fetchDashboardData()
             }
         }
-    )
+    );
+    watch(healthMode, () => {
+        fetchDashboardData();
+    });
 
     // Storage API
     const fetchStorageData = async () => {
@@ -134,34 +140,61 @@
             loading.value = false;
         }
     }
-
     // Dashboard API
+    // const fetchDashboardData = async () => {
+    //     try {
+    //         loading.value = true;
+    //
+    //         const response =  httpReq({
+    //             url: '/api/dashboardV2',
+    //             method: 'GET',
+    //             params: {
+    //                 device_id: formFilter.value.device_id,
+    //                 date_from: formFilter.value.date_from,
+    //                 mode: healthMode.value
+    //             }
+    //         });
+    //
+    //         console.log("res",response)
+    //         chartData.value = response.chartData || [];
+    //         sensors.value = response.sensors || [];
+    //         Object.assign(farmHealth, response.farmHealth || {});
+    //         fetchedAt.value = response.fetched_at;
+    //         console.log(chartData.value);
+    //
+    //         updateChart();
+    //
+    //     } catch (error) {
+    //         console.error(error);
+    //     } finally {
+    //         loading.value = false;
+    //     }
+    // };
     const fetchDashboardData = async () => {
         try {
             loading.value = true;
-            const response = await httpReq({
-                url: '/api/dashboardV2',
-                method: 'GET',
+
+            const response = await axios.get('/api/dashboardV2', {
                 params: {
                     device_id: formFilter.value.device_id,
-                    date_from: formFilter.value.date_from
-                }
-            })
+                    date_from: formFilter.value.date_from,
+                    mode: healthMode.value
+                }            });
 
-            console.log("FINAL:", response)
+            console.log("res",response)
+            chartData.value = response.data.chartData || [];
+            sensors.value = response.data.sensors || [];
+            Object.assign(farmHealth, response.data.farmHealth || {});
+            fetchedAt.value = response.data.fetched_at;
 
-            chartData.value = response.chartData || []
-            sensors.value = response.sensors || []
-            Object.assign(farmHealth, response.farmHealth || {})
-
-            updateChart()
+            updateChart();
 
         } catch (error) {
-            console.error('Dashboard API Error:', error)
-        }finally {
+            console.error(error);
+        } finally {
             loading.value = false;
         }
-    }
+    };
 
     // ================= CHART LOGIC =================
 
@@ -183,16 +216,17 @@
                 name: 'Soil Moisture',
                 data: humidityData
             },
-            {
-                name: 'PH',
-                data: phData
-            },
+
             {
                 name: 'Temperature',
                 data: temperatureData
+            },
+            {
+                name: 'PH',
+                data: phData
             }
         ]
-    }
+    };
 
     // ================= HELPERS =================
 
@@ -249,7 +283,7 @@
             <div class="card">
                 <div class="card-header bg-light">
                     <div class="row mb-2">
-                        <div class="col-md-2">
+                        <div class="col-md-2 mb-2">
                             <select class="form-control pointer" v-model="formFilter.device_id" @click="fetchDashboardData">
                                 <option value="">{{_l('select_device')}}</option>
                                 <template v-for="(data, index) in pageDependencies.soil_device">
@@ -270,45 +304,93 @@
                 <div class=" card-body row">
                     <div class="col-lg-7">
                         <div class="card border-0 shadow-sm p-4 h-100">
-                            <div class="d-flex justify-content-between align-items-start mb-4">
-                                <div>
+                            <div class="d-flex flex-column flex-md-row justify-content-between align-items-start mb-4 gap-3">
+
+                                <!-- LEFT SECTION -->
+                                <div class="w-100">
                                     <h5 class="fw-bold d-flex align-items-center gap-2">
                                         <i class="bx bx-flask bx-lg"></i>
-                                       {{_l('farm_health_overview')}}
+                                        {{ _l('farm_health_overview') }}
                                     </h5>
-                                    <div class="alert-box p-3 mt-3 vertical-alert">
-                                        <p class="mb-2 fs-5">
-                                            <i class="text-orange fas fa-exclamation-triangle me-2 fs-5"></i>
-                                            <strong>{{_l('alert')}}</strong>
-                                        </p>
-                                        <div class="ticker-wrapper">
-                                            <div class="ticker" v-if="farmHealth.alerts && farmHealth.alerts.length">
-                                                <p v-for="(alert, index) in farmHealth.alerts"
-                                                   :key="index"
-                                                   class="ticker-item mb-2 fs-6">
 
-                                                    <i class="fas fa-exclamation-circle me-2 fs-5"
+                                    <div class="alert-box p-3 mt-3 vertical-alert w-100">
+
+                                        <p class="mb-2 fs-6 fs-md-5 d-flex align-items-center">
+                                            <i class="text-orange fas fa-exclamation-triangle me-2"></i>
+                                            <strong>{{ _l('alert') }}</strong>
+                                        </p>
+
+                                        <div class="ticker-wrapper">
+
+                                            <div class="ticker" v-if="farmHealth.alerts && farmHealth.alerts.length">
+
+                                                <div v-for="(alert, index) in farmHealth.alerts"
+                                                     :key="index"
+                                                     class="ticker-item d-flex align-items-start gap-2 mb-2">
+
+                                                    <i class="fas fa-exclamation-circle flex-shrink-0 mt-1"
                                                        :style="{ color: getAlertColor(alert) }"></i>
 
-                                                    {{ formatAlert(alert) }}
+                                                    <span class="text-break">
+                                                        {{ formatAlert(alert) }}
+                                                    </span>
 
-                                                </p>
+                                                </div>
 
                                             </div>
 
-                                            <p v-else class="text-success">{{_l('no_sensor_data_available')}}</p>
+                                            <p v-else class="text-success small">
+                                                {{ _l('no_sensor_data_available') }}
+                                            </p>
+
                                         </div>
 
                                     </div>
                                 </div>
 
-                                <div class="text-center">
-                                    <div class="gauge-storage"
-                                         :style="{ '--value': farmHealth.score }">
-                                        <span class="h4">{{ farmHealth.score }}</span>
+
+                                <!-- RIGHT SECTION -->
+                                <div class="text-center text-md-end w-100 w-md-auto">
+
+                                    <div>
+                                        <small class="h5 mb-3 d-block">
+
+                                            <span v-if="healthMode === 'live'">
+                                                🟢 {{ _l('live_data') }} : {{ fetchedAt }}
+                                            </span>
+
+                                            <span v-else>
+                                                📊 {{ _l('24_hours_average_data') }}
+                                            </span>
+
+                                        </small>
                                     </div>
+
+                                    <!-- RADIO BUTTONS -->
+                                    <div class="d-flex flex-wrap justify-content-center justify-content-md-end gap-3 mt-3 mt-md-5">
+
+                                        <label class="d-flex align-items-center gap-2 fs-6 fw-semibold cursor-pointer">
+                                            <input type="radio"
+                                                   value="live"
+                                                   v-model="healthMode"
+                                                   class="form-check-input scale-radio">
+                                            {{ _l('live_update') }}
+                                        </label>
+
+                                        <label class="d-flex align-items-center gap-2 fs-6 fw-semibold cursor-pointer">
+                                            <input type="radio"
+                                                   value="24h"
+                                                   v-model="healthMode"
+                                                   class="form-check-input scale-radio">
+                                            {{ _l('last_24_hours_avg') }}
+                                        </label>
+
+                                    </div>
+
                                 </div>
+
                             </div>
+
 
                             <!-- text-muted removed -->
                             <div class="row text-center mt-4">
@@ -357,22 +439,37 @@
 
                                     <div class="small">{{_l('soil_temperature')}}</div>
                                 </div>
-                                <div class="col-3" v-if="sensorMap.FERTILITY">
-                                    <div class="rounded-circle d-flex align-items-center justify-content-center mx-auto"
-                                         style="width:50px;height:50px;background:#198754;">
-                                        <i class="fas fa-bolt text-white"></i>
-                                    </div>
+<!--                                <div class="col-3" v-if="sensorMap.FERTILITY">-->
+<!--                                    <div class="rounded-circle d-flex align-items-center justify-content-center mx-auto"-->
+<!--                                         style="width:50px;height:50px;background:#198754;">-->
+<!--                                        <i class="fas fa-bolt text-white"></i>-->
+<!--                                    </div>-->
+
+<!--                                    <div class="fw-bold mt-2"-->
+<!--                                         :style="{ color: getColor(sensorMap.FERTILITY.status) }">-->
+<!--                                        {{ sensorMap.FERTILITY.status }}-->
+<!--                                    </div>-->
+
+<!--                                    <div class="h4 mb-0">-->
+<!--                                        {{ sensorMap.FERTILITY.value }}-->
+<!--                                    </div>-->
+
+<!--                                    <div class="small">{{_l('fertility')}}</div>-->
+<!--                                </div>-->
+                                <div class="col-3" v-if="sensorMap.EC">
+                                    <i class="fas fa-flask fa-3x"
+                                       :style="{ color: getColor(sensorMap.EC.status) }"></i>
 
                                     <div class="fw-bold mt-2"
-                                         :style="{ color: getColor(sensorMap.FERTILITY.status) }">
-                                        {{ sensorMap.FERTILITY.status }}
+                                         :style="{ color: getColor(sensorMap.EC.status) }">
+                                        {{ sensorMap.EC.status }}
                                     </div>
 
                                     <div class="h4 mb-0">
-                                        {{ sensorMap.FERTILITY.value }}
+                                        {{ sensorMap.EC.value }}<small>mg/kg</small>
                                     </div>
 
-                                    <div class="small">{{_l('fertility')}}</div>
+                                    <div class="small">{{ _l('electrical_conductivity') }}</div>
                                 </div>
                             </div>
 
@@ -390,7 +487,7 @@
                                         {{ sensorMap.N.value }}<small>mg/kg</small>
                                     </div>
 
-                                    <div class="small">{{_l('n')}}</div>
+                                    <div class="small">{{_l('nitrogen')}}</div>
                                 </div>
                                 <div class="col-3" v-if="sensorMap.P">
                                     <i class="fas fa-flask fa-3x"
@@ -405,7 +502,7 @@
                                         {{ sensorMap.P.value }}<small>mg/kg</small>
                                     </div>
 
-                                    <div class="small">{{_l('p')}}</div>
+                                    <div class="small">{{_l('phosphorus')}}</div>
                                 </div>
                                 <div class="col-3" v-if="sensorMap.K">
                                     <i class="fas fa-flask fa-3x"
@@ -420,23 +517,23 @@
                                         {{ sensorMap.K.value }}<small>mg/kg</small>
                                     </div>
 
-                                    <div class="small">{{_l('k')}}</div>
+                                    <div class="small">{{_l('potassium')}}</div>
                                 </div>
-                                <div class="col-3" v-if="sensorMap.EC">
-                                    <i class="fas fa-flask fa-3x"
-                                       :style="{ color: getColor(sensorMap.EC.status) }"></i>
+<!--                                <div class="col-3" v-if="sensorMap.EC">-->
+<!--                                    <i class="fas fa-flask fa-3x"-->
+<!--                                       :style="{ color: getColor(sensorMap.EC.status) }"></i>-->
 
-                                    <div class="fw-bold mt-2"
-                                         :style="{ color: getColor(sensorMap.EC.status) }">
-                                        {{ sensorMap.EC.status }}
-                                    </div>
+<!--                                    <div class="fw-bold mt-2"-->
+<!--                                         :style="{ color: getColor(sensorMap.EC.status) }">-->
+<!--                                        {{ sensorMap.EC.status }}-->
+<!--                                    </div>-->
 
-                                    <div class="h4 mb-0">
-                                        {{ sensorMap.EC.value }}<small>mg/kg</small>
-                                    </div>
+<!--                                    <div class="h4 mb-0">-->
+<!--                                        {{ sensorMap.EC.value }}<small>mg/kg</small>-->
+<!--                                    </div>-->
 
-                                    <div class="small">{{ _l('ec') }}</div>
-                                </div>
+<!--                                    <div class="small">{{ _l('electrical_conductivity') }}</div>-->
+<!--                                </div>-->
                             </div>
 
                             <hr class="my-4">
@@ -474,12 +571,15 @@
                                 </div>
                             </div>
 
-                            <p class="small mb-1">{{_l('soil_parameters_-_last_7_days')}}</p>
-
-                            <div style="height: 200px;">
+                            <p class="small mb-1">
+                                {{ healthMode === 'live'
+                                ? _l('soil_parameters_-_last_7_days')
+                                : _l('soil_parameters_-_last_24_hours') }}
+                            </p>
+                            <div style="height: 300px;">
                                 <apexchart
                                         type="line"
-                                        height="200"
+                                        height="300"
                                         :options="chartOptions"
                                         :series="chartSeries"
                                 />
@@ -507,9 +607,9 @@
                                 </div>
                             </div>
 
-                            <div class="row align-items-center">
+                            <div class="row align-items-center mt-3 mb-4">
 
-                                <div class="col-md-4 d-flex justify-content-center">
+                                <div class="col-md-6 d-flex justify-content-center mb-2">
                                     <div class="gauge-storage"
                                          :style="{ '--value': latestData.temperature }">
                                         <span class="h4">{{ latestData.temperature }}°C</span>
@@ -517,37 +617,37 @@
                                     </div>
                                 </div>
 
-                                <div class="col-md-4 d-flex justify-content-center">
+                                <div class="col-md-6 d-flex justify-content-center">
                                     <div class="gauge-storage"
                                          :style="{ '--value': latestData.humidity }">
                                         <span class="h4">{{ latestData.humidity }}%</span>
                                         <small>Humidity</small>
                                     </div>
                                 </div>
-                                <div class="col-md-4 d-flex justify-content-center">
-                                    <div class="gauge-storage"
-                                         :style="{ '--value': latestData.battery_percentage }">
-                                        <span class="h4">{{ latestData.battery_percentage }}%</span>
-                                        <small>Battery</small>
-                                    </div>
-                                </div>
+<!--                                <div class="col-md-4 d-flex justify-content-center">-->
+<!--                                    <div class="gauge-storage"-->
+<!--                                         :style="{ '&#45;&#45;value': latestData.battery_percentage }">-->
+<!--                                        <span class="h4">{{ latestData.battery_percentage }}%</span>-->
+<!--                                        <small>Battery</small>-->
+<!--                                    </div>-->
+<!--                                </div>-->
                             </div>
 
                             <!-- STORAGE ACTIONS -->
-                            <div class="mt-4">
-                                <h6 class="fw-bold fs-5">{{_l('actions')}}</h6>
+<!--                            <div class="mt-4">-->
+<!--                                <h6 class="fw-bold fs-5">{{_l('actions')}}</h6>-->
 
-                                <div class="row mt-2 fs-6">
-                                    <div class="col-12">
-                                        <p v-for="(action, index) in actions"
-                                           :key="index"
-                                           class="mb-2">
-                                            <i class="fas fa-exclamation-triangle me-2 text-danger"></i>
-                                            {{ action }}
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
+<!--                                <div class="row mt-2 fs-6">-->
+<!--                                    <div class="col-12">-->
+<!--                                        <p v-for="(action, index) in actions"-->
+<!--                                           :key="index"-->
+<!--                                           class="mb-2">-->
+<!--                                            <i class="fas fa-exclamation-triangle me-2 text-danger"></i>-->
+<!--                                            {{ action }}-->
+<!--                                        </p>-->
+<!--                                    </div>-->
+<!--                                </div>-->
+<!--                            </div>-->
                         </div>
                     </div>
                 </div>
@@ -598,11 +698,15 @@
         inset: 10px;
         background: #0d1b2a;
         border-radius: 50%;
-        z-index: 1;
+        z-index: 0;
+
     }
 
     /* text styles */
-    .gauge-storage span,
+    .gauge-storage span {
+        z-index: 1;
+        position: relative;
+    }
     .gauge-storage small {
         position: relative;
         z-index: 2;
@@ -622,9 +726,10 @@
     }
 
     .vertical-alert {
-        height: 120px; /* control visible area */
+        height: 160px; /* control visible area */
         overflow: hidden;
         position: relative;
+        width:350px;
     }
 
     .ticker-wrapper {
@@ -636,7 +741,7 @@
     .ticker {
         display: flex;
         flex-direction: column;
-        animation: scrollUp 15s linear infinite;
+        animation: linear infinite;
     }
 
     .ticker-item {
@@ -647,16 +752,16 @@
     }
 
 
-    /* animation */
-    @keyframes scrollUp {
-        0% {
-            transform: translateY(100%);
-        }
-        100% {
-            transform: translateY(-100%);
-        }
-    }
-    .card {
-        border-radius: 15px;
-    }
+    /*!* animation *!*/
+    /*@keyframes scrollUp {*/
+    /*    0% {*/
+    /*        transform: translateY(100%);*/
+    /*    }*/
+    /*    100% {*/
+    /*        transform: translateY(-100%);*/
+    /*    }*/
+    /*}*/
+    /*.card {*/
+    /*    border-radius: 15px;*/
+    /*}*/
 </style>
