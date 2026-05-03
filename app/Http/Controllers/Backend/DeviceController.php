@@ -114,7 +114,7 @@ class DeviceController extends Controller
                     'local_key'    => $deviceData['local_key']    ?? null,
                     'time_zone'    => $deviceData['time_zone']    ?? null,
                     'client_id'    => $this->clientId,
-                    'client_secret'=> $this->clientSecret,
+                    'client_secret' => $this->clientSecret,
                     'api_base'     => $this->apiBase,
                 ]
             );
@@ -133,8 +133,6 @@ class DeviceController extends Controller
             }
 
             return returnData(2000, null, "Device added successfully");
-
-
         } catch (\Exception $e) {
             return returnData(5000, null, $e->getMessage());
         }
@@ -215,12 +213,12 @@ class DeviceController extends Controller
                 'update_time' => isset($deviceData['update_time']) ? Carbon::createFromTimestamp($deviceData['update_time'])->format('Y-m-d H:i:s') : null,
             ];
 
-            $lastStatus = DeviceStatus::where('device_id', $device_id)->orderBy('id','desc')->first();
-            if ($lastStatus &&
-                $lastStatus->temperature == $temperature &&
-                $lastStatus->humidity == $humidity) {
-                return returnData(3000,null,"Temperature & Humidity unchanged. Skip insert.");
-            }
+            // $lastStatus = DeviceStatus::where('device_id', $device_id)->orderBy('id','desc')->first();
+            // if ($lastStatus &&
+            //     $lastStatus->temperature == $temperature &&
+            //     $lastStatus->humidity == $humidity) {
+            //     return returnData(3000,null,"Temperature & Humidity unchanged. Skip insert.");
+            // }
 
             DeviceStatus::create([
                 'device_id'          => $device_id,
@@ -249,10 +247,9 @@ class DeviceController extends Controller
                     'recorded_at' => $recordedAt
                 ]
             ]);
-
         } catch (\Exception $e) {
-            Log::error("Status fetch/store failed for device {$device_id}: ".$e->getMessage());
-            return response()->json(['success' => false, 'msg' => $e->getMessage()],400);
+            Log::error("Status fetch/store failed for device {$device_id}: " . $e->getMessage());
+            return response()->json(['success' => false, 'msg' => $e->getMessage()], 400);
         }
     }
 
@@ -275,13 +272,13 @@ class DeviceController extends Controller
         }
 
         $deviceId =  $data['id'] ?? null;
-        if (!$deviceId){
+        if (!$deviceId) {
             return response()->json(['status' => 'error', 'message' => 'Invalid JSON'], 400);
         }
 
 
         $device = SoilDevice::where('device_id', $deviceId)->first();
-        if (!$device){
+        if (!$device) {
             $device = new SoilDevice();
             $device->device_id = $deviceId;
             $device->save();
