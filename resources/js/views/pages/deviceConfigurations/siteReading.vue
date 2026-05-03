@@ -14,7 +14,7 @@
         ...appStore().useGetters('dataList', 'httpRequest', 'pageDependencies', 'updateId')
     };
 
-    const tableHeaders = ref(["#", "device_name", "date", "temperature(c)","humidity(%)","conductivity",'nitrogen','phosphorus','potassium',"fertility", "remarks"]);
+    const tableHeaders = ref(["#", "device_name", "date", "temperature(c)","humidity(%)","conductivity",'nitrogen','phosphorus','potassium',"ph", "remarks"]);
     const {getDataList, httpReq,urlGenerate} = useHttp();
 
     onMounted(() => {
@@ -61,7 +61,7 @@
                 <td>{{ item.n ?? '-' }}</td>
                 <td>{{ item.p ?? '-' }}</td>
                 <td>{{ item.k ?? '-' }}</td>
-                <td>{{ item.fertility ?? '-' }}</td>
+                <td>{{ item.ph ?? '-' }}</td>
                 <td></td>
             </tr>
         </template>
