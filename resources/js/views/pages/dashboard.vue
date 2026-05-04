@@ -131,7 +131,7 @@
                                     <label> <i class="bx bxs-thermometer me-2 text-danger font-18"></i>{{_l('temperature')}} (°C)</label>
                                 </div>
                                 <div class="card-body">
-                                    <apexchart type="line" height="350" :options="soilTempOptions" :series="soilTempSeries" />
+                                    <apexchart type="line" height="400" :options="soilTempOptions" :series="soilTempSeries" />
                                     <small class="d-block text-center mt-2">{{dateRangeText}}</small>
                                 </div>
                             </div>
@@ -139,10 +139,10 @@
                         <div class="col-md-6">
                             <div class="card">
                                 <div class="card-header">
-                                    <label> <i class="bx bxs-droplet me-2 text-primary font-18"></i>{{_l('humidity')}} (%)</label>
+                                    <label> <i class="bx bxs-droplet me-2 text-primary font-18"></i>{{_l('soil_moisture')}}</label>
                                 </div>
                                 <div class="card-body">
-                                    <apexchart type="line" height="350" :options="soilHumOptions" :series="soilHumSeries" />
+                                    <apexchart type="line" height="400" :options="soilHumOptions" :series="soilHumSeries" />
                                     <small class="d-block text-center mt-2">{{dateRangeText}}</small>
                                 </div>
                             </div>
@@ -271,7 +271,18 @@
     const tempOptions = ref({ ...baseOptions });
     const humOptions = ref({ ...baseOptions });
     const soilTempOptions = ref({ ...baseOptions });
-    const soilHumOptions = ref({ ...baseOptions });
+    // const soilHumOptions = ref({ ...baseOptions });
+    const soilHumOptions = ref({
+        ...baseOptions,
+        yaxis: {
+            min: 20,
+            labels: {
+                formatter: function (val) {
+                    return parseFloat(val).toFixed(2)
+                }
+            }
+        }
+    });
     const phOptions = ref({ ...baseOptions });
 
     const condOptions = ref({

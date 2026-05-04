@@ -75,7 +75,7 @@
                                         </div>
                                         <div class="col-12">
                                             <div class="text-center ">
-                                                <p class="mb-0">Registered dealers, please <a href="auth-basic-signup.html">Sign In</a> in here?
+                                                <p class="mb-0"> Registered users, please <a href="auth-basic-signup.html">Sign In</a> here?
                                                 </p>
                                             </div>
                                         </div>

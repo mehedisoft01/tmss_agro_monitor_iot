@@ -339,9 +339,9 @@
 
                                             </div>
 
-                                            <p v-else class="text-success small">
-                                                {{ _l('no_sensor_data_available') }}
-                                            </p>
+<!--                                            <p v-else class="text-success small">-->
+<!--                                                {{ _l('no_sensor_data_available') }}-->
+<!--                                            </p>-->
 
                                         </div>
 
