@@ -40,7 +40,7 @@ class SoilReportExport implements FromCollection, WithHeadings
         $date_to    = $this->data['date_to'] ?? null;
 
         // ✅ Correct Query (IMPORTANT FIXED)
-        $query = DB::table('site_readings as sr')
+        $query = DB::table('site_readings_report as sr')
             ->leftJoin('soil_devices as d', 'sr.site_id', '=', 'd.id')
 
             ->when($device, function ($q) use ($device) {
