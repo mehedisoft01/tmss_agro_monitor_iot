@@ -374,6 +374,9 @@ class DashboardController extends Controller
                 ->get();
 
             $sites = DB::table('soil_devices')
+                ->when($request->farmer_type, function ($q) use ($request) {
+                    $q->where('farmer_type', $request->farmer_type);
+                })
                 ->when($device_id, function ($q) use ($device_id) {
                     $q->where('id', $device_id);
                 })
@@ -500,6 +503,8 @@ class DashboardController extends Controller
 
     public function dashboardDataV2(Request $request)
     {
+        $from = $request->date_from;
+
         $siteId = $request->device_id;
         $mode = $request->input('mode', 'live');
 
@@ -562,35 +567,40 @@ class DashboardController extends Controller
         // =========================
         if ($mode === '24h') {
 
+            $from = $request->date_from
+                ? \Carbon\Carbon::parse($request->date_from)->startOfDay()
+                : now()->subHours(24);
+
+            $to = (clone $from)->addHours(24);
+
             $latest = DB::table('site_readings_report')
                 ->where('site_id', $siteId)
-                ->where('created_at', '>=', now()->subHours(24))
+                ->whereBetween('created_at', [$from, $to])
                 ->selectRaw("
-                ROUND(AVG(ph), 2) as ph,
-                ROUND(AVG(temperature), 2) as temperature,
-                ROUND(AVG(humidity), 2) as humidity,
-                ROUND(AVG(n), 2) as n,
-                ROUND(AVG(p), 2) as p,
-                ROUND(AVG(k), 2) as k,
-                ROUND(AVG(conductivity), 2) as ec,
-                ROUND(AVG(fertility), 2) as fertility
-            ")
+            ROUND(AVG(ph), 2) as ph,
+            ROUND(AVG(temperature), 2) as temperature,
+            ROUND(AVG(humidity), 2) as humidity,
+            ROUND(AVG(n), 2) as n,
+            ROUND(AVG(p), 2) as p,
+            ROUND(AVG(k), 2) as k,
+            ROUND(AVG(conductivity), 2) as ec,
+            ROUND(AVG(fertility), 2) as fertility
+        ")
                 ->first();
 
             $result = DB::table('site_readings_report')
                 ->where('site_id', $siteId)
-                ->where('created_at', '>=', now()->subHours(24))
+                ->whereBetween('created_at', [$from, $to])
                 ->selectRaw("
-                DATE_FORMAT(created_at, '%H:00') as label,
-                ROUND(AVG(temperature), 2) as temperature,
-                ROUND(AVG(humidity), 2) as humidity,
-                ROUND(AVG(ph), 2) as ph
-            ")
+            DATE_FORMAT(created_at, '%H:00') as label,
+            ROUND(AVG(temperature), 2) as temperature,
+            ROUND(AVG(humidity), 2) as humidity,
+            ROUND(AVG(ph), 2) as ph
+        ")
                 ->groupBy(DB::raw("DATE_FORMAT(created_at, '%H:00')"))
                 ->orderBy('label')
                 ->get();
         }
-
         // =========================
         // SAFE FALLBACK
         // =========================
