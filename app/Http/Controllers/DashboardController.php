@@ -508,6 +508,7 @@ class DashboardController extends Controller
 
         $siteId = $request->device_id;
         $mode = $request->input('mode', 'live');
+
         $color = ($authUser->theme && $authUser->theme == 'bg-default bg-theme2')
             ? '#000000'
             : '#FFFFFF';
@@ -521,11 +522,19 @@ class DashboardController extends Controller
         $latest = null;
 
         // =========================
+        // 🔥 GET DEVICE FARMER TYPE
+        // =========================
+        $device = DB::table('soil_devices')
+            ->where('id', $siteId)
+            ->first();
+
+        $farmerType = $device->farmer_type ?? null;
+
+        // =========================
         // LIVE MODE
         // =========================
         if ($mode === 'live') {
 
-            // ✅ FIX: always latest row
             $latest = DB::table('site_readings_report')
                 ->where('site_id', $siteId)
                 ->orderBy('created_at', 'desc')
@@ -540,6 +549,7 @@ class DashboardController extends Controller
                     DB::raw('conductivity as ec')
                 )
                 ->first();
+
             $days = [
                 '6 days ago' => $baseDate->copy()->subDays(6)->toDateString(),
                 '4 days ago' => $baseDate->copy()->subDays(4)->toDateString(),
@@ -560,10 +570,9 @@ class DashboardController extends Controller
                     'temperature' => $row->temperature ?? 0,
                     'humidity' => $row->humidity ?? 0,
                     'ph' => $row->ph ?? 0,
-                    'ec' => $row->conductivity  ?? 0,
+                    'ec' => $row->conductivity ?? 0,
                 ];
             }
-
         }
 
         // =========================
@@ -581,30 +590,31 @@ class DashboardController extends Controller
                 ->where('site_id', $siteId)
                 ->whereBetween('created_at', [$from, $to])
                 ->selectRaw("
-            ROUND(AVG(ph), 2) as ph,
-            ROUND(AVG(temperature), 2) as temperature,
-            ROUND(AVG(humidity), 2) as humidity,
-            ROUND(AVG(n), 2) as n,
-            ROUND(AVG(p), 2) as p,
-            ROUND(AVG(k), 2) as k,
-            ROUND(AVG(conductivity), 2) as ec,
-            ROUND(AVG(fertility), 2) as fertility
-        ")
+                ROUND(AVG(ph), 2) as ph,
+                ROUND(AVG(temperature), 2) as temperature,
+                ROUND(AVG(humidity), 2) as humidity,
+                ROUND(AVG(n), 2) as n,
+                ROUND(AVG(p), 2) as p,
+                ROUND(AVG(k), 2) as k,
+                ROUND(AVG(conductivity), 2) as ec,
+                ROUND(AVG(fertility), 2) as fertility
+            ")
                 ->first();
 
             $result = DB::table('site_readings_report')
                 ->where('site_id', $siteId)
                 ->whereBetween('created_at', [$from, $to])
                 ->selectRaw("
-            DATE_FORMAT(created_at, '%H:00') as label,
-            ROUND(AVG(temperature), 2) as temperature,
-            ROUND(AVG(humidity), 2) as humidity,
-            ROUND(AVG(ph), 2) as ph
-        ")
+                DATE_FORMAT(created_at, '%H:00') as label,
+                ROUND(AVG(temperature), 2) as temperature,
+                ROUND(AVG(humidity), 2) as humidity,
+                ROUND(AVG(ph), 2) as ph
+            ")
                 ->groupBy(DB::raw("DATE_FORMAT(created_at, '%H:00')"))
                 ->orderBy('label')
                 ->get();
         }
+
         // =========================
         // SAFE FALLBACK
         // =========================
@@ -634,6 +644,7 @@ class DashboardController extends Controller
             11 => 'HUMIDITY',
             12 => 'FERTILITY',
         ];
+
         $latestValues = [
             'PH' => $latest->ph ?? 0,
             'TEMPERATURE' => $latest->temperature ?? 0,
@@ -644,14 +655,24 @@ class DashboardController extends Controller
             'EC' => $latest->ec ?? 0,
             'FERTILITY' => $latest->fertility ?? 0,
         ];
-        // =========================
-        // THRESHOLDS
-        // =========================
-        $thresholds = DB::table('device_thresholds')
-            ->where('device_category_id', 2)
-            ->get()
-            ->keyBy('sensor_id');
 
+        // =========================
+        // 🔥 THRESHOLDS (FIXED)
+        // =========================
+        $thresholdsRaw = DB::table('device_thresholds')
+            ->where('device_category_id', 2)
+            ->where(function ($q) use ($farmerType) {
+                $q->where('farmer_type', $farmerType)
+                    ->orWhereNull('farmer_type'); // fallback
+            })
+            ->orderByRaw('farmer_type IS NULL') // prioritize specific
+            ->get();
+
+        $thresholds = $thresholdsRaw->unique('sensor_id')->keyBy('sensor_id');
+
+        // =========================
+        // SENSOR ANALYSIS
+        // =========================
         $sensors = [];
         $alerts = [];
         $farmActions = [];
@@ -686,10 +707,16 @@ class DashboardController extends Controller
             $sensors[] = [
                 'id' => $id,
                 'name' => $name,
-                'value' => round($value, 2), // 🔥 clean output
+                'value' => round($value, 2),
                 'status' => $status
             ];
         }
+
+        // =========================
+        // REMOVE DUPLICATES
+        // =========================
+        $alerts = array_values(array_unique($alerts));
+        $farmActions = array_values(array_unique($farmActions));
 
         // =========================
         // RESPONSE
@@ -699,16 +726,14 @@ class DashboardController extends Controller
             'chartData' => $result,
             'sensors' => $sensors,
             'farmHealth' => [
-                'score' => $score,
+                'score' => max($score, 0),
                 'alerts' => $alerts,
                 'actions' => $farmActions,
             ],
             'fetched_at' => now()->format('Y-m-d H:i:s'),
             'theme_color' => $color
-
         ]);
     }
-
 
     public function storageData(Request $request)
     {

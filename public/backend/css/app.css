@@ -3070,7 +3070,8 @@ input::placeholder {
 
 .search-bar-box {
 
-	width: 100%
+	width: 100%;
+	color: #e7f1ff;
 
 }
 

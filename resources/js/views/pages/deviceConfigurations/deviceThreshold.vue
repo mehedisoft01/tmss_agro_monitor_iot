@@ -27,7 +27,7 @@
 <template>
     <dataTable :headings="tableHeaders" :setting="true">
         <template v-slot:tableTop>
-            <tableTop :defaultAddButton="can('device_thresholds.store')" :defaultObject="{}"></tableTop>
+            <tableTop :defaultAddButton="can('device_thresholds.store')" :defaultObject="{device_category_id:'',sensor_id:'',farmer_type:'' }"></tableTop>
         </template>
 
         <template v-slot:data>
@@ -88,6 +88,14 @@
                     <option value="">Select Sensor</option>
                     <option value="1">Temperature</option>
                     <option value="2">Humidity</option>
+                </select>
+            </div>
+            <div class="mb-2" v-if="formObject.device_category_id == '2'">
+                <label class="col-form-label">{{ _l('category') }} :</label>
+                <select class="form-control pointer" v-model="formObject.farmer_type">
+                    <option value="">Select Type</option>
+                    <option value="1"> Soil Paddy</option>
+                    <option value="2">Soil Vegetable</option>
                 </select>
             </div>
             <div v-if="formObject.device_category_id == '2'" class="mb-2">

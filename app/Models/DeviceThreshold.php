@@ -23,7 +23,8 @@ class DeviceThreshold extends model
         'min_alert',
         'max_alert',
         'min_action',
-        'max_action'
+        'max_action',
+        'farmer_type'
     ];
 
     public function validate($input)

@@ -184,5 +184,6 @@
     "miller": "Miller",
     "miller_reports": "Miller Reports",
     "soil_parameters_-_last_24_hours": "Soil Parameters - Last 24 Hours",
-    "soil_moisture(%)": "Soil Moisture(%)"
+    "soil_moisture(%)": "Soil Moisture(%)",
+    "category": "Category"
 }
