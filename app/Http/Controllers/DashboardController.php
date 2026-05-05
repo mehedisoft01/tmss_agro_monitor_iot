@@ -504,9 +504,13 @@ class DashboardController extends Controller
     public function dashboardDataV2(Request $request)
     {
         $from = $request->date_from;
+        $authUser = auth()->user();
 
         $siteId = $request->device_id;
         $mode = $request->input('mode', 'live');
+        $color = ($authUser->theme && $authUser->theme == 'bg-default bg-theme2')
+            ? '#000000'
+            : '#FFFFFF';
 
         $selectedDate = $request->date_from;
         $baseDate = $selectedDate
@@ -699,7 +703,9 @@ class DashboardController extends Controller
                 'alerts' => $alerts,
                 'actions' => $farmActions,
             ],
-            'fetched_at' => now()->format('Y-m-d H:i:s')
+            'fetched_at' => now()->format('Y-m-d H:i:s'),
+            'theme_color' => $color
+
         ]);
     }
 

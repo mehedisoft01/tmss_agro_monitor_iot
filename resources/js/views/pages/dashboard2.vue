@@ -36,6 +36,7 @@
     const weatherData = ref({})
     const loading = ref(false);
     const fetchedAt = ref('');
+    const themeColor = ref();
 
 
     const chartOptions = ref({
@@ -43,7 +44,8 @@
             type: 'line',
             height: 300,
             toolbar: { show: false },
-            background: 'transparent'
+            background: 'transparent',
+            foreColor: themeColor,
         },
 
         stroke: {
@@ -51,7 +53,7 @@
             width: 3
         },
 
-        colors: ['#dc3545', '#198754', '#0d6efd'],
+        // colors: ['#dc3545', '#198754', '#0d6efd'],
 
         tooltip: {
             theme: 'dark',
@@ -62,39 +64,16 @@
 
         xaxis: {
             categories: [],
-            labels: {
-                style: {
-                    colors: '#d1d5db',
-                    fontSize: '12px'
-                }
-            },
-            axisBorder: {
-                show: true,
-                color: '#6c757d'
-            },
-            axisTicks: {
-                show: true,
-                color: '#6c757d'
-            }
         },
 
         yaxis: {
             labels: {
-                style: {
-                    colors: '#d1d5db',
-                    fontSize: '12px'
+                formatter: function (val) {
+                    return parseFloat(val).toFixed(2)
                 }
             }
-        },
-
-        grid: {
-            borderColor: 'rgba(255,255,255,0.1)'
-        },
-
-        legend: {
-            show: false
         }
-    })
+    });
 
     const healthMode = ref('live');
     const sensorMap = computed(() => {
@@ -181,12 +160,12 @@
                     mode: healthMode.value
                 }            });
 
-            console.log("res",response)
+            // console.log("res",response)
             chartData.value = response.data.chartData || [];
             sensors.value = response.data.sensors || [];
             Object.assign(farmHealth, response.data.farmHealth || {});
             fetchedAt.value = response.data.fetched_at;
-
+            themeColor.value = response.data.theme_color;
             updateChart();
 
         } catch (error) {
@@ -206,11 +185,15 @@
 
         chartOptions.value = {
             ...chartOptions.value,
+            foreColor: themeColor.value,
+
             xaxis: {
                 categories: labels
             }
         }
-
+        // watch(themeColor, (color) => {
+        //     chartOptions.value.chart.foreColor = color;
+        // });
         chartSeries.value = [
             {
                 name: 'Soil Moisture',
@@ -585,11 +568,11 @@
                                 />
                             </div>
 
-                            <div class="d-flex justify-content-center small mt-2">
-                                <span class="mx-2"><i class="bx bx-circle me-1" style="color:#dc3545;"></i> {{_l('soil_moisture')}}</span>
-                                <span class="mx-2"><i class="bx bx-circle me-1" style="color: #198754"></i>{{_l('soil_temperature')}}</span>
-                                <span class="mx-2" style="color:#0d6efd;">-- PH</span>
-                            </div>
+<!--                            <div class="d-flex justify-content-center small mt-2">-->
+<!--                                <span class="mx-2"><i class="bx bx-circle me-1" style="color:#dc3545;"></i> {{_l('soil_moisture')}}</span>-->
+<!--                                <span class="mx-2"><i class="bx bx-circle me-1" style="color: #198754"></i>{{_l('soil_temperature')}}</span>-->
+<!--                                <span class="mx-2" style="color:#0d6efd;">&#45;&#45; PH</span>-->
+<!--                            </div>-->
                         </div>
 
                         <div class="card border-0 shadow-sm p-4">
@@ -613,7 +596,7 @@
                                     <div class="gauge-storage"
                                          :style="{ '--value': latestData.temperature }">
                                         <span class="h4">{{ latestData.temperature }}°C</span>
-                                        <small>Temperature</small>
+                                        <small>{{_l('temperature')}}</small>
                                     </div>
                                 </div>
 
@@ -621,7 +604,7 @@
                                     <div class="gauge-storage"
                                          :style="{ '--value': latestData.humidity }">
                                         <span class="h4">{{ latestData.humidity }}%</span>
-                                        <small>Humidity</small>
+                                        <small>{{_l('humidity')}}</small>
                                     </div>
                                 </div>
 <!--                                <div class="col-md-4 d-flex justify-content-center">-->
@@ -696,7 +679,7 @@
         content: "";
         position: absolute;
         inset: 10px;
-        background: #0d1b2a;
+        /*background: #0d1b2a;*/
         border-radius: 50%;
         z-index: 0;
 
@@ -710,7 +693,7 @@
     .gauge-storage small {
         position: relative;
         z-index: 2;
-        color: #ffffff;
+        /*color: #ffffff;*/
         text-align: center;
         line-height: 1.2;
     }
@@ -722,7 +705,7 @@
 
     .gauge-storage small {
         font-size: 12px;
-        color: #d1d5db;
+        /*color: #d1d5db;*/
     }
 
     .vertical-alert {
