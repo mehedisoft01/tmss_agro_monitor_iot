@@ -30,9 +30,7 @@ class GenerateSiteReadingsReport extends Command
                 ff.k,
                 ff.fertility,
                 ff.reading_time as created_at
-
             FROM(
-
                 WITH RECURSIVE time_series AS (
                     SELECT TIMESTAMP('2026-05-01 00:00:00') AS dt
                     UNION ALL
@@ -46,38 +44,17 @@ class GenerateSiteReadingsReport extends Command
                 ),
 
                 device_info AS (
-                    SELECT id AS site_id
+                    SELECT id AS site_id,start_date,close_date
                     FROM soil_devices
                 ),
 
                 data_status AS (
                     SELECT 
                         a.site_id,
-
-                        CASE 
-                            WHEN CAST(a.reading_time AS DATE)=CAST(a.created_at AS DATE) 
-                            THEN DATE_FORMAT(
-                                DATE_SUB(a.reading_time, INTERVAL MINUTE(a.reading_time) % 15 MINUTE),
-                                '%Y-%m-%d %H:%i:00'
-                            ) 
-                            ELSE 
-                                CASE 
-                                    WHEN site_id=2 THEN DATE_FORMAT(CONCAT(DATE(created_at),' ',
-                                        DATE_FORMAT(
-                                            DATE_SUB(DATE_SUB(reading_time, INTERVAL 6 HOUR),INTERVAL 30 MINUTE),
-                                            '%H:%i:%s'
-                                        )
-                                    ),'%Y-%m-%d %H:%i:00')
-
-                                    WHEN site_id=6 THEN DATE_FORMAT(CONCAT(DATE(created_at),' ',
-                                        DATE_FORMAT(
-                                            DATE_SUB(DATE_ADD(reading_time, INTERVAL 11 HOUR),INTERVAL 0 MINUTE),
-                                            '%H:%i:%s'
-                                        )
-                                    ),'%Y-%m-%d %H:%i:00')
-                                END 
-                        END AS bucket_time,
-
+                        DATE_FORMAT(
+                            DATE_SUB(a.created_at, INTERVAL MINUTE(a.created_at) % 15 MINUTE),
+                            '%Y-%m-%d %H:%i:00'
+                        ) AS bucket_time,
                         a.temperature,
                         a.humidity,
                         a.conductivity,
@@ -86,7 +63,6 @@ class GenerateSiteReadingsReport extends Command
                         a.p,
                         a.k,
                         a.fertility
-
                     FROM site_readings a
                     WHERE a.created_at >= '2026-05-01'
                     AND a.temperature>0 
@@ -109,51 +85,62 @@ class GenerateSiteReadingsReport extends Command
                         t.n,
                         t.p,
                         t.k,
-                        t.fertility
+                        t.fertility,
+                        d.start_date,
+                        d.close_date
                     FROM time_series ts
                     JOIN device_info d
                     LEFT JOIN data_status t
                         ON t.site_id = d.site_id
-                    AND t.bucket_time = ts.dt
+                        AND t.bucket_time = ts.dt
                 )
 
                 SELECT 
                     b.site_idd,
                     b.reading_time,
 
-                    CASE WHEN b.temperature IS NULL THEN bb.temperature ELSE b.temperature END AS temperature,
-                    CASE WHEN b.humidity IS NULL THEN bb.humidity ELSE b.humidity END AS humidity,
-                    CASE WHEN b.conductivity IS NULL THEN bb.conductivity ELSE b.conductivity END AS conductivity,
-                    CASE WHEN b.ph IS NULL THEN bb.ph ELSE b.ph END AS ph,
-                    CASE WHEN b.n IS NULL THEN bb.n ELSE b.n END AS n,
-                    CASE WHEN b.p IS NULL THEN bb.p ELSE b.p END AS p,
-                    CASE WHEN b.k IS NULL THEN bb.k ELSE b.k END AS k,
-                    CASE WHEN b.fertility IS NULL THEN bb.fertility ELSE b.fertility END AS fertility
+                    COALESCE(b.temperature, bb.temperature) AS temperature,
+                    COALESCE(b.humidity, bb.humidity) AS humidity,
+                    COALESCE(b.conductivity, bb.conductivity) AS conductivity,
+                    COALESCE(b.ph, bb.ph) AS ph,
+                    COALESCE(b.n, bb.n) AS n,
+                    COALESCE(b.p, bb.p) AS p,
+                    COALESCE(b.k, bb.k) AS k,
+                    COALESCE(b.fertility, bb.fertility) AS fertility,
+                    b.start_date,
+                    b.close_date
 
                 FROM base b
 
                 LEFT JOIN (
-                    SELECT sr.*
-                    FROM site_readings sr
+                    SELECT srr.*
+                    FROM site_readings srr
                     INNER JOIN (
-                        SELECT 
-                            a.site_id,
-                            MAX(a.created_at) as created_at_max
-                        FROM site_readings a
-                        WHERE a.created_at >= '2026-05-01'
-                        AND a.temperature>0 
-                        AND a.humidity>0 
-                        AND a.conductivity>0 
-                        AND a.ph>0 
-                        AND a.n>0 
-                        AND a.p>0 
-                        AND a.k>0
-                        GROUP BY a.site_id
-                    ) tt 
-                    ON sr.site_id=tt.site_id 
-                    AND sr.created_at=tt.created_at_max
+                        SELECT sr.site_id, MAX(sr.id) AS id_max
+                        FROM site_readings sr
+                        INNER JOIN (
+                            SELECT 
+                                a.site_id,
+                                MAX(a.created_at) as created_at_max
+                            FROM site_readings a
+                            WHERE a.created_at >= '2026-05-01'
+                            AND a.temperature>0 
+                            AND a.humidity>0 
+                            AND a.conductivity>0 
+                            AND a.ph>0 
+                            AND a.n>0 
+                            AND a.p>0 
+                            AND a.k>0
+                            GROUP BY a.site_id
+                        ) tt 
+                        ON sr.site_id = tt.site_id 
+                        AND sr.created_at = tt.created_at_max
+                        GROUP BY sr.site_id
+                    ) ss 
+                    ON srr.site_id = ss.site_id 
+                    AND srr.id = ss.id_max
                 ) bb 
-                ON b.site_idd=bb.site_id
+                ON b.site_idd = bb.site_id
 
             ) ff
 
@@ -165,6 +152,10 @@ class GenerateSiteReadingsReport extends Command
                 )
 
             WHERE bt.id IS NULL
+            AND ff.reading_time >= ff.start_date
+            AND (ff.close_date IS NULL OR ff.reading_time <= ff.close_date)
+
+            GROUP BY ff.site_idd, ff.reading_time
             ORDER BY ff.site_idd, ff.reading_time
         ");
 
@@ -173,5 +164,4 @@ class GenerateSiteReadingsReport extends Command
         } catch (\Exception $e) {
             $this->error('❌ Error: ' . $e->getMessage());
         }
-    }
-}
+    }}
