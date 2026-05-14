@@ -67,11 +67,11 @@
                     <a @click="deleteRecord({targetId:item.id,listIndex:index, listObject:dataList.data})" v-if="can('devices.destroy')" class="btn btn-outline-secondary action">
                         <i class='bx bxs-trash text-danger'></i>
                     </a>
-                    <a class="btn btn-outline-secondary"  @click="checkDeviceStatus(index, item.device_id)"
+                    <!-- <a class="btn btn-outline-secondary"  @click="checkDeviceStatus(index, item.device_id)"
                         :disabled="loadingIndex === index" >
                         <span v-if="loadingIndex === index"> <i class="fa fa-spinner fa-spin"></i> Checking... </span>
                         <span v-else>   Device Status</span>
-                    </a>
+                    </a> -->
                 </td>
             </tr>
         </template>
