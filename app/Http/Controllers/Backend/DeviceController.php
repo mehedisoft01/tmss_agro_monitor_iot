@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Backend;
 
 use App\Http\Controllers\Controller;
+use App\Models\ApiConfiguration;
 use App\Models\Device;
 use App\Models\DeviceStatus;
 use App\Models\DeviceThreshold;
@@ -15,9 +16,23 @@ use Illuminate\Support\Facades\Log;
 
 class DeviceController extends Controller
 {
-    private $clientId = 'rctv3rj9nv9kyx5dx87d';
-    private $clientSecret = '54c47c586cc74e8082857ab54bd91a0d';
-    private $apiBase = 'https://openapi.tuyaeu.com';
+    // private $clientId = 'rctv3rj9nv9kyx5dx87d';
+    // private $clientSecret = '54c47c586cc74e8082857ab54bd91a0d';
+    // private $apiBase = 'https://openapi.tuyaeu.com';
+
+    private $config;
+    private $clientId;
+    private $clientSecret;
+    private $apiBase;
+
+    public function __construct()
+    {
+        $this->config = ApiConfiguration::where('slug', 'device_data')->first();
+
+        $this->clientId = $this->config->token;
+        $this->clientSecret = $this->config->secret;
+        $this->apiBase = $this->config->base_url;
+    }
 
     private function getAccessToken()
     {
@@ -300,5 +315,25 @@ class DeviceController extends Controller
         ]);
 
         return response()->json(['status' => 'success']);
+    }
+
+    public function checkDeviceConnection($device_id)
+    {
+        try {
+            $accessToken = $this->getAccessToken();
+            $deviceData = $this->getDeviceStatus($device_id, $accessToken);
+
+            $isOnline = $deviceData['online'] ?? false;
+
+            return response()->json([
+                'status' => 2000,
+                'message' => $isOnline ? 'Device is ONLINE' : 'Device is OFFLINE'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Device not reachable: ' . $e->getMessage()
+            ]);
+        }
     }
 }

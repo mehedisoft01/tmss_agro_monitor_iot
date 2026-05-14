@@ -1,13 +1,13 @@
 <script setup>
     import {dataTable,fromModal,tableTop} from '@/components';
-
+     import axios from 'axios';
     import {ref, onMounted} from 'vue';
     import {useStore} from 'vuex';
     const store = useStore();
     import {useBase, useHttp, appStore} from '@/lib';
 
     const {getDependency, submitForm, editData, deleteRecord} = {...useHttp()};
-    const {_l,can,formFilter, formObject, openModal, closeModal, useGetters, dataList, httpRequest, pageDependencies, updateId,statusBadge,characterLimit,getImage,changeStatus,handleSelectAll,deleteAllRecords} = {
+    const {_l,can,formFilter, formObject, toaster,openModal, closeModal, useGetters, dataList, httpRequest, pageDependencies, updateId,statusBadge,characterLimit,getImage,changeStatus,handleSelectAll,deleteAllRecords} = {
         ...useBase(),
         ...useHttp(),
         ...appStore(),
@@ -16,6 +16,26 @@
 
     const tableHeaders = ref(["#", "display_name", "name", "device_id","product_name","status", "actions"]);
     const {getDataList, httpReq,urlGenerate} = useHttp();
+
+    const loadingIndex = ref(null);
+    const checkDeviceStatus = async (index, deviceId) => {
+        loadingIndex.value = index;
+        try {
+            const res = await httpReq({
+                method: 'get',
+                url: `/api/device-status/${deviceId}`
+            });
+            // if (res.data.status == 2000) {
+            //     toaster('success', res.data.message, 'Success');
+            // }
+        } catch (err) {
+           toaster('error', err.message);
+
+        } finally {
+            loadingIndex.value = null;
+
+        }
+    };
 
     onMounted(() => {
         getDataList();
@@ -46,6 +66,11 @@
                     </a>
                     <a @click="deleteRecord({targetId:item.id,listIndex:index, listObject:dataList.data})" v-if="can('devices.destroy')" class="btn btn-outline-secondary action">
                         <i class='bx bxs-trash text-danger'></i>
+                    </a>
+                    <a class="btn btn-outline-secondary"  @click="checkDeviceStatus(index, item.device_id)"
+                        :disabled="loadingIndex === index" >
+                        <span v-if="loadingIndex === index"> <i class="fa fa-spinner fa-spin"></i> Checking... </span>
+                        <span v-else>   Device Status</span>
                     </a>
                 </td>
             </tr>
