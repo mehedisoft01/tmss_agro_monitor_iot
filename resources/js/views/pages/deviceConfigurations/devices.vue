@@ -14,7 +14,7 @@
         ...appStore().useGetters('dataList', 'httpRequest', 'pageDependencies', 'updateId')
     };
 
-    const tableHeaders = ref(["#", "display_name", "name", "device_id","product_name","status", "actions"]);
+    const tableHeaders = ref(["#", "display_name", "name", "device_id","product_name", "actions"]);
     const {getDataList, httpReq,urlGenerate} = useHttp();
 
     onMounted(() => {
@@ -37,9 +37,9 @@
                 <td>{{item?.name}}</td>
                 <td>{{item?.device_id}}</td>
                 <td>{{item?.product_name}}</td>
-                <td>
-                    <a @click="changeStatus({obj:online})" class="pointer" v-html="statusBadge(item?.online)"></a>
-                </td>
+<!--                <td>-->
+<!--                    <a @click="changeStatus({obj:online})" class="pointer" v-html="statusBadge(item?.online)"></a>-->
+<!--                </td>-->
                 <td>
                     <a @click="editData({data:item, id:item.id, modal:'fromModal'})" v-if="can('devices.update')" class="btn btn-outline-secondary action">
                         <i class='bx bxs-edit text-warning'></i>

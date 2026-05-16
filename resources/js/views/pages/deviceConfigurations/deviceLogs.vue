@@ -14,7 +14,7 @@ const {_l,can, useGetters, dataList, httpRequest,characterLimit,changeStatus,han
     ...appStore().useGetters('dataList', 'httpRequest')
 };
 
-const tableHeaders = ref(["#", "device", "status", "time", "temperature", "humidity", "battery"]);
+const tableHeaders = ref(["#", "device", "time", "temperature", "humidity", "battery"]);
 const {getDataList} = useHttp();
 
 let intervalId = null;
@@ -40,9 +40,9 @@ onUnmounted(() =>{
             <tr v-for="(item, index) in dataList.data" :key="item.id">
                 <td class="fw-medium">{{parseInt(dataList.from)+index}}</td>
                 <td>{{item?.device?.name}}</td>
-                <td>
-                    <span :class="item.online == 1 ? 'badge bg-success' : 'badge bg-danger'">{{ item.online == 1 ? 'Online' : 'Offline' }}</span>
-                </td>
+<!--                <td>-->
+<!--                    <span :class="item.online == 1 ? 'badge bg-success' : 'badge bg-danger'">{{ item.online == 1 ? 'Online' : 'Offline' }}</span>-->
+<!--                </td>-->
                 <td>{{item.recorded_at}}</td>
                 <td>{{item.temperature}} °C</td>
                 <td>{{item.humidity}} %</td>
