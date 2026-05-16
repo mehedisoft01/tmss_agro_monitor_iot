@@ -1,4 +1,3 @@
-
 <?php
 
 use App\Http\Controllers\Backend\DeviceController;
@@ -7,6 +6,7 @@ use App\Http\Controllers\DeviceStatusController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\WeatherController;
 use Illuminate\Support\Facades\Route;
+
 Route::get('/accu/store/{locationId}', [WeatherController::class, 'fetchAndStoreStatus']);
 Route::get('/accuweather/forecasts/{locationId?}', [WeatherController::class, 'getForecasts']);
 Route::get('/accuweather', [WeatherController::class, 'index']);
@@ -31,7 +31,7 @@ Route::middleware([\App\Http\Middleware\AuthMiddleware::class, \App\Http\Middlew
         ->where('any', '.*')->name('employee_home');
 
     Route::get('logout', [\App\Http\Controllers\Backend\AuthController::class, 'logout'])->name('logout');
-//    Route::get('/billing_info',[\App\Http\Controllers\BillingController::class, 'getBillingInfo']);
+    //    Route::get('/billing_info',[\App\Http\Controllers\BillingController::class, 'getBillingInfo']);
 
 
     Route::prefix('api')->group(function () {
@@ -75,12 +75,12 @@ Route::middleware([\App\Http\Middleware\AuthMiddleware::class, \App\Http\Middlew
         Route::get('/dashboardV2', [DashboardController::class, 'dashboardDataV2']);
         Route::get('/storageData', [DashboardController::class, 'storageData']);
 
+        Route::get('/device-status/{device_id}', [DeviceController::class, 'checkDeviceConnection']);
+
         Route::resource('settings', \App\Http\Controllers\SettingController::class);
         Route::resource('profile', \App\Http\Controllers\Backend\AuthController::class);
         Route::resource('users', \App\Http\Controllers\Backend\UserController::class);
         Route::post('profile', [\App\Http\Controllers\Backend\AuthController::class, 'update']);
         Route::resource('modules', \App\Http\Controllers\Backend\RBAC\ModuleController::class);
     });
-
 });
-
