@@ -57,6 +57,7 @@ class GenerateSiteReadingsReport extends Command
                             DATE(NOW()) 
                             + INTERVAL HOUR(NOW()) HOUR
                             + INTERVAL FLOOR(MINUTE(NOW())/15)*15 MINUTE
+                            - INTERVAL 15 MINUTE
                         )
                     ),
 
