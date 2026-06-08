@@ -245,7 +245,7 @@ class GenerateSiteReadingsReport extends Command
                         SELECT 
                             sr.*,
                             1 as aa,
-                            sr.relative_humidity as humidity
+                            sr.indoor_relative_humidity as humidity
 
                         FROM weather sr
 
@@ -256,7 +256,7 @@ class GenerateSiteReadingsReport extends Command
                             FROM weather a
 
                             WHERE a.temperature > 0
-                            AND a.relative_humidity > 0
+                            AND a.indoor_relative_humidity > 0
 
                         ) tt 
                             ON sr.id = tt.id_max
