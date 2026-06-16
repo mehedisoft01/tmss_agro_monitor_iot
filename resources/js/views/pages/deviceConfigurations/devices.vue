@@ -29,7 +29,7 @@
             //     toaster('success', res.data.message, 'Success');
             // }
         } catch (err) {
-           toaster('error', err.message);
+           toaster('error', err.message) ;
 
         } finally {
             loadingIndex.value = null;
