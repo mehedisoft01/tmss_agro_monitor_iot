@@ -57,9 +57,9 @@ class ReportController extends Controller
         $date_from = $request->input('date_from');
         $date_to = $request->input('date_to');
 
-        $data = DB::table('site_readings_report as sr')
+        $data = DB::table('site_readings as sr')
             ->leftJoin('soil_devices as d', 'sr.site_id', '=', 'd.id')
-//            ->where('d.device_category', 2)
+            //            ->where('d.device_category', 2)
             ->when($device, function ($query) use ($device) {
                 $query->where('d.device_id', $device);
             })
@@ -70,11 +70,11 @@ class ReportController extends Controller
                 ]);
             })
             ->orderBy('d.device_id')
-            ->orderBy('sr.created_at', 'desc' )           // তারিখ অনুসারে সাজানো
+            ->orderBy('sr.created_at', 'desc')           // তারিখ অনুসারে সাজানো
             ->select(
                 'sr.*',
                 'd.device_name',
-//                'd.device_name as device_name',
+                //                'd.device_name as device_name',
                 'd.device_id'
             )
             ->get()
@@ -88,14 +88,16 @@ class ReportController extends Controller
         return returnData(2000, $data);
     }
 
-    public function warehouseReportExportExcel(Request $request){
+    public function warehouseReportExportExcel(Request $request)
+    {
         return Excel::download(
             new WarehouseReportExport($request->all()),
             'warehouse_report.xlsx'
         );
     }
 
-    public function soilReportExportExcel(Request $request){
+    public function soilReportExportExcel(Request $request)
+    {
         return Excel::download(
             new SoilReportExport($request->all()),
             'soil_report.xlsx'
