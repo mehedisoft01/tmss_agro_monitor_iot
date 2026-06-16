@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
@@ -14,8 +15,8 @@ class GenerateDeviceStatusReport extends Command
         try {
 
             DB::statement("
-            
-                INSERT INTO device_statuses_report 
+
+                INSERT INTO device_statuses_report
                 (
                     device_id,
                     online,
@@ -29,11 +30,14 @@ class GenerateDeviceStatusReport extends Command
                     updated_at
                 )
 
-                SELECT 
+                SELECT
                     ff.device_idd,
                     ff.online,
                     ff.temperature,
-                    ff.humidity,
+                    CASE
+                        WHEN ff.humidity >= 100 THEN 95
+                        ELSE ff.humidity
+                    END AS humidity,
                     ff.battery_percentage,
                     ff.temp_alarm,
                     ff.hum_alarm,
@@ -41,9 +45,10 @@ class GenerateDeviceStatusReport extends Command
                     ff.created_at,
                     ff.updated_at
 
-                FROM(
+                FROM (
 
                     WITH RECURSIVE time_series AS (
+
                         SELECT TIMESTAMP('2026-05-01 00:00:00') AS dt
 
                         UNION ALL
@@ -51,20 +56,21 @@ class GenerateDeviceStatusReport extends Command
                         SELECT dt + INTERVAL 15 MINUTE
                         FROM time_series
                         WHERE dt < (
-                            DATE(NOW()) 
+                            DATE(NOW())
                             + INTERVAL HOUR(NOW()) HOUR
-                            + INTERVAL FLOOR(MINUTE(NOW())/15)*15 MINUTE
+                            + INTERVAL FLOOR(MINUTE(NOW()) / 15) * 15 MINUTE
                             - INTERVAL 15 MINUTE
                         )
                     ),
 
                     device_info AS (
-                        SELECT device_id 
+                        SELECT device_id
                         FROM devices
                     ),
 
                     data_status AS (
-                        SELECT 
+
+                        SELECT
                             a.*,
                             DATE_FORMAT(a.created_at, '%Y-%m-%d %H:%i:00') AS created_atf
 
@@ -72,13 +78,14 @@ class GenerateDeviceStatusReport extends Command
 
                         WHERE a.created_at >= '2026-05-01'
                         AND a.device_id IN (
-                            SELECT device_id 
+                            SELECT device_id
                             FROM device_info
                         )
                     ),
 
                     base AS (
-                        SELECT 
+
+                        SELECT
                             d.device_id AS device_idd,
                             1 AS online,
 
@@ -95,20 +102,18 @@ class GenerateDeviceStatusReport extends Command
                             ts.dt AS created_at,
                             ts.dt AS updated_at,
 
-                            1 as aa
+                            1 AS aa
 
                         FROM time_series ts
 
                         CROSS JOIN device_info d
 
-                        LEFT JOIN data_status t 
-                            ON d.device_id = t.device_id 
+                        LEFT JOIN data_status t
+                            ON d.device_id = t.device_id
                             AND ts.dt = t.created_atf
-
-                        ORDER BY d.device_id, ts.dt
                     )
 
-                    SELECT 
+                    SELECT
                         b.device_idd,
                         b.online,
                         b.battery_percentage,
@@ -118,73 +123,92 @@ class GenerateDeviceStatusReport extends Command
                         b.created_at,
                         b.updated_at,
 
-                        CASE 
-                            WHEN b.temperature IS NULL THEN
-                                (
-                                    CASE 
-                                        WHEN b.device_idd = 'bf1c80cc62413b7ae8plpe' 
-                                            THEN cc.temperature - 4
-
-                                        WHEN b.device_idd = 'bfeb0a04e9c7a32d15pfby' 
-                                            THEN cc.temperature - 6
-
-                                        ELSE cc.temperature
-                                    END
-                                )
-
-                            ELSE b.temperature
+                        CASE
+                            WHEN b.temperature IS NOT NULL
+                                THEN b.temperature
+                            WHEN b.temperature IS NULL
+                                AND ww.temperature IS NOT NULL
+                                THEN ww.temperature
+                            ELSE cc.temperature
                         END AS temperature,
 
-                        CASE 
-                            WHEN b.humidity IS NULL THEN
-                                (
-                                    CASE 
-                                        WHEN b.device_idd = 'bf1c80cc62413b7ae8plpe' 
-                                            THEN cc.humidity
-
-                                        WHEN b.device_idd = 'bfeb0a04e9c7a32d15pfby' 
-                                            THEN cc.humidity
-
-                                        ELSE cc.humidity
-                                    END
-                                )
-
-                            ELSE b.humidity
+                        CASE
+                            WHEN b.humidity IS NOT NULL
+                                THEN b.humidity
+                            WHEN b.humidity IS NULL
+                                AND ww.humidity IS NOT NULL
+                                THEN ww.humidity
+                            ELSE cc.humidity
                         END AS humidity,
 
-                        cc.temperature as temperature_cc,
-                        cc.relative_humidity as humidity_cc
+                        cc.temperature AS temperature_cc,
+                        cc.relative_humidity AS humidity_cc
 
                     FROM base b
 
                     LEFT JOIN (
-                        SELECT 
+
+                        SELECT
                             sr.*,
-                            1 as aa,
-                            sr.relative_humidity as humidity
+                            1 AS aa,
+                            sr.relative_humidity AS humidity
 
                         FROM weather sr
 
                         INNER JOIN (
-                            SELECT 
-                                MAX(a.id) as id_max
+
+                            SELECT MAX(a.id) AS id_max
 
                             FROM weather a
 
                             WHERE a.temperature > 0
                             AND a.relative_humidity > 0
 
-                        ) tt 
+                        ) tt
                             ON sr.id = tt.id_max
 
                     ) cc
                         ON b.aa = cc.aa
 
+                    LEFT JOIN (
+
+                        SELECT
+
+                            DATE_FORMAT(
+                                created_at,
+                                CONCAT(
+                                    '%Y-%m-%d %H:',
+                                    LPAD(FLOOR(MINUTE(created_at) / 15) * 15, 2, '0'),
+                                    ':00'
+                                )
+                            ) AS created_atf,
+
+                            MAX(created_at) AS created_at_orig,
+                            MAX(temperature) AS temperature,
+                            MAX(relative_humidity) AS humidity
+
+                        FROM weather
+
+                        WHERE temperature > 0
+                        AND relative_humidity > 0
+
+                        GROUP BY DATE_FORMAT(
+                            created_at,
+                            CONCAT(
+                                '%Y-%m-%d %H:',
+                                LPAD(FLOOR(MINUTE(created_at) / 15) * 15, 2, '0'),
+                                ':00'
+                            )
+                        )
+
+                    ) ww
+                        ON b.created_at = ww.created_atf
+
                 ) ff
 
-                LEFT JOIN device_statuses_report bt 
-                    ON ff.device_idd = bt.device_id 
-                    AND ff.created_at = bt.created_at 
+                LEFT JOIN device_statuses_report bt
+                    ON ff.device_idd = bt.device_id
+                    AND ff.created_at = bt.created_at
 
                 WHERE bt.id IS NULL
 
@@ -201,6 +225,7 @@ class GenerateDeviceStatusReport extends Command
         }
     }
 }
+
 //
 //namespace App\Console\Commands;
 //
