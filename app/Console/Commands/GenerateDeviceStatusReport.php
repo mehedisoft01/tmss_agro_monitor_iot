@@ -34,10 +34,12 @@ class GenerateDeviceStatusReport extends Command
                     ff.device_idd,
                     ff.online,
                     ff.temperature,
+
                     CASE
-                        WHEN ff.humidity >= 100 THEN 95
+                        WHEN ff.humidity >= 95 THEN 90
                         ELSE ff.humidity
                     END AS humidity,
+
                     ff.battery_percentage,
                     ff.temp_alarm,
                     ff.hum_alarm,
@@ -48,7 +50,6 @@ class GenerateDeviceStatusReport extends Command
                 FROM (
 
                     WITH RECURSIVE time_series AS (
-
                         SELECT TIMESTAMP('2026-05-01 00:00:00') AS dt
 
                         UNION ALL
@@ -58,33 +59,27 @@ class GenerateDeviceStatusReport extends Command
                         WHERE dt < (
                             DATE(NOW())
                             + INTERVAL HOUR(NOW()) HOUR
-                            + INTERVAL FLOOR(MINUTE(NOW()) / 15) * 15 MINUTE
+                            + INTERVAL FLOOR(MINUTE(NOW())/15)*15 MINUTE
                             - INTERVAL 15 MINUTE
                         )
                     ),
 
                     device_info AS (
-                        SELECT device_id
-                        FROM devices
+                        SELECT device_id FROM devices
                     ),
 
                     data_status AS (
-
                         SELECT
                             a.*,
                             DATE_FORMAT(a.created_at, '%Y-%m-%d %H:%i:00') AS created_atf
-
                         FROM device_statuses a
-
                         WHERE a.created_at >= '2026-05-01'
                         AND a.device_id IN (
-                            SELECT device_id
-                            FROM device_info
+                            SELECT device_id FROM device_info
                         )
                     ),
 
                     base AS (
-
                         SELECT
                             d.device_id AS device_idd,
                             1 AS online,
@@ -93,7 +88,6 @@ class GenerateDeviceStatusReport extends Command
                             t.humidity,
 
                             100 AS battery_percentage,
-
                             'cancel' AS temp_alarm,
                             'cancel' AS hum_alarm,
 
@@ -105,7 +99,6 @@ class GenerateDeviceStatusReport extends Command
                             1 AS aa
 
                         FROM time_series ts
-
                         CROSS JOIN device_info d
 
                         LEFT JOIN data_status t
@@ -124,21 +117,39 @@ class GenerateDeviceStatusReport extends Command
                         b.updated_at,
 
                         CASE
-                            WHEN b.temperature IS NOT NULL
-                                THEN b.temperature
+                            WHEN b.temperature IS NOT NULL THEN b.temperature
+
                             WHEN b.temperature IS NULL
-                                AND ww.temperature IS NOT NULL
-                                THEN ww.temperature
-                            ELSE cc.temperature
+                                 AND ww.temperature IS NOT NULL
+                            THEN CASE
+                                    WHEN b.device_idd = 'bf1c80cc62413b7ae8plpe'
+                                    THEN ww.temperature + 1
+                                    ELSE ww.temperature
+                                 END
+
+                            ELSE CASE
+                                    WHEN b.device_idd = 'bf1c80cc62413b7ae8plpe'
+                                    THEN cc.temperature + 1
+                                    ELSE cc.temperature
+                                 END
                         END AS temperature,
 
                         CASE
-                            WHEN b.humidity IS NOT NULL
-                                THEN b.humidity
+                            WHEN b.humidity IS NOT NULL THEN b.humidity
+
                             WHEN b.humidity IS NULL
-                                AND ww.humidity IS NOT NULL
-                                THEN ww.humidity
-                            ELSE cc.humidity
+                                 AND ww.humidity IS NOT NULL
+                            THEN CASE
+                                    WHEN b.device_idd = 'bf1c80cc62413b7ae8plpe'
+                                    THEN ww.humidity - 5
+                                    ELSE ww.humidity
+                                 END
+
+                            ELSE CASE
+                                    WHEN b.device_idd = 'bf1c80cc62413b7ae8plpe'
+                                    THEN cc.humidity - 5
+                                    ELSE cc.humidity
+                                 END
                         END AS humidity,
 
                         cc.temperature AS temperature_cc,
@@ -150,45 +161,35 @@ class GenerateDeviceStatusReport extends Command
 
                         SELECT
                             sr.*,
-                            1 AS aa,
                             sr.relative_humidity AS humidity
-
                         FROM weather sr
-
                         INNER JOIN (
-
-                            SELECT MAX(a.id) AS id_max
-
-                            FROM weather a
-
-                            WHERE a.temperature > 0
-                            AND a.relative_humidity > 0
-
+                            SELECT MAX(id) AS id_max
+                            FROM weather
+                            WHERE temperature > 0
+                            AND relative_humidity > 0
                         ) tt
-                            ON sr.id = tt.id_max
+                        ON sr.id = tt.id_max
 
                     ) cc
-                        ON b.aa = cc.aa
+                        ON b.aa = 1
 
                     LEFT JOIN (
 
                         SELECT
-
                             DATE_FORMAT(
                                 created_at,
                                 CONCAT(
                                     '%Y-%m-%d %H:',
-                                    LPAD(FLOOR(MINUTE(created_at) / 15) * 15, 2, '0'),
+                                    LPAD(FLOOR(MINUTE(created_at)/15)*15,2,'0'),
                                     ':00'
                                 )
                             ) AS created_atf,
 
-                            MAX(created_at) AS created_at_orig,
                             MAX(temperature) AS temperature,
                             MAX(relative_humidity) AS humidity
 
                         FROM weather
-
                         WHERE temperature > 0
                         AND relative_humidity > 0
 
@@ -196,7 +197,7 @@ class GenerateDeviceStatusReport extends Command
                             created_at,
                             CONCAT(
                                 '%Y-%m-%d %H:',
-                                LPAD(FLOOR(MINUTE(created_at) / 15) * 15, 2, '0'),
+                                LPAD(FLOOR(MINUTE(created_at)/15)*15,2,'0'),
                                 ':00'
                             )
                         )
@@ -219,9 +220,7 @@ class GenerateDeviceStatusReport extends Command
             $this->info('✅ Device status report generated successfully');
 
         } catch (\Exception $e) {
-
             $this->error('❌ Error: ' . $e->getMessage());
-
         }
     }
 }
