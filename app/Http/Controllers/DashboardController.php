@@ -400,6 +400,8 @@ class DashboardController extends Controller
 
             foreach ($raw as $row) {
 
+
+
                 $site = $sites->firstWhere('id', $row->site_id);
                 if (!$site) continue;
 
