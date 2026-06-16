@@ -140,10 +140,10 @@ class GenerateDeviceStatusReport extends Command
                                 (
                                     CASE 
                                         WHEN b.device_idd = 'bf1c80cc62413b7ae8plpe' 
-                                            THEN cc.humidity + 21
+                                            THEN cc.humidity
 
                                         WHEN b.device_idd = 'bfeb0a04e9c7a32d15pfby' 
-                                            THEN cc.humidity + 28
+                                            THEN cc.humidity
 
                                         ELSE cc.humidity
                                     END
