@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\ApiConfiguration;
 use App\Models\Device;
 use App\Models\DeviceStatus;
+use App\Models\DeviceStatusOrginal;
 use App\Models\DeviceThreshold;
 use App\Models\SoilDevice;
 use Carbon\Carbon;
@@ -235,7 +236,7 @@ class DeviceController extends Controller
             //     return returnData(3000,null,"Temperature & Humidity unchanged. Skip insert.");
             // }
 
-            DeviceStatus::create([
+            DeviceStatusOrginal::create([
                 'device_id'          => $device_id,
                 'temperature'        => $temperature,
                 'humidity'           => $humidity,
