@@ -322,10 +322,6 @@
 
                                             </div>
 
-<!--                                            <p v-else class="text-success small">-->
-<!--                                                {{ _l('no_sensor_data_available') }}-->
-<!--                                            </p>-->
-
                                         </div>
 
                                     </div>
@@ -709,14 +705,14 @@
     }
 
     .vertical-alert {
-        height: 160px; /* control visible area */
+        height: 160px;
         overflow: hidden;
         position: relative;
         width:350px;
     }
 
     .ticker-wrapper {
-        height: 100%;
+        height: 120px;
         overflow: hidden;
         position: relative;
     }
@@ -724,27 +720,21 @@
     .ticker {
         display: flex;
         flex-direction: column;
-        animation: linear infinite;
+        animation: scrollUp 10s linear infinite;
     }
 
     .ticker-item {
         height: 30px;
-        line-height: 12px;
         display: flex;
         align-items: center;
     }
 
-
-    /*!* animation *!*/
-    /*@keyframes scrollUp {*/
-    /*    0% {*/
-    /*        transform: translateY(100%);*/
-    /*    }*/
-    /*    100% {*/
-    /*        transform: translateY(-100%);*/
-    /*    }*/
-    /*}*/
-    /*.card {*/
-    /*    border-radius: 15px;*/
-    /*}*/
+    @keyframes scrollUp {
+        0% {
+            transform: translateY(0);
+        }
+        100% {
+            transform: translateY(-50%);
+        }
+    }
 </style>
