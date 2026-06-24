@@ -235,7 +235,12 @@ class DeviceController extends Controller
             //     $lastStatus->humidity == $humidity) {
             //     return returnData(3000,null,"Temperature & Humidity unchanged. Skip insert.");
             // }
-
+            if (!($deviceData['online'] ?? false)) {
+                Device::where('device_id', $device_id)->update([
+                    'online' => false
+                ]);
+                return response()->json(['success' => false, 'message' => 'Device is offline. Data not fetched.']);
+            }
             DeviceStatusOrginal::create([
                 'device_id'          => $device_id,
                 'temperature'        => $temperature,
