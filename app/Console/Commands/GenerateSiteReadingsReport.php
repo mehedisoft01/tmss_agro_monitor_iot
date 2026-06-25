@@ -47,7 +47,7 @@ class GenerateSiteReadingsReport extends Command
                 FROM(
                 
                     WITH RECURSIVE time_series AS (
-                        SELECT TIMESTAMP('2026-05-01 00:00:00') AS dt
+                        SELECT TIMESTAMP('2026-06-15 00:00:00') AS dt
 
                         UNION ALL
 
@@ -92,7 +92,7 @@ class GenerateSiteReadingsReport extends Command
 
                         FROM site_readings a
 
-                        WHERE a.created_at >= '2026-05-01'
+                        WHERE a.created_at >= '2026-06-15'
                         AND a.temperature > 0
                         AND a.humidity > 0
                         AND a.conductivity > 0
@@ -217,7 +217,7 @@ class GenerateSiteReadingsReport extends Command
 
                                 FROM site_readings a
 
-                                WHERE a.created_at >= '2026-05-01'
+                                WHERE a.created_at >= '2026-06-15'
                                 AND a.temperature > 0
                                 AND a.humidity > 0
                                 AND a.conductivity > 0

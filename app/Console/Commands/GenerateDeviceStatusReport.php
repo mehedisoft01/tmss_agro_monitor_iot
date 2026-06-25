@@ -16,7 +16,7 @@ class GenerateDeviceStatusReport extends Command
 
             DB::statement("
 
-                INSERT INTO device_statuses_report
+                 INSERT INTO device_statuses_report
                 (
                     device_id,
                     online,
@@ -30,7 +30,7 @@ class GenerateDeviceStatusReport extends Command
                     updated_at
                 )
 
-                SELECT
+                SELECT distinct 
                     ff.device_idd,
                     ff.online,
                     ff.temperature,
@@ -50,7 +50,7 @@ class GenerateDeviceStatusReport extends Command
                 FROM (
 
                     WITH RECURSIVE time_series AS (
-                        SELECT TIMESTAMP('2026-05-01 00:00:00') AS dt
+                        SELECT TIMESTAMP('2026-06-15 00:00:00') AS dt
 
                         UNION ALL
 
@@ -73,7 +73,7 @@ class GenerateDeviceStatusReport extends Command
                             a.*,
                             DATE_FORMAT(a.created_at, '%Y-%m-%d %H:%i:00') AS created_atf
                         FROM device_statuses a
-                        WHERE a.created_at >= '2026-05-01'
+                        WHERE a.created_at >= '2026-06-15'
                         AND a.device_id IN (
                             SELECT device_id FROM device_info
                         )
@@ -116,6 +116,11 @@ class GenerateDeviceStatusReport extends Command
                         b.created_at,
                         b.updated_at,
 
+                        case when b.device_idd = 'bf099d5c7bcd9cbe53qhrw' then 
+                        CASE WHEN dv2.temperature IS NOT NULL THEN dv2.temperature
+                        when dv2.temperature is null and b.temperature IS NOT NULL THEN b.temperature
+                        WHEN dv2.temperature is null and b.temperature IS NULL AND ww.temperature IS NOT NULL then ww.temperature else cc.temperature end
+                        else
                         CASE
                             WHEN b.temperature IS NOT NULL THEN b.temperature
 
@@ -132,7 +137,15 @@ class GenerateDeviceStatusReport extends Command
                                     THEN cc.temperature + 1
                                     ELSE cc.temperature
                                  END
-                        END AS temperature,
+                        END 
+                        end AS temperature,
+                        
+                        
+                        case when b.device_idd = 'bf099d5c7bcd9cbe53qhrw' then 
+                        CASE WHEN dv2.humidity IS NOT NULL THEN dv2.humidity
+                        when dv2.humidity is null and b.humidity IS NOT NULL THEN b.humidity
+                        WHEN dv2.humidity is null and b.humidity IS NULL AND ww.humidity IS NOT NULL then ww.humidity else cc.humidity end
+                        else
 
                         CASE
                             WHEN b.humidity IS NOT NULL THEN b.humidity
@@ -150,7 +163,9 @@ class GenerateDeviceStatusReport extends Command
                                     THEN cc.humidity - 5
                                     ELSE cc.humidity
                                  END
-                        END AS humidity,
+                        END 
+                        
+                        end AS humidity,
 
                         cc.temperature AS temperature_cc,
                         cc.relative_humidity AS humidity_cc
@@ -204,6 +219,39 @@ class GenerateDeviceStatusReport extends Command
 
                     ) ww
                         ON b.created_at = ww.created_atf
+                        
+                        
+                        LEFT JOIN (
+
+                        SELECT
+                            DATE_FORMAT(
+                                created_at,
+                                CONCAT(
+                                    '%Y-%m-%d %H:',
+                                    LPAD(FLOOR(MINUTE(created_at)/15)*15,2,'0'),
+                                    ':00'
+                                )
+                            ) AS created_dv2,
+
+                            MAX(temperature) AS temperature,
+                            MAX(humidity) AS humidity
+
+                           FROM device_statuses2_warehouse dsw 
+                        WHERE temperature > 0
+                        AND humidity > 0
+
+                        GROUP BY DATE_FORMAT(
+                            created_at,
+                            CONCAT(
+                                '%Y-%m-%d %H:',
+                                LPAD(FLOOR(MINUTE(created_at)/15)*15,2,'0'),
+                                ':00'
+                            )
+                        )
+
+                    ) dv2
+                        ON b.created_at = dv2.created_dv2
+                        
 
                 ) ff
 
@@ -214,6 +262,8 @@ class GenerateDeviceStatusReport extends Command
                 WHERE bt.id IS NULL
 
                 ORDER BY ff.device_idd, ff.created_at
+
+                
 
             ");
 
