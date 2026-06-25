@@ -23,15 +23,26 @@ class FetchDeviceStatus extends Command
      */
     public function handle()
     {
-        $devices = Device::all();
-
         $controller = new DeviceController();
 
-        foreach ($devices as $device) {
+        $deviceIds = Device::pluck('device_id')->toArray();
+        $deviceIds[] = 'bfeb0a04e9c7a32d15pfby';
 
-            $controller->fetchAndStoreStatus(request(), $device->device_id);
+        $deviceIds = array_unique($deviceIds);
 
-            $this->info("Device {$device->device_id} status fetched");
+        foreach ($deviceIds as $deviceId) {
+            try {
+
+                $controller->fetchAndStoreStatus(request(), $deviceId);
+
+                $this->info("Device {$deviceId} status fetched");
+
+            } catch (\Exception $e) {
+
+                $this->error(
+                    "Device {$deviceId} failed: {$e->getMessage()}"
+                );
+            }
         }
 
         $this->info("All device status fetched successfully");

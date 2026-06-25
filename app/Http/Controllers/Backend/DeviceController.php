@@ -7,6 +7,7 @@ use App\Models\ApiConfiguration;
 use App\Models\Device;
 use App\Models\DeviceStatus;
 use App\Models\DeviceStatusOrginal;
+use App\Models\DeviceStatusWarehouse;
 use App\Models\DeviceThreshold;
 use App\Models\SoilDevice;
 use Carbon\Carbon;
@@ -241,16 +242,33 @@ class DeviceController extends Controller
                 ]);
                 return response()->json(['success' => false, 'message' => 'Device is offline. Data not fetched.']);
             }
-            DeviceStatusOrginal::create([
-                'device_id'          => $device_id,
-                'temperature'        => $temperature,
-                'humidity'           => $humidity,
-                'battery_percentage' => $batteryPercentage,
-                'temp_alarm'         => $tempAlarm,
-                'hum_alarm'          => $humAlarm,
-                'online'             => $deviceData['online'] ?? false,
-                'recorded_at'        => json_encode($timeData),
-            ]);
+            if ($device_id == 'bfeb0a04e9c7a32d15pfby') {
+
+                DeviceStatusWarehouse::create([
+                    'device_id'          => $device_id,
+                    'temperature'        => $temperature,
+                    'humidity'           => $humidity,
+                    'battery_percentage' => $batteryPercentage,
+                    'temp_alarm'         => $tempAlarm,
+                    'hum_alarm'          => $humAlarm,
+                    'online'             => $deviceData['online'] ?? false,
+                    'recorded_at'        => json_encode($timeData),
+                ]);
+
+            } else {
+
+                DeviceStatusOrginal::create([
+                    'device_id'          => $device_id,
+                    'temperature'        => $temperature,
+                    'humidity'           => $humidity,
+                    'battery_percentage' => $batteryPercentage,
+                    'temp_alarm'         => $tempAlarm,
+                    'hum_alarm'          => $humAlarm,
+                    'online'             => $deviceData['online'] ?? false,
+                    'recorded_at'        => json_encode($timeData),
+                ]);
+
+            }
 
             Device::where('device_id', $device_id)->update([
                 'online' => $deviceData['online'] ?? false
