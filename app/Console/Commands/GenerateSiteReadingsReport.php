@@ -35,7 +35,7 @@ class GenerateSiteReadingsReport extends Command
                     ff.site_idd,
                     ff.reading_time,
                     ff.temperature,
-                    ff.humidity,
+                    case when ff.humidity>100 then 100 else ff.humidity end as humidity,
                     ff.conductivity,
                     ff.ph,
                     ff.n,
