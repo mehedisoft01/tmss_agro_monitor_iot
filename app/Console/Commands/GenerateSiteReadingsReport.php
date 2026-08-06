@@ -157,7 +157,7 @@ class GenerateSiteReadingsReport extends Command
                                         WHEN b.site_idd = 3 THEN cc.humidity - 8
                                         WHEN b.site_idd = 4 THEN cc.humidity - 8
                                         WHEN b.site_idd = 5 THEN cc.humidity - 16
-                                        WHEN b.site_idd = 6 THEN cc.humidity + 7
+                                        WHEN b.site_idd = 6 THEN cc.humidity + 0
                                         ELSE cc.humidity
                                     END
                                 )
