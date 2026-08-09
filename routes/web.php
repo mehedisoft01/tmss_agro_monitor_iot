@@ -3,6 +3,7 @@
 use App\Http\Controllers\Backend\DeviceController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DeviceStatusController;
+use App\Http\Controllers\FartilizarController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\WeatherController;
 use Illuminate\Support\Facades\Route;
@@ -18,6 +19,8 @@ Route::get('/load.json', [\App\Http\Controllers\SupportController::class, 'loadJ
 
 
 Route::post('/device/save_log', [DeviceController::class, 'iotData']);
+
+Route::get('/fartilizer', [FartilizarController::class, 'fartilizerCard']);
 
 Route::middleware('guest')->group(function () {
     Route::get('/', [\App\Http\Controllers\Backend\AuthController::class, 'login'])->name('login');
