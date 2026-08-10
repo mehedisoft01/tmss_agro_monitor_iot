@@ -7,6 +7,7 @@ use App\Http\Controllers\SupportController;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class AuthController extends Controller
 {
@@ -14,20 +15,62 @@ class AuthController extends Controller
         return view('auth.login');
     }
 
-    public function doLogin(Request $request){
+//    public function doLogin(Request $request){
+//        $credentials = [
+//            'username' => $request->username,
+//            'password' => $request->password,
+//        ];
+//        $remember_me = $request->input('remember_me');
+//
+//        $remember = ($remember_me && $remember_me == 'on') ? true : false;
+//
+//        if (Auth::attempt($credentials, $remember)) {
+//            return redirect('admin/dashboard');
+//        }
+//
+//        return back()->withErrors(['login' => 'Invalid credentials']);
+//    }
+    public function doLogin(Request $request)
+    {
+        $request->validate([
+            'username' => 'required',
+            'password' => 'required',
+        ]);
         $credentials = [
             'username' => $request->username,
             'password' => $request->password,
         ];
-        $remember_me = $request->input('remember_me');
+        if (Auth::attempt($credentials)) {
 
-        $remember = ($remember_me && $remember_me == 'on') ? true : false;
+            $user = Auth::user();
+            $features = DB::table('user_features')
+                ->where('user_id', $user->id)
+                ->pluck('feature_id');
+            if ($features->count() == 0) {
+                Auth::logout();
 
-        if (Auth::attempt($credentials, $remember)) {
-            return redirect('admin/dashboard');
+                return back()->withErrors([
+                    'login' => 'No feature assigned to this user'
+                ]);
+            }
+            $lastFeature = $user->last_feature_id;
+            if (!$lastFeature || !$features->contains($lastFeature)) {
+                $lastFeature = $features->first();
+            }
+            DB::table('users')
+                ->where('id', $user->id)
+                ->update([
+                    'last_feature_id' => $lastFeature
+                ]);
+            session([
+                'feature_id' => $lastFeature,
+            ]);
+
+            return redirect('/admin/dashboard');
         }
-
-        return back()->withErrors(['login' => 'Invalid credentials']);
+        return back()->withErrors([
+            'login' => 'Invalid credentials'
+        ]);
     }
 
     public function logout(){
@@ -119,4 +162,46 @@ class AuthController extends Controller
 
         return returnData(2000, $user, 'Profile updated successfully');
     }
+
+    public function selectFeature(Request $request)
+    {
+        $request->validate([
+            'feature_id' => 'required'
+        ]);
+
+        $user = Auth::user();
+
+        DB::table('users')
+            ->where('id', $user->id)
+            ->update([
+                'last_feature_id' => $request->feature_id
+            ]);
+
+        session([
+            'feature_id' => $request->feature_id,
+            'last_feature_id' => $request->feature_id
+        ]);
+        return response()->json([
+            'status' => true,
+            'message' => 'Feature updated successfully'
+        ]);
+    }
+
+    public function feature()
+    {
+        $user_id = auth()->id();
+
+        $userFeatureIds = DB::table('user_features')
+            ->where('user_id', $user_id)
+            ->pluck('feature_id')
+            ->toArray();
+
+        $features = DB::table('features')
+            ->where('status', 1)
+            ->whereIn('id', $userFeatureIds)
+            ->get();
+
+        return response()->json($features);
+    }
+
 }

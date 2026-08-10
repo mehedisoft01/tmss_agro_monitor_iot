@@ -62,4 +62,8 @@ class User extends Authenticatable implements JWTSubject
         return [];
     }
 
+    public function fissureNames()
+    {
+        return $this->belongsToMany(Feature::class, 'user_features', 'user_id', 'feature_id');
+    }
 }

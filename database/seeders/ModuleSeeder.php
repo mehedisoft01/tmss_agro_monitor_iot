@@ -36,6 +36,8 @@ class ModuleSeeder extends Seeder
                 'meta' => [
                     "dataUrl" => "api/dashboard",
                 ],
+                'feature_id' => 0,
+
             ],
             [
                 'name' => 'dashboard_2',
@@ -48,6 +50,8 @@ class ModuleSeeder extends Seeder
                 'meta' => [
                     "dataUrl" => "api/dashboard",
                 ],
+                'feature_id' => 0
+
             ],
             [
                 'name' => 'system_settings',
@@ -65,6 +69,7 @@ class ModuleSeeder extends Seeder
                         'meta' => [
                             "dataUrl" => "api/users",
                         ],
+                        'feature_id' => 0,
                     ],
                     [
                         'name' => 'modules',
@@ -74,7 +79,8 @@ class ModuleSeeder extends Seeder
                         "component" => "views/pages/rbac/Module.vue",
                         'meta' => [
                             "dataUrl" => "api/modules",
-                        ]
+                        ],
+                        'feature_id' => 0,
                     ],
                     [
                         'name' => 'roles',
@@ -84,7 +90,8 @@ class ModuleSeeder extends Seeder
                         "component" => "views/pages/rbac/RoleList.vue",
                         'meta' => [
                             "dataUrl" => "api/roles",
-                        ]
+                        ],
+                        'feature_id' => 0,
                     ],
                     [
                         'name' => 'module_permissions',
@@ -94,7 +101,8 @@ class ModuleSeeder extends Seeder
                         "component" => "views/pages/rbac/ModulePermision.vue",
                         'meta' => [
                             "dataUrl" => "api/module_permissions",
-                        ]
+                        ],
+                        'feature_id' => 0,
                     ],
                     [
                         'name' => 'role_permissions',
@@ -104,7 +112,8 @@ class ModuleSeeder extends Seeder
                         "component" => "views/pages/rbac/rolePermissions.vue",
                         'meta' => [
                             "dataUrl" => "api/role_permissions",
-                        ]
+                        ],
+                        'feature_id' => 0,
                     ],
                     [
                         'name' => 'software_configuration',
@@ -114,9 +123,22 @@ class ModuleSeeder extends Seeder
                         'icon' => 'bx bx-radio-circle',
                         'meta' => [
                             "dataUrl" => "api/settings",
-                        ]
+                        ],
+                        'feature_id' => 0,
                     ],
                 ]
+            ],
+            [
+                'name' => 'farmer',
+                'link' => '/farmer',
+                'permissions' => array_merge($resourcePermissions, []),
+                "component" => "views/pages/tmssIot/farmer.vue",
+                'icon' => 'bx bx-group',
+                'meta' => [
+                    "dataUrl" => "api/farmer",
+                ],
+                'feature_id' => 2,
+
             ],
             [
                 'name' => 'device_configurations',
@@ -124,6 +146,8 @@ class ModuleSeeder extends Seeder
                 'permissions' => ['show'],
                 'icon' => 'bx bx-cog',
                 'meta' => [],
+                'feature_id' => 0,
+
                 'submenus' => [
                     [
                         'name' => 'devices',
@@ -216,6 +240,7 @@ class ModuleSeeder extends Seeder
                     ],
                 ]
             ],
+
             [
                 'name' => 'profile',
                 'link' => '/profile',

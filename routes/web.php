@@ -35,6 +35,10 @@ Route::middleware([\App\Http\Middleware\AuthMiddleware::class, \App\Http\Middlew
 
 
     Route::prefix('api')->group(function () {
+
+        Route::get('/features', [\App\Http\Controllers\Backend\AuthController::class, 'feature']);
+        Route::post('/select-feature', [\App\Http\Controllers\Backend\AuthController::class,  'selectFeature']);
+
         Route::post('file_upload', [\App\Http\Controllers\FileController::class, 'fileUpload']);
         Route::post('general', [\App\Http\Controllers\SupportController::class, 'getGeneralData']);
         Route::post('configurations', [\App\Http\Controllers\SupportController::class, 'appConfigurations']);
@@ -77,6 +81,7 @@ Route::middleware([\App\Http\Middleware\AuthMiddleware::class, \App\Http\Middlew
 
         Route::get('/device-status/{device_id}', [DeviceController::class, 'checkDeviceConnection']);
 
+        Route::resource('farmer', \App\Http\Controllers\TmssIot\FarmerController::class);
         Route::resource('settings', \App\Http\Controllers\SettingController::class);
         Route::resource('profile', \App\Http\Controllers\Backend\AuthController::class);
         Route::resource('users', \App\Http\Controllers\Backend\UserController::class);

@@ -35,30 +35,72 @@ class RolePermissionController extends Controller
                 ->get()->pluck('permission_id')
                 ->toArray();
 
-            $data['all_modules'] = Module::where('parent_id', 0)->where('is_visible', 1)
+//            $data['all_modules'] = Module::where('parent_id', 0)->where('is_visible', 1)
+//                ->when($keyword, function ($query) use ($keyword) {
+//                    $query->where('name', 'Like', "%$keyword%");
+//                    $query->orWhere('display_name', 'Like', "%$keyword%");
+//                })
+//                ->with('permissions')
+//                ->with(['submenus' => function ($query) use ($keyword) {
+//                    $query->where('is_visible', 1);
+//                    $query->when($keyword, function ($query) use ($keyword) {
+//                        $query->where('name', 'Like', "%$keyword%");
+//                        $query->orWhere('display_name', 'Like', "%$keyword%");
+//                    });
+//                    $query->with('permissions');
+//
+//                    $query->with(['submenus'=>function($query) use ($keyword){
+//                        $query->where('is_visible', 1);
+//                        $query->when($keyword, function ($query) use ($keyword) {
+//                            $query->where('name', 'Like', "%$keyword%");
+//                            $query->orWhere('display_name', 'Like', "%$keyword%");
+//                        });
+//                        $query->with('permissions');
+//                    }]);
+//                }])
+//                ->paginate($perPage);
+
+            $feature_id = (int) session('feature_id', 0);
+
+            $data['all_modules'] = Module::where('parent_id', 0)
+
+                ->when($feature_id == 0, function ($q) {
+                    $q->where(function ($qq) {
+                        $qq->where('feature_id', 0)
+                            ->orWhereIn('feature_id', [1, 2]);
+                    });
+                }, function ($q) use ($feature_id) {
+                    $q->where(function ($qq) use ($feature_id) {
+                        $qq->where('feature_id', 0)
+                            ->orWhere('feature_id', $feature_id);
+                    });
+                })
                 ->when($keyword, function ($query) use ($keyword) {
-                    $query->where('name', 'Like', "%$keyword%");
-                    $query->orWhere('display_name', 'Like', "%$keyword%");
+                    $query->where(function ($q) use ($keyword) {
+                        $q->where('name', 'LIKE', "%$keyword%")
+                            ->orWhere('display_name', 'LIKE', "%$keyword%");
+                    });
                 })
                 ->with('permissions')
-                ->with(['submenus' => function ($query) use ($keyword) {
-                    $query->where('is_visible', 1);
-                    $query->when($keyword, function ($query) use ($keyword) {
-                        $query->where('name', 'Like', "%$keyword%");
-                        $query->orWhere('display_name', 'Like', "%$keyword%");
+                ->with(['submenus' => function ($query) use ($feature_id, $keyword) {
+
+                    $query->when($feature_id == 0, function ($q) {
+                        $q->where(function ($qq) {
+                            $qq->where('feature_id', 0)
+                                ->orWhereIn('feature_id', [1, 2]);
+                        });
+                    }, function ($q) use ($feature_id) {
+                        $q->where(function ($qq) use ($feature_id) {
+                            $qq->where('feature_id', 0)
+                                ->orWhere('feature_id', $feature_id);
+                        });
                     });
+
                     $query->with('permissions');
 
-                    $query->with(['submenus'=>function($query) use ($keyword){
-                        $query->where('is_visible', 1);
-                        $query->when($keyword, function ($query) use ($keyword) {
-                            $query->where('name', 'Like', "%$keyword%");
-                            $query->orWhere('display_name', 'Like', "%$keyword%");
-                        });
-                        $query->with('permissions');
-                    }]);
                 }])
                 ->paginate($perPage);
+
 
             return returnData(2000, $data);
 
