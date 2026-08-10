@@ -18,6 +18,7 @@ class GenerateSiteReadingsReport extends Command
             DB::statement("
                 INSERT INTO site_readings_report 
                 (
+                
                     site_id,
                     reading_time,
                     temperature,
@@ -44,6 +45,7 @@ class GenerateSiteReadingsReport extends Command
                     ff.fertility,
                     ff.reading_time as created_at
 
+
                 FROM(
                 
                     WITH RECURSIVE time_series AS (
@@ -68,7 +70,7 @@ class GenerateSiteReadingsReport extends Command
                             start_date,
                             close_date
                         FROM soil_devices
-                    ),
+                    ) ,
 
                     data_status AS (
                         SELECT 
