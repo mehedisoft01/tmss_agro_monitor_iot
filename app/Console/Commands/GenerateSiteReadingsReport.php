@@ -32,6 +32,7 @@ class GenerateSiteReadingsReport extends Command
                     created_at
                 )
 
+                
                 SELECT 
                     ff.site_idd,
                     ff.reading_time,
@@ -44,7 +45,6 @@ class GenerateSiteReadingsReport extends Command
                     ff.k,
                     ff.fertility,
                     ff.reading_time as created_at
-
 
                 FROM(
                 
@@ -70,7 +70,7 @@ class GenerateSiteReadingsReport extends Command
                             start_date,
                             close_date
                         FROM soil_devices
-                    ) ,
+                    ),
 
                     data_status AS (
                         SELECT 
@@ -222,8 +222,9 @@ class GenerateSiteReadingsReport extends Command
                                 FROM site_readings a
 
                                 -- WHERE a.created_at >= '2026-08-01'
-                                WHERE a.created_at >= (select DATE_ADD(DATE(NOW()), interval -7 day))
-                                AND a.temperature > 0
+                                WHERE 
+                                -- a.created_at >= (select DATE_ADD(DATE(NOW()), interval -7 day)) AND 
+                                a.temperature > 0
                                 AND a.humidity > 0
                                 AND a.conductivity > 0
                                 AND a.ph > 0
@@ -276,10 +277,10 @@ class GenerateSiteReadingsReport extends Command
                     ff.close_date IS NULL
                     OR ff.reading_time <= ff.close_date
                 )
-
+               
                 GROUP BY ff.site_idd, ff.reading_time
 
-                ORDER BY ff.site_idd, ff.reading_time
+                ORDER BY ff.site_idd, ff.reading_time 
             ");
 
             $this->info('✅ Report generated successfully');
