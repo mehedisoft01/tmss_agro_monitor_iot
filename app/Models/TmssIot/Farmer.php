@@ -12,6 +12,7 @@ class Farmer extends Model
     use HasFactory;
 
     protected $fillable =[
+        'device_id',
         'name',
         'email',
         'phone_number',
@@ -27,5 +28,14 @@ class Farmer extends Model
 
         return $validate;
     }
+    public function device()
+    {
+        return $this->belongsTo(
+            \App\Models\Device::class,
+            'device_id',
+            'device_id'
+        );
+    }
+
 
 }

@@ -7,13 +7,14 @@
     import {useBase, useHttp, appStore} from '@/lib';
 
     const {getDependency, submitForm, editData, deleteRecord} = {...useHttp()};
-    const {_l,formFilter, formObject, openModal, closeModal, useGetters, dataList, httpRequest, pageDependencies, updateId} = {
+    const {_l,formFilter, formObject, openModal, closeModal, useGetters, dataList, httpRequest, pageDependencies, updateId,statusBadge,changeStatus} = {
         ...useBase(),
         ...appStore(),
+        ...useHttp(),
         ...appStore().useGetters('dataList', 'httpRequest', 'pageDependencies', 'updateId')
     };
 
-    const tableHeaders = ref(["#", "name", "email", "phone_number","address","status","action"]);
+    const tableHeaders = ref(["#", "device_id","name", "email", "phone_number","address","status","action"]);
     const {getDataList, httpReq} = useHttp();
 
     onMounted(() => {
@@ -30,16 +31,13 @@
         <template v-slot:data>
             <tr v-for="(item, index) in dataList.data" :key="item.id">
                 <td>{{index+1}}</td>
+                <td>{{ item.device_id}}</td>
                 <td>{{ item.name }}</td>
                 <td>{{ item.email }}</td>
                 <td>{{ item.phone_number }}</td>
                 <td>{{ item.address }}</td>
-                <td>
-                    <a class="badge rounded-pill p-2 text-uppercase px-3" :class="parseInt(item.status) === 1 ? 'bg-success' : 'bg-warning'">
-                        <i class='bx bxs-circle me-1'></i>
-                        <span>Active</span>
-                    </a>
-                </td>
+                <td><a @click="changeStatus({obj:item})" class="pointer" v-html="statusBadge(item.status)"></a></td>
+
                 <td>
                     <a @click="editData({data:item, id:item.id, modal:'fromModal'})" class="btn btn-outline-secondary action">
                         <i class='bx bxs-edit text-warning'></i>
@@ -58,6 +56,12 @@
                 getDataList();
             }
         })">
+            <div class="row mb-2">
+                <label class="col-md-4"><strong>{{ _l('device_id') }} :</strong></label>
+                <div class="col-md-8">
+                    <input type="text" v-model="formObject.device_id" v-validate="'required'" name="device_id"  class="form-control">
+                </div>
+            </div>
             <div class="row mb-2">
                 <label class="col-md-4"><strong>{{_l('name')}} : </strong></label>
                 <div class="col-md-8">

@@ -18,6 +18,7 @@ Route::get('/load.json', [\App\Http\Controllers\SupportController::class, 'loadJ
 
 
 Route::post('/device/save_log', [DeviceController::class, 'iotData']);
+Route::post('/farmer/save_log', [DeviceController::class, 'farmerReceiverData']);
 
 Route::middleware('guest')->group(function () {
     Route::get('/', [\App\Http\Controllers\Backend\AuthController::class, 'login'])->name('login');
@@ -81,7 +82,16 @@ Route::middleware([\App\Http\Middleware\AuthMiddleware::class, \App\Http\Middlew
 
         Route::get('/device-status/{device_id}', [DeviceController::class, 'checkDeviceConnection']);
 
+        Route::get('/farmer/devices', [\App\Http\Controllers\TmssIot\DataReceiverController::class, 'devices']);
+        Route::post('/farmer/fetch-soil', [DeviceController::class, 'farmerReceiverData']);
+        Route::post(
+            '/farmer/disable-device',
+            [\App\Http\Controllers\TmssIot\DataReceiverController::class, 'disableFarmerDevice']
+        );
         Route::resource('farmer', \App\Http\Controllers\TmssIot\FarmerController::class);
+        Route::resource('data_receiver', \App\Http\Controllers\TmssIot\DataReceiverController::class);
+
+
         Route::resource('settings', \App\Http\Controllers\SettingController::class);
         Route::resource('profile', \App\Http\Controllers\Backend\AuthController::class);
         Route::resource('users', \App\Http\Controllers\Backend\UserController::class);

@@ -3,11 +3,14 @@
 namespace App\Http\Controllers\TmssIot;
 
 use App\Helpers\Helper;
+use App\Http\Controllers\Backend\DeviceController;
 use App\Http\Controllers\Controller;
 use App\Models\TmssIot\Farmer;
 use Illuminate\Http\Request;
 
-class FarmerController extends Controller
+class
+
+FarmerController extends Controller
 {
     use Helper;
 
@@ -28,16 +31,23 @@ class FarmerController extends Controller
 
         try {
             $keyword = request()->input('keyword');
+
             $data = $this->model
                 ->when($keyword, function ($query) use ($keyword) {
                     $query->where('name', 'like', "%$keyword%");
                 })
                 ->orderBy('id', 'DESC')
-                ->paginate(request('perPage', 10)); // default 10 if perPage not provided
+                ->paginate(request('perPage', 10));
 
             return returnData(2000, $data);
+
         } catch (\Exception $exception) {
-            return returnData(5000, $exception->getMessage(), 'Whoops, Something Went Wrong..!!');
+
+            return returnData(
+                5000,
+                $exception->getMessage(),
+                'Whoops, Something Went Wrong..!!'
+            );
         }
     }
     public function create()

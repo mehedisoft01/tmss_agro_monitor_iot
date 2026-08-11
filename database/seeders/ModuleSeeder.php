@@ -141,6 +141,18 @@ class ModuleSeeder extends Seeder
 
             ],
             [
+                'name' => 'data_receiver',
+                'link' => '/data_receiver',
+                'permissions' => array_merge($resourcePermissions, []),
+                "component" => "views/pages/tmssIot/dataReceiver.vue",
+                'icon' => 'bx bx-broadcast',
+                'meta' => [
+                    "dataUrl" => "api/data_receiver",
+                ],
+                'feature_id' => 2,
+
+            ],
+            [
                 'name' => 'device_configurations',
                 'link' => '',
                 'permissions' => ['show'],

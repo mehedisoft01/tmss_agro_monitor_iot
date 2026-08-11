@@ -27,6 +27,7 @@ use App\Models\Sales\Invoice;
 use App\Models\Sales\InvoiceItem;
 use App\Models\Sales\Order;
 use App\Models\Setting;
+use App\Models\TmssIot\Farmer;
 use App\Models\User;
 use Carbon\Carbon;
 use SebastianBergmann\CodeCoverage\Report\Html\Dashboard;
@@ -193,6 +194,10 @@ class SupportController extends Controller
             $data['warehouse_device'] = DB::table('devices')->where('device_category', 1)->get();
         }
 
+        if (isset($input['farmers']) || in_array('farmers', $input)) {
+            $key = isset($input['farmers']['key']) ? isset($input['farmers']['key']) : 'farmers';
+            $data[$key] = Farmer::where('status', 1)->get();
+        }
 
         if (isset($input['products']) || in_array('products', $input)) {
             $key = isset($input['products']['key']) ? $input['products']['key'] : 'products';
