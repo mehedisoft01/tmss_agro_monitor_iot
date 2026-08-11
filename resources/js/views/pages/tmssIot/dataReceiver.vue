@@ -16,7 +16,7 @@
     };
 
 
-    const tableHeaders = ref(["#", "device_id", "farmer", "ph", "n", "p", "k", "fertility", "temperature", "humidity"]);
+    const tableHeaders = ref(["#", "device_id", "farmer", "ph", "n", "p", "k", "fertility", "temperature", "humidity","data_receive_time"]);
     const {getDataList, httpReq} = useHttp();
 
     const farmerDevices = ref([]);
@@ -94,7 +94,7 @@
 
         try {
             const response = await axios.post(
-                '/api/farmer/fetch-soil',
+                '/farmer/save_log',
                 {
                     farmer_id: farmerId,
                     device_id: device.device_id
@@ -248,6 +248,7 @@
                 <td>{{ item.fertility }}</td>
                 <td>{{ item.temperature }}</td>
                 <td>{{ item.humidity }}</td>
+                <td>{{ item.created_at }}</td>
             </tr>
 
         </template>

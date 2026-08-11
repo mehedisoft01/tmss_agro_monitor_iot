@@ -20,42 +20,54 @@ class DataReceiverController extends Controller
         $date_from = $request->input('date_from');
         $date_to = $request->input('date_to');
         $farmer_id = $request->input('farmer_id');
-        $data = DB::table('soil_readigs as sr')
-            ->leftJoin('farmer_devices as d', 'sr.site_id', '=', 'd.id')
-            ->leftJoin('farmers as f', 'sr.farmer_id', '=', 'f.id')
+
+        $latestData = DB::table('soil_readigs as sr')
+            ->select(
+                'sr.*',
+                DB::raw('
+                ROW_NUMBER() OVER (
+                    PARTITION BY sr.farmer_id
+                    ORDER BY sr.created_at DESC, sr.id DESC
+                ) as row_num
+            ')
+            );
+
+        $data = DB::query()
+            ->fromSub($latestData, 'latest')
+            ->leftJoin('farmer_devices as d', 'latest.site_id', '=', 'd.id')
+            ->leftJoin('farmers as f', 'latest.farmer_id', '=', 'f.id')
+
             ->when($farmer_id, function ($query) use ($farmer_id) {
-                $query->where('sr.farmer_id', $farmer_id);
+                $query->where('latest.farmer_id', $farmer_id);
             })
+
             ->when($device, function ($query) use ($device) {
                 $query->where('d.device_id', $device);
             })
+
             ->when($date_from && $date_to, function ($query) use ($date_from, $date_to) {
-                $query->whereBetween('sr.created_at', [
+                $query->whereBetween('latest.created_at', [
                     $date_from . ' 00:00:00',
                     $date_to . ' 23:59:59'
                 ]);
             })
-            ->orderBy('sr.created_at', 'desc')
+            ->where('latest.row_num', '<=', 2)
+            ->orderBy('latest.created_at', 'desc')
             ->select(
-                'sr.*',
+                'latest.*',
                 'd.device_id',
                 'd.status as device_status',
                 'f.name as farmer_name'
             )
             ->paginate($request->input('perPage', 15))
+
             ->through(function ($item) {
-
-                $item->formatted_date = \Carbon\Carbon::parse(
-                    $item->created_at
-                )->format('Y-m-d H:i');
-
+                $item->formatted_date = \Carbon\Carbon::parse($item->created_at)->format('Y-m-d H:i');
                 return $item;
             });
 
         return returnData(2000, $data);
     }
-
-
     public function devices()
     {
         try {
