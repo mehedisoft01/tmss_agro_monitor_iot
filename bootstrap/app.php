@@ -23,6 +23,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->validateCsrfTokens(except: [
             '*/device/save_log',
             'device/save_log',
+            'farmer/save_log',
             'device/*',
         ]);
 

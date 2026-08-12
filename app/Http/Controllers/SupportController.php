@@ -27,6 +27,7 @@ use App\Models\Sales\Invoice;
 use App\Models\Sales\InvoiceItem;
 use App\Models\Sales\Order;
 use App\Models\Setting;
+use App\Models\TmssIot\Farmer;
 use App\Models\User;
 use Carbon\Carbon;
 use SebastianBergmann\CodeCoverage\Report\Html\Dashboard;
@@ -43,6 +44,7 @@ class SupportController extends Controller
     {
         $role_id = auth()->user()->role_id;
         $user_id = auth()->user()->id;
+        $fissureId = session('feature_id');
 
         $data['user'] = User::where('id', $user_id)->first();
         $data['configs'] = configs(['logo', 'app_name', 'app_logo', 'notify_per_minuit', 'salesman_role']);
@@ -64,6 +66,10 @@ class SupportController extends Controller
 
         $data['menus'] = Module::where('parent_id', 0)->where('is_visible', 1)
             ->whereIn('id', $permittedModules)
+            ->where(function ($query) use ($fissureId) {
+                $query->where('feature_id', $fissureId)
+                    ->orWhere('feature_id', 0);
+            })
             ->with(['submenus' => function ($query) use ($permittedModules) {
                 $query->with('submenus')->where('is_visible', 1);
                 $query->whereIn('id', $permittedModules);
@@ -188,6 +194,10 @@ class SupportController extends Controller
             $data['warehouse_device'] = DB::table('devices')->where('device_category', 1)->get();
         }
 
+        if (isset($input['farmers']) || in_array('farmers', $input)) {
+            $key = isset($input['farmers']['key']) ? isset($input['farmers']['key']) : 'farmers';
+            $data[$key] = Farmer::where('status', 1)->get();
+        }
 
         if (isset($input['products']) || in_array('products', $input)) {
             $key = isset($input['products']['key']) ? $input['products']['key'] : 'products';

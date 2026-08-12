@@ -19,6 +19,7 @@ Route::get('/load.json', [\App\Http\Controllers\SupportController::class, 'loadJ
 
 
 Route::post('/device/save_log', [DeviceController::class, 'iotData']);
+Route::post('/farmer/save_log', [DeviceController::class, 'farmerReceiverData']);
 
 Route::get('/fartilizer', [FartilizarController::class, 'fartilizerCard']);
 
@@ -38,6 +39,10 @@ Route::middleware([\App\Http\Middleware\AuthMiddleware::class, \App\Http\Middlew
 
 
     Route::prefix('api')->group(function () {
+
+        Route::get('/features', [\App\Http\Controllers\Backend\AuthController::class, 'feature']);
+        Route::post('/select-feature', [\App\Http\Controllers\Backend\AuthController::class,  'selectFeature']);
+
         Route::post('file_upload', [\App\Http\Controllers\FileController::class, 'fileUpload']);
         Route::post('general', [\App\Http\Controllers\SupportController::class, 'getGeneralData']);
         Route::post('configurations', [\App\Http\Controllers\SupportController::class, 'appConfigurations']);
@@ -79,6 +84,16 @@ Route::middleware([\App\Http\Middleware\AuthMiddleware::class, \App\Http\Middlew
         Route::get('/storageData', [DashboardController::class, 'storageData']);
 
         Route::get('/device-status/{device_id}', [DeviceController::class, 'checkDeviceConnection']);
+
+        Route::get('/farmer/devices', [\App\Http\Controllers\TmssIot\DataReceiverController::class, 'devices']);
+        Route::post('/farmer/fetch-soil', [DeviceController::class, 'farmerReceiverData']);
+        Route::post(
+            '/farmer/disable-device',
+            [\App\Http\Controllers\TmssIot\DataReceiverController::class, 'disableFarmerDevice']
+        );
+        Route::resource('farmer', \App\Http\Controllers\TmssIot\FarmerController::class);
+        Route::resource('data_receiver', \App\Http\Controllers\TmssIot\DataReceiverController::class);
+
 
         Route::resource('settings', \App\Http\Controllers\SettingController::class);
         Route::resource('profile', \App\Http\Controllers\Backend\AuthController::class);

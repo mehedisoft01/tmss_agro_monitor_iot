@@ -13,6 +13,7 @@ class VerifyCsrfToken extends Middleware
      */
     protected $except = [
         'device/save_log',
+        'farmer/save_log',
         'device/*',  // Add wildcard to be safe
         '*',         // TEMPORARY: This excludes ALL routes (for testing only)
     ];

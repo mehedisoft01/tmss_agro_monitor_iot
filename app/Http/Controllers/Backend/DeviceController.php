@@ -10,6 +10,9 @@ use App\Models\DeviceStatusOrginal;
 use App\Models\DeviceStatusWarehouse;
 use App\Models\DeviceThreshold;
 use App\Models\SoilDevice;
+use App\Models\TmssIot\Farmer;
+use App\Models\TmssIot\FarmerDevice;
+use App\Models\TmssIot\SoilReading;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
@@ -358,6 +361,100 @@ class DeviceController extends Controller
                 'status' => false,
                 'message' => 'Device not reachable: ' . $e->getMessage()
             ]);
+        }
+    }
+
+    public function farmerReceiverData(Request $request)
+    {
+        try {
+
+            $data = json_decode($request->getContent(), true);
+
+            if (!$data) {
+                return response()->json(['status' => 'error', 'message' => 'Invalid JSON'], 400);
+            }
+            if (
+                isset($data['farmer_id']) &&
+                isset($data['device_id'])
+            ) {
+                $farmerId = $data['farmer_id'];
+                $deviceId = $data['device_id'];
+                if (!$farmerId) {
+                    return response()->json(['status' => 'error', 'message' => 'Farmer ID is required'], 400);
+                }
+                if (!$deviceId) {
+                    return response()->json(['status' => 'error', 'message' => 'Device ID is required'], 400);
+                }
+                $device = FarmerDevice::where('device_id', $deviceId)->first();
+                if (!$device) {
+                    $device = new FarmerDevice();
+                    $device->device_id = $deviceId;
+                    $device->farmer_id = $farmerId;
+                    $device->status = 1;
+                    $device->save();
+                } else {
+                    $device->farmer_id = $farmerId;
+                    $device->status = 1;
+                    $device->save();
+                }
+                return response()->json(['success' => true, 'status' => 'success', 'message' => 'Farmer assigned to device successfully',
+                    'data' => [
+                        'farmer_device_id' => $device->id,
+                        'farmer_id' => $device->farmer_id,
+                        'device_id' => $device->device_id,
+                        'status' => $device->status,
+                    ]
+                ]);
+            }
+            $deviceId = $data['id'] ?? null;
+            if (!$deviceId) {
+                return response()->json(['status' => 'error', 'message' => 'Invalid JSON'], 400);
+            }
+            $device = FarmerDevice::where('device_id', $deviceId)->first();
+            if (!$device) {
+                $device = new FarmerDevice();
+                $device->device_id = $deviceId;
+                $device->farmer_id = null;
+                $device->status = 0;
+                $device->save();
+            }
+            $readingId = DB::table('soil_readigs')->insertGetId([
+                'site_id' => $device->id,
+                'farmer_id' => $device->farmer_id,
+                'reading_time' => $data['time'] ?? now(),
+                'temperature' => $data['temperature'] ?? 0,
+                'humidity' => $data['humidity'] ?? 0,
+                'conductivity' => $data['EC'] ?? 0,
+                'ph' => $data['PH'] ?? 0,
+                'n' => $data['N'] ?? 0,
+                'p' => $data['P'] ?? 0,
+                'k' => $data['K'] ?? 0,
+                'fertility' => $data['battery'] ?? 0,
+                'created_at' => now(),
+                'updated_at' => now(),
+
+            ]);
+            return response()->json(['success' => true, 'status' => 'success', 'message' => 'Farmer device data stored successfully',
+                'data' => [
+                    'reading_id' => $readingId,
+                    'site_id' => $device->id,
+                    'farmer_id' => $device->farmer_id,
+                    'device_id' => $device->device_id,
+                    'temperature' => $data['temperature'] ?? 0,
+                    'humidity' => $data['humidity'] ?? 0,
+                    'conductivity' => $data['EC'] ?? 0,
+                    'ph' => $data['PH'] ?? 0,
+                    'n' => $data['N'] ?? 0,
+                    'p' => $data['P'] ?? 0,
+                    'k' => $data['K'] ?? 0,
+                    'fertility' => $data['battery'] ?? 0,
+                    'reading_time' => $data['time'] ?? now(),
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+
+            return response()->json(['success' => false, 'status' => 'error', 'message' => $e->getMessage()], 500);
         }
     }
 }

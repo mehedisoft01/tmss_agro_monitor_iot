@@ -66,8 +66,54 @@
             .catch(err => console.error(err));
     };
 
+    const features = ref([]);
+    const offcanvasInstance = ref(null);
+
+    const loadFeatures = async () => {
+        try {
+            const res = await axios.get('/api/features');
+            if (res.data && typeof res.data === 'object' && !Array.isArray(res.data)) {
+                features.value = Object.values(res.data);
+            } else {
+                features.value = res.data || [];
+            }
+            console.log("Loaded Features:", features.value);
+        } catch (err) {
+            console.error('Features লোড করতে সমস্যা হয়েছে:', err);
+        }
+    };
+    const openModal = () => {
+        const el = document.getElementById('featureModal');
+        if (!offcanvasInstance.value && window.bootstrap) {
+            offcanvasInstance.value = new window.bootstrap.Offcanvas(el, {
+                backdrop: true,
+                keyboard: true,
+                scroll: false
+            });
+        }
+        if (offcanvasInstance.value) {
+            offcanvasInstance.value.show();
+        }
+    };
+    const formatTitle = (title) => {
+        return (title || '').replace(/_/g, ' ');
+    };
+
+    const selectFeature = async (id) => {
+        try {
+            await axios.post('/api/select-feature', { feature_id: id });
+            if (offcanvasInstance.value) {
+                offcanvasInstance.value.hide();
+            }
+            window.location.href = '/admin/dashboard';
+        } catch (err) {
+            console.error(err);
+        }
+    };
     onMounted(() => {
         fetchUnreadCount();
+        loadFeatures();
+
         pollingInterval.value = setInterval(fetchUnreadCount, 5000);
     });
 
@@ -116,6 +162,12 @@ const toggleSidebar = () => {
                         <strong class="uppercase">{{_l(route.name)}}</strong>
                     </div>
                 </div>
+                <div class="d-flex align-items-center">
+                    <a class="btn" @click="openModal" style="border: 1px solid #6c757d !important;">
+                        Panel
+                    </a>
+                </div>
+
                 <div class="top-menu ms-auto">
                     <ul class="navbar-nav align-items-center gap-1">
                         <li class="nav-item mobile-search-icon d-flex d-lg-none" data-bs-toggle="modal" data-bs-target="#SearchModal">
@@ -213,10 +265,75 @@ const toggleSidebar = () => {
                 </div>
             </nav>
         </div>
+        <div class="offcanvas offcanvas-end custom-offcanvas" tabindex="-1" id="featureModal">
+            <div class="offcanvas-header custom-header">
+                <div>
+                    <h5 class="offcanvas-title mb-0">Select Your Software</h5>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+            </div>
+            <hr class="m-0">
+            <div class="offcanvas-body">
+                <div class="row g-3">
+                    <div class="col-6" v-for="feature in features" :key="feature.id">
+                        <a @click="selectFeature(feature.id)" class="text-decoration-none pointer">
+                            <div class="feature-card h-100 d-flex flex-column align-items-center justify-content-center">
+
+                                <h6 class="mt-2 mb-0 text-center  text-dark">
+                                    {{ formatTitle(feature.title) }} Management System
+                                </h6>
+
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
     </header>
 </template>
 
 
 <style scoped>
-
+    .custom-offcanvas {
+        width: 440px;
+        max-width: 90%;
+        top: 5vh;
+        height: auto !important;
+        max-height: 60vh;
+        border-radius: 18px 0 0 18px;
+        border: none;
+        box-shadow: -10px 0 35px rgba(0,0,0,0.18);
+        overflow: hidden;
+    }
+    .custom-header {
+        padding: 18px 20px;
+        background: linear-gradient(135deg, #0d6efd, #4f9bff);
+        color: #fff;
+    }
+    .custom-header .btn-close {
+        filter: invert(1);
+        opacity: 0.9;
+    }
+    .offcanvas-body {
+        padding: 18px;
+        background: #f8f9fb;
+    }
+    .feature-card {
+        background: #fff;
+        border-radius: 14px;
+        padding: 18px 12px;
+        text-align: center;
+        transition: all 0.25s ease;
+        border: 1px solid #eef0f3;
+        cursor: pointer;
+    }
+    .feature-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+        border-color: #dbe7ff;
+    }
+    .custom-offcanvas .offcanvas-body {
+        overflow-y: auto;
+        max-height: calc(85vh - 70px);
+    }
 </style>

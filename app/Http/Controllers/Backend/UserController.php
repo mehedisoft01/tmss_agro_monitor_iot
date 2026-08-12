@@ -23,49 +23,55 @@ class UserController extends Controller
 
     public function index()
     {
-        if (!can('users.index')) {
-            return $this->notPermitted();
-        }
-        $perPage = request()->input('per_page', 10);
+        $featureId = auth()->user()->last_feature_id;
 
-        $data = DB::table('users as u')
-            ->leftJoin('roles as r', 'u.role_id', '=', 'r.id')
-            ->selectRaw("u.*, '' as password,r.name as role_name")
-            ->paginate($perPage);
-
-//        ddA($data);
+        $data = User::with('fissureNames')
+            ->whereHas('fissureNames', function ($q) use ($featureId) {
+                $q->where('feature_id', $featureId);
+            })
+            ->paginate(input('perPage'));
 
         return returnData(2000, $data);
     }
-
 
     public function create()
     {
         //
     }
-
     public function store(Request $request)
     {
-        if (!can('users.store')) {
-            return $this->notPermitted();
-        }
-        try{
-            $data = $request->all();
-            $data['is_superadmin'] = isset($data['is_superadmin']) && $data['is_superadmin'] ? 1 : 0;
+        DB::beginTransaction();
 
-            if (isset($data['password'])) {
-                $data['password'] = Hash::make($data['password']);
+        try {
+            $loggedInUser = auth()->user();
+            $featureId = $loggedInUser->last_feature_id;
+            $user = new User();
+            $user->name = $request->name;
+            $user->email = $request->email;
+            $user->username = $request->username;
+            $user->role_id = $request->role_id;
+            if ($request->filled('password')) {
+                $user->password = Hash::make($request->password);
             }
-            $this->model->fill($data);
-            $this->model->save();
+            $user->last_feature_id = $featureId;
+            $user->save();
 
-            return returnData(2000, null, 'Successfully Inserted');
-        }catch (\Exception $exception){
-            return returnData(5000, $exception->getMessage(), 'Whoops, Something Went Wrong..!!');
+            if ($featureId) {
+
+                DB::table('user_features')->insert([
+                    'user_id' => $user->id,
+                    'feature_id' => $featureId,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+            DB::commit();
+            return returnData(2000, null, 'User created successfully');
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return returnData(5000, $e->getMessage());
         }
-
     }
-
     public function show($id)
     {
         $perPage = request()->input('perPage');
@@ -83,23 +89,42 @@ class UserController extends Controller
 
     public function update(Request $request, $id)
     {
-        if (!can('users.update')) {
-            return $this->notPermitted();
-        }
-        $existingData = $this->model->find($id);
-        if (!$existingData) {
-            return returnData(5000, null, 'Data Not Found');
-        }
-        $data = $request->all();
-        if (isset($data['password'])) {
-            $data['password'] = Hash::make($data['password']);
-        }
-        $existingData->fill($data);
-        $existingData->save();
+        DB::beginTransaction();
+        try {
 
-        return returnData(2000, null, 'Successfully Updated');
+            $loggedInUser = auth()->user();
+
+            $featureId = $loggedInUser->last_feature_id;
+
+            $user = User::findOrFail($id);
+            $user->name = $request->name;
+            $user->email = $request->email;
+            $user->username = $request->username;
+            $user->role_id = $request->role_id;
+            if ($request->filled('password')) {
+                $user->password = Hash::make($request->password);
+            }
+            $user->last_feature_id = $featureId;
+            $user->save();
+            DB::table('user_features')->where('user_id', $user->id)->delete();
+            if ($featureId) {
+
+                DB::table('user_features')->insert([
+                    'user_id' => $user->id,
+                    'feature_id' => $featureId,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+
+            DB::commit();
+            return returnData(2000, null, 'User updated successfully');
+
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return returnData(5000, $e->getMessage());
+        }
     }
-
     public function destroy($id)
     {
         if (!can('users.destroy')) {

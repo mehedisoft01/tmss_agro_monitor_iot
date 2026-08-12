@@ -3,6 +3,7 @@
     const props = defineProps({
         formObject: {type: Object, default: () => ({})},
         defaultObject: {type: Object, default: () => ({})},
+        defaultSearchButton: {type: Boolean, default: true},
         defaultAddButton: {type: Boolean, default: true},
         defaultFilter: {type: Boolean, default: true},
     });
@@ -25,7 +26,7 @@
                     </div>
                     <slot></slot>
                     <slot name="filter"></slot>
-                    <div class="col-md-2">
+                    <div class="col-md-2" v-if="defaultSearchButton">
                         <button v-if="httpRequest" type="button" class="btn btn-light radius-30">
                             <i class='bx bx-loader bx-spin text-white'></i>
                             <span class="text-white text-uppercase">{{_l('loading')}}..</span>
