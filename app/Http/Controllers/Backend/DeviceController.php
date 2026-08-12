@@ -302,56 +302,20 @@ class DeviceController extends Controller
         ]);
     }
 
-//    public function iotData(Request $request)
-//    {
-//        $data = json_decode($request->getContent(), true);
-//
-//        if (!$data) {
-//            return response()->json(['status' => 'error', 'message' => 'Invalid JSON'], 400);
-//        }
-//
-//        $deviceId =  $data['id'] ?? null;
-//        if (!$deviceId) {
-//            return response()->json(['status' => 'error', 'message' => 'Invalid JSON'], 400);
-//        }
-//
-//
-//        $device = SoilDevice::where('device_id', $deviceId)->first();
-//        if (!$device) {
-//            $device = new SoilDevice();
-//            $device->device_id = $deviceId;
-//            $device->save();
-//        }
-//
-//        // Insert into iot_data table
-//        DB::table('site_readings')->insert([
-//            'site_id'        => $device->id,               // device_id
-//            'reading_time'   => $data['time'] ?? now(),           // time
-//            'temperature'    => $data['temperature'] ?? 0,
-//            'humidity'       => $data['humidity'] ?? 0,
-//            'conductivity'   => $data['EC'] ?? 0,                 // EC
-//            'ph'             => $data['PH'] ?? 0,
-//            'n'              => $data['N'] ?? 0,
-//            'p'              => $data['P'] ?? 0,
-//            'k'              => $data['K'] ?? 0,
-//            'fertility'      => $data['battery'] ?? 0,            // map battery to fertility
-//            'created_at'     => now() ,
-//        ]);
-//
-//        return response()->json(['status' => 'success']);
-//    }
-
     public function iotData(Request $request)
     {
         $data = json_decode($request->getContent(), true);
+
         if (!$data) {
             return response()->json(['status' => 'error', 'message' => 'Invalid JSON'], 400);
         }
-        $deviceId = $data['id'] ?? null;
 
+        $deviceId =  $data['id'] ?? null;
         if (!$deviceId) {
             return response()->json(['status' => 'error', 'message' => 'Invalid JSON'], 400);
         }
+
+
         $device = SoilDevice::where('device_id', $deviceId)->first();
         if (!$device) {
             $device = new SoilDevice();
@@ -359,27 +323,19 @@ class DeviceController extends Controller
             $device->save();
         }
 
-        // Same site_id + same reading_time check
-        $readingTime = $data['time'] ?? now();
-        $exists = DB::table('site_readings')
-            ->where('site_id', $device->id)
-            ->where('reading_time', $readingTime)
-            ->exists();
-        if ($exists) {
-            return response()->json(['status' => 'success', 'message' => 'Duplicate data ignored']);
-        }
+        // Insert into iot_data table
         DB::table('site_readings')->insert([
-            'site_id'        => $device->id,
-            'reading_time'   => $readingTime,
+            'site_id'        => $device->id,               // device_id
+            'reading_time'   => $data['time'] ?? now(),           // time
             'temperature'    => $data['temperature'] ?? 0,
             'humidity'       => $data['humidity'] ?? 0,
-            'conductivity'   => $data['EC'] ?? 0,
+            'conductivity'   => $data['EC'] ?? 0,                 // EC
             'ph'             => $data['PH'] ?? 0,
             'n'              => $data['N'] ?? 0,
             'p'              => $data['P'] ?? 0,
             'k'              => $data['K'] ?? 0,
-            'fertility'      => $data['battery'] ?? 0,
-            'created_at'     => now(),
+            'fertility'      => $data['battery'] ?? 0,            // map battery to fertility
+            'created_at'     => now() ,
         ]);
 
         return response()->json(['status' => 'success']);
