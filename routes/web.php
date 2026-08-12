@@ -71,6 +71,7 @@ Route::middleware([\App\Http\Middleware\AuthMiddleware::class, \App\Http\Middlew
             ->name('soil_reports.excel');
 
         Route::get('/soil_reports', [\App\Http\Controllers\ReportController::class, 'soilReport']);
+
         Route::resource('/site_reading_list', \App\Http\Controllers\SiteReadingController::class);
 
         Route::get('/dashboard', [DashboardController::class, 'dashboardData']);
@@ -82,6 +83,10 @@ Route::middleware([\App\Http\Middleware\AuthMiddleware::class, \App\Http\Middlew
 
         Route::get('/device-status/{device_id}', [DeviceController::class, 'checkDeviceConnection']);
 
+        Route::get('/soil_data_reports/excel', [\App\Http\Controllers\TmssIot\SoilDataController::class, 'soilDataReportExportExcel'])
+            ->name('soil_data.excel');
+
+        Route::get('/soil_data', [\App\Http\Controllers\TmssIot\SoilDataController::class, 'soilData']);
         Route::get('/farmer/devices', [\App\Http\Controllers\TmssIot\DataReceiverController::class, 'devices']);
         Route::post('/farmer/fetch-soil', [DeviceController::class, 'farmerReceiverData']);
         Route::post(

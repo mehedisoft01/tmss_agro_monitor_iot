@@ -186,5 +186,12 @@
     "soil_parameters_-_last_24_hours": "Soil Parameters - Last 24 Hours",
     "soil_moisture(%)": "Soil Moisture(%)",
     "category": "Category",
-    "farmer": "Farmer"
+    "farmer": "Farmer",
+    "data_receiver": "Data Receiver",
+    "phone_number": "Phone Number",
+    "address": "Address",
+    "data_receive_time": "Data Receive Time",
+    "soil_data": "Soil Data",
+    "select_farmer": "Select Farmer",
+    "farmer_name": "Farmer Name"
 }

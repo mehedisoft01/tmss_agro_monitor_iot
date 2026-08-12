@@ -128,6 +128,10 @@ class ModuleSeeder extends Seeder
                     ],
                 ]
             ],
+
+
+
+
             [
                 'name' => 'farmer',
                 'link' => '/farmer',
@@ -152,6 +156,19 @@ class ModuleSeeder extends Seeder
                 'feature_id' => 2,
 
             ],
+            [
+                'name' => 'soil_data',
+                'link' => '/soil_data',
+                'permissions' => array_merge($resourcePermissions, []),
+                "component" => "views/pages/tmssIot/soilData.vue",
+                'icon' => 'bx bx-leaf',
+                'meta' => [
+                    "dataUrl" => "api/soil_data",
+                ],
+                'feature_id' => 2,
+            ],
+
+
             [
                 'name' => 'device_configurations',
                 'link' => '',
