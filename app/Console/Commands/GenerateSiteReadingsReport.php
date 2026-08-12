@@ -16,8 +16,9 @@ class GenerateSiteReadingsReport extends Command
         try {
 
             DB::statement("
-                INSERT INTO site_readings_report 
+                 INSERT INTO site_readings_report 
                 (
+                
                     site_id,
                     reading_time,
                     temperature,
@@ -31,6 +32,8 @@ class GenerateSiteReadingsReport extends Command
                     created_at
                 )
 
+                select l.*
+                from(
                 SELECT 
                     ff.site_idd,
                     ff.reading_time,
@@ -47,7 +50,8 @@ class GenerateSiteReadingsReport extends Command
                 FROM(
                 
                     WITH RECURSIVE time_series AS (
-                        SELECT TIMESTAMP('2026-06-15 00:00:00') AS dt
+                        -- SELECT TIMESTAMP('2026-08-01 00:00:00') AS dt
+                    SELECT TIMESTAMP((select DATE_ADD(DATE(NOW()), interval -1 day))) AS dt
 
                         UNION ALL
 
@@ -92,7 +96,8 @@ class GenerateSiteReadingsReport extends Command
 
                         FROM site_readings a
 
-                        WHERE a.created_at >= '2026-06-15'
+                        -- WHERE a.created_at >= '2026-08-01'
+                        WHERE a.created_at >= (select DATE_ADD(DATE(NOW()), interval -1 day))
                         AND a.temperature > 0
                         AND a.humidity > 0
                         AND a.conductivity > 0
@@ -217,8 +222,10 @@ class GenerateSiteReadingsReport extends Command
 
                                 FROM site_readings a
 
-                                WHERE a.created_at >= '2026-06-15'
-                                AND a.temperature > 0
+                                -- WHERE a.created_at >= '2026-08-01'
+                                WHERE 
+                                -- a.created_at >= (select DATE_ADD(DATE(NOW()), interval -1 day)) AND 
+                                a.temperature > 0
                                 AND a.humidity > 0
                                 AND a.conductivity > 0
                                 AND a.ph > 0
@@ -266,27 +273,32 @@ class GenerateSiteReadingsReport extends Command
 
                 ) ff
 
-                LEFT JOIN site_readings_report bt 
-                    ON ff.site_idd = bt.site_id 
-                    AND ff.reading_time = DATE_FORMAT(
+                WHERE ff.reading_time >= ff.start_date
+                AND (
+                    ff.close_date IS NULL
+                    OR ff.reading_time <= ff.close_date
+                )
+               
+                GROUP BY ff.site_idd, ff.reading_time
+
+                ORDER BY ff.site_idd, ff.reading_time 
+                ) l
+                LEFT JOIN 
+                (
+                select * from site_readings_report where created_at>=(select DATE_ADD(DATE(NOW()), interval -1 day))
+                order by site_id,reading_time,created_at
+                ) bt 
+                    ON l.site_idd = bt.site_id 
+                    AND l.reading_time = bt.created_at
+                    AND l.reading_time = DATE_FORMAT(
                         DATE_SUB(
                             bt.created_at,
                             INTERVAL MINUTE(bt.created_at) % 15 MINUTE
                         ),
                         '%Y-%m-%d %H:%i:00'
                     )
-
-                WHERE bt.id IS NULL
-                AND ff.reading_time >= ff.start_date
-                AND (
-                    ff.close_date IS NULL
-                    OR ff.reading_time <= ff.close_date
-                )
-
-                GROUP BY ff.site_idd, ff.reading_time
-
-                ORDER BY ff.site_idd, ff.reading_time
-            ");
+                    Where bt.id IS NULL"
+            );
 
             $this->info('✅ Report generated successfully');
 
