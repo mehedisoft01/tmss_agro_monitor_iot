@@ -16,7 +16,34 @@ class GenerateSiteReadingsReport extends Command
         try {
 
             DB::statement("
-                 INSERT INTO site_readings_report 
+            
+                update
+                site_readings s
+                inner join (
+                select a.site_id
+                ,DATE_FORMAT(DATE_SUB(a.created_at,INTERVAL MINUTE(a.created_at) % 15 MINUTE),'%Y-%m-%d %H:%i:00') AS bucket_time
+                ,count(*) cnt,min(a.id) as id_min,max(a.id) as id_max
+                ,DATE_FORMAT(DATE_SUB(a.created_at,INTERVAL MINUTE(a.created_at) % 15 MINUTE),'%Y-%m-%d %H:%i:00') AS bucket_time_min1
+                ,DATE_FORMAT(DATE_SUB(a.created_at,INTERVAL MINUTE(a.created_at) % 15 MINUTE),'%Y-%m-%d %H:%i:00') AS bucket_time_max1
+                ,DATE_FORMAT(DATE_SUB(a.created_at,INTERVAL MINUTE(a.created_at) % 15 MINUTE),'%Y-%m-%d %H:%i:00') + INTERVAL -15 MINUTE AS bucket_time_min
+                ,DATE_FORMAT(DATE_SUB(a.created_at,INTERVAL MINUTE(a.created_at) % 15 MINUTE),'%Y-%m-%d %H:%i:00') + INTERVAL 15 MINUTE AS bucket_time_max
+                -- select *
+                from site_readings a
+                -- where created_at>='2026-08-21'
+                where created_at>=TIMESTAMP((select DATE_ADD(DATE(NOW()), interval -1 day))) 
+                -- and site_id=6
+                group by site_id,DATE_FORMAT(DATE_SUB(a.created_at,INTERVAL MINUTE(a.created_at) % 15 MINUTE),'%Y-%m-%d %H:%i:00')
+                having count(*)>1
+                -- order by created_at desc
+                ) b on s.site_id=b.site_id and s.id=b.id_min
+                set s.created_at=b.bucket_time_min
+            ");
+
+            sleep(5);
+
+            DB::statement("
+            
+                INSERT INTO site_readings_report 
                 (
                 
                     site_id,
@@ -34,6 +61,7 @@ class GenerateSiteReadingsReport extends Command
 
                 select l.*
                 from(
+                
                 SELECT 
                     ff.site_idd,
                     ff.reading_time,
@@ -50,8 +78,17 @@ class GenerateSiteReadingsReport extends Command
                 FROM(
                 
                     WITH RECURSIVE time_series AS (
+
                         -- SELECT TIMESTAMP('2026-08-01 00:00:00') AS dt
-                    SELECT TIMESTAMP((select DATE_ADD(DATE(NOW()), interval -1 day))) AS dt
+
+                        SELECT TIMESTAMP(
+                            (
+                                select DATE_ADD(
+                                    DATE(NOW()),
+                                    interval -1 day
+                                )
+                            )
+                        ) AS dt
 
                         UNION ALL
 
@@ -97,7 +134,14 @@ class GenerateSiteReadingsReport extends Command
                         FROM site_readings a
 
                         -- WHERE a.created_at >= '2026-08-01'
-                        WHERE a.created_at >= (select DATE_ADD(DATE(NOW()), interval -1 day))
+
+                        WHERE a.created_at >= (
+                            select DATE_ADD(
+                                DATE(NOW()),
+                                interval -1 day
+                            )
+                        )
+
                         AND a.temperature > 0
                         AND a.humidity > 0
                         AND a.conductivity > 0
@@ -141,31 +185,31 @@ class GenerateSiteReadingsReport extends Command
 
                         CASE 
                             WHEN b.temperature IS NULL THEN
-                                (
-                                    CASE
-                                        WHEN b.site_idd = 2 THEN cc.temperature - 5
-                                        WHEN b.site_idd = 3 THEN cc.temperature - 5
-                                        WHEN b.site_idd = 4 THEN cc.temperature - 9
-                                        WHEN b.site_idd = 5 THEN cc.temperature - 5
-                                        WHEN b.site_idd = 6 THEN cc.temperature - 6
-                                        ELSE cc.temperature
-                                    END
-                                )
+                            (
+                                CASE
+                                    WHEN b.site_idd = 2 THEN cc.temperature - 5
+                                    WHEN b.site_idd = 3 THEN cc.temperature - 5
+                                    WHEN b.site_idd = 4 THEN cc.temperature - 9
+                                    WHEN b.site_idd = 5 THEN cc.temperature - 5
+                                    WHEN b.site_idd = 6 THEN cc.temperature - 6
+                                    ELSE cc.temperature
+                                END
+                            )
                             ELSE b.temperature
                         END AS temperature,
 
                         CASE 
                             WHEN b.humidity IS NULL THEN
-                                (
-                                    CASE
-                                        WHEN b.site_idd = 2 THEN cc.humidity - 15
-                                        WHEN b.site_idd = 3 THEN cc.humidity - 8
-                                        WHEN b.site_idd = 4 THEN cc.humidity - 8
-                                        WHEN b.site_idd = 5 THEN cc.humidity - 16
-                                        WHEN b.site_idd = 6 THEN cc.humidity + 0
-                                        ELSE cc.humidity
-                                    END
-                                )
+                            (
+                                CASE
+                                    WHEN b.site_idd = 2 THEN cc.humidity - 15
+                                    WHEN b.site_idd = 3 THEN cc.humidity - 8
+                                    WHEN b.site_idd = 4 THEN cc.humidity - 8
+                                    WHEN b.site_idd = 5 THEN cc.humidity - 16
+                                    WHEN b.site_idd = 6 THEN cc.humidity + 0
+                                    ELSE cc.humidity
+                                END
+                            )
                             ELSE b.humidity
                         END AS humidity,
 
@@ -223,15 +267,16 @@ class GenerateSiteReadingsReport extends Command
                                 FROM site_readings a
 
                                 -- WHERE a.created_at >= '2026-08-01'
+
                                 WHERE 
-                                -- a.created_at >= (select DATE_ADD(DATE(NOW()), interval -1 day)) AND 
-                                a.temperature > 0
-                                AND a.humidity > 0
-                                AND a.conductivity > 0
-                                AND a.ph > 0
-                                AND a.n > 0
-                                AND a.p > 0
-                                AND a.k > 0
+                                    -- a.created_at >= (select DATE_ADD(DATE(NOW()), interval -1 day)) AND 
+                                    a.temperature > 0
+                                    AND a.humidity > 0
+                                    AND a.conductivity > 0
+                                    AND a.ph > 0
+                                    AND a.n > 0
+                                    AND a.p > 0
+                                    AND a.k > 0
 
                                 GROUP BY a.site_id
 
@@ -274,6 +319,7 @@ class GenerateSiteReadingsReport extends Command
                 ) ff
 
                 WHERE ff.reading_time >= ff.start_date
+
                 AND (
                     ff.close_date IS NULL
                     OR ff.reading_time <= ff.close_date
@@ -282,14 +328,26 @@ class GenerateSiteReadingsReport extends Command
                 GROUP BY ff.site_idd, ff.reading_time
 
                 ORDER BY ff.site_idd, ff.reading_time 
+
                 ) l
+
                 LEFT JOIN 
                 (
-                select * from site_readings_report where created_at>=(select DATE_ADD(DATE(NOW()), interval -1 day))
-                order by site_id,reading_time,created_at
+                    select *
+                    from site_readings_report
+                    where created_at >= (
+                        select DATE_ADD(
+                            DATE(NOW()),
+                            interval -1 day
+                        )
+                    )
+                    order by site_id,reading_time,created_at
+
                 ) bt 
+
                     ON l.site_idd = bt.site_id 
                     AND l.reading_time = bt.created_at
+
                     AND l.reading_time = DATE_FORMAT(
                         DATE_SUB(
                             bt.created_at,
@@ -297,8 +355,9 @@ class GenerateSiteReadingsReport extends Command
                         ),
                         '%Y-%m-%d %H:%i:00'
                     )
-                    Where bt.id IS NULL"
-            );
+
+                WHERE bt.id IS NULL
+            ");
 
             $this->info('✅ Report generated successfully');
 
