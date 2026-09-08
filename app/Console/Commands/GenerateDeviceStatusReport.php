@@ -65,7 +65,11 @@ class GenerateDeviceStatusReport extends Command
                     ),
 
                     device_info AS (
-                        SELECT device_id FROM devices
+                        SELECT device_id 
+                        ,start_date,
+                            close_date
+                        FROM devices
+                        where close_date is null
                     ),
 
                     data_status AS (
