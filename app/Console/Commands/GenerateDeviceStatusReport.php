@@ -70,6 +70,7 @@ class GenerateDeviceStatusReport extends Command
                             close_date
                         FROM devices
                         where close_date is null
+                        OR close_date = '0000-00-00 00:00:00'
                     ),
 
                     data_status AS (
